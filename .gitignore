@@ -1,0 +1,4 @@
+miscellaneous/
+**/.ipynb_checkpoints/**
+**/__pycache__/**
+other/
