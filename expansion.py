@@ -1,12 +1,11 @@
 import pandas as pd
-from ranker import Ranker
 from rdflib.term import URIRef
 from sparql_interface import SPARQLInterface
 from triply_interface import TriplInterface
 
 class NodeExpansion:
 
-    def __init__(self, rdf_type, iteration, type_ranking,
+    def __init__(self, rdf_type, iteration,
                  type_interface='triply'):
         if type_interface == 'triply':
             self.interface = TriplInterface()
@@ -18,8 +17,6 @@ class NodeExpansion:
         self.rdf_type = rdf_type
         self.mapping = {uri: name for (name, uri) in rdf_type}
         self.iter = iteration
-
-        self.ranker = Ranker(type_ranking=type_ranking)
 
     def _get_output_sparql(self, node, predicate):
         output_sparql = self.interface(node=node, 
@@ -51,9 +48,8 @@ class NodeExpansion:
         return info
     
     def _filter_sub_graph(self, type_df, path_df):
-        # TO DO heuristics: check if needs update 
         to_keep = type_df[type_df.object.isin(list(self.mapping.keys()))].subject.values
-        return path_df[path_df.subject.isin(to_keep)], path_df[~path_df.subject.isin(to_keep)]
+        return path_df[path_df.subject.isin(to_keep)]
 
     
     def __call__(self, args):
@@ -70,20 +66,10 @@ class NodeExpansion:
         info = self._get_info_from_type(type_df=type_df_modified, path=new_path)
 
         # Filter subgraph to keep
-        subgraph, pending = self._filter_sub_graph(type_df=type_df, path_df=path_df)
+        subgraph = self._filter_sub_graph(type_df=type_df, path_df=path_df)
 
-        # Rank paths from remaining pending nodes
-        ranked_paths = self.ranker(args=dict(df=pending, path=new_path))
-
-        return ranked_paths, subgraph, pending, info 
-
-        # type_df.to_csv("type_df.csv")
-        # path_df.to_csv("path_df.csv")
-        # info.to_csv("info.csv")
-        # subgraph.to_csv("subgraph.csv")
-        # pending.to_csv("pending.csv")
-
-        
+        return subgraph, path_df, info 
+  
 
 
 if __name__ == '__main__':
@@ -92,7 +78,6 @@ if __name__ == '__main__':
     rdf_type = [("event", URIRef("http://dbpedia.org/ontology/Event")),
                 ("person", URIRef("http://dbpedia.org/ontology/Person"))]
     iteration = 2
-    type_ranking = "entropy_predicate"
 
-    node_expander = NodeExpansion(rdf_type=rdf_type, iteration=iteration, type_ranking=type_ranking)
+    node_expander = NodeExpansion(rdf_type=rdf_type, iteration=iteration)
     node_expander(args={"path": list(), "node": node, "predicate": predicate})

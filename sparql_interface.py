@@ -58,7 +58,8 @@ class SPARQLInterface:
 
 if __name__ == '__main__':
     node = "http://dbpedia.org/resource/Storming_of_the_Bastille"
-    predicate = ["<http://dbpedia.org/ontology/wikiPageRedirects>"]
+    # predicate = ["<http://dbpedia.org/ontology/wikiPageRedirects>"]
+    predicate = list()
     # sparql_endpoint = "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/services/dbpedia/sparql"
 
     interface = SPARQLInterface()
