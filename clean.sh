@@ -4,5 +4,5 @@
 # directory
 
 find . | \
-  grep -E "(__pycache__|\.pyc$)" | \
+  grep -E "(__pycache__|\.pyc$)|.ipynb_checkpoints|htmlcov|.coverage" | \
   xargs rm -rf

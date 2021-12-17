@@ -1,15 +1,20 @@
+"""
+#TO DO: add documentation on this script
+"""
+import urllib.request
 import pandas as pd
 from SPARQLWrapper import SPARQLWrapper, RDFXML
-import urllib.request
-from private import AGENT
+from settings import AGENT
 
 class SPARQLInterface:
-    
+    """
+    #TO DO: add documentation on this script
+    """
     def __init__(self, sparql_endpoint: str = "http://dbpedia.org/sparql",
                  agent: str = AGENT):
         self.sparql = SPARQLWrapper(sparql_endpoint, agent=agent)
         self.query_template = self._set_query_template()
-    
+
     def _set_query_template(self) -> str:
         query = """
         PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -31,18 +36,18 @@ class SPARQLInterface:
         """
 
         return query
-    
+
     def _get_predicate_filter(self, predicate: list[str]) -> str:
         return f"FILTER(?p1 IN ({', '.join(predicate)}))"
-    
-    def _format_template(self, node: str, predicate: list = list()) -> str:
+
+    def _format_template(self, node: str, predicate: list) -> str:
         final_query = self.query_template
         final_query = final_query.replace("[1]", node)
 
         filter_type = "" if not predicate else self._get_predicate_filter(predicate=predicate)
         final_query = final_query.replace("[2]", filter_type)
         return final_query
-    
+
     def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
         query = self._format_template(node=node, predicate=predicate)
         proxy_support = urllib.request.ProxyHandler({})
@@ -57,12 +62,14 @@ class SPARQLInterface:
 
 
 if __name__ == '__main__':
-    node = "http://dbpedia.org/resource/Storming_of_the_Bastille"
+    NODE = "http://dbpedia.org/resource/Storming_of_the_Bastille"
+    NODE =  "http://dbpedia.org/resource/Causes_of_the_French_Revolution"
     # predicate = ["<http://dbpedia.org/ontology/wikiPageRedirects>"]
-    predicate = list()
-    # sparql_endpoint = "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/services/dbpedia/sparql"
+    PREDICATE = list()
+    # sparql_endpoint = \
+    # "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/services/dbpedia/sparql"
 
     interface = SPARQLInterface()
-    df = interface(node=node, predicate=predicate)
+    df = interface(node=NODE, predicate=PREDICATE)
     df.to_csv("sparql.csv")
     print(df)

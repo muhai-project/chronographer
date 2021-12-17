@@ -1,4 +1,8 @@
 miscellaneous/
 **/.ipynb_checkpoints/**
 **/__pycache__/**
+**/htmlcovwe nee/**
+**/.coverage
 other/
+dist/
+build/

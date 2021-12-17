@@ -45,10 +45,12 @@ if __name__ == '__main__':
     # gold_standard = ["a", "b", "c", "e", "f"]
     # type_metrics=['precision', 'recall', 'f1']
 
-    event_gs = [e for e in pd.read_csv("events.csv").linkDBpediaEn.values if type(e) is str]
+    df_gs = pd.read_csv("events.csv") 
+    event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
+    print(len(event_gs))
     type_metrics=['precision', 'recall', 'f1']
 
-    folder = 'iter-20-event-entropy'
+    folder = 'iter-metrics'
 
     for iteration in range(len(listdir(folder))//3):
         events_found = list(set([e for e in pd.read_csv(f"{folder}/{iteration+1}-subgraph.csv").subject.values if type(e) is str]))
