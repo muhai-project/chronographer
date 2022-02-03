@@ -17,12 +17,12 @@ class TestTriplInterface(unittest.TestCase):
         node = "http://dbpedia.org/resource/Category:French_Revolution"
         predicate = ["http://dbpedia.org/ontology/wikiPageWikiLink",
                     "http://dbpedia.org/ontology/wikiPageRedirects"]
-        interface = TriplInterface()
+        interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
         dataframe = interface(node=node, predicate=predicate) \
             [['subject', 'object', 'predicate']] \
                 .sort_values(by=['subject', 'object', 'predicate']) \
                     .reset_index(drop=True)
-        
+
         df_expected = pd.read_csv("./triply_expected.csv") \
             [['subject', 'object', 'predicate']] \
                 .sort_values(by=['subject', 'object', 'predicate']) \

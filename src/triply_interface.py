@@ -13,8 +13,8 @@ class TriplInterface:
     #TO DO: add documentation on this script
     """
 
-    def __init__(self, url: str = TPF_DBPEDIA,
-                 default_pred: list[str] = ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]):
+    def __init__(self, default_pred: list[str],
+                 url: str = TPF_DBPEDIA):
         # Former url: "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/fragments"
         self.url = url
         self.headers = {
@@ -35,23 +35,43 @@ class TriplInterface:
             return [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
 
     def _get_all_results(self, node: str, predicate: list[str]):
-        results = self.run_curl_request(params=dict(object=str(node)),
-                                         filter_pred=predicate,
-                                         filter_keep=False)
+
+        ingoing = self._get_ingoing(node, predicate)
+        outgoing = self._get_outgoing(node, predicate)
+        return ingoing, outgoing, self._get_type(nodes=ingoing+outgoing)
+
+    def _get_ingoing(self, node: str, predicate: list[str]):
+        """ Return all triples (s, p, o) s.t.
+        p not in predicate and o = node """
+        return self.run_curl_request(params=dict(object=str(node)),
+                                     filter_pred=predicate, filter_keep=False)
+
+    def _get_outgoing(self, node: str, predicate: list[str]):
+        """ Return all triples (s, p, o) s.t.
+        p not in predicate and s = node """
+        return self.run_curl_request(params=dict(subject=str(node)),
+                                     filter_pred=predicate, filter_keep=False)
+
+    def _get_type(self, nodes: list[str]):
         temp_res = []
-        for i, (subject, _, _) in enumerate(results):
-            print(f"Processing subject {i+1}/{len(results)}")
+
+        for i, (subject, _, _) in enumerate(nodes):
+            print(f"Processing subject {i+1}/{len(nodes)}")
             temp_res += self.run_curl_request(params=dict(subject=str(subject)),
                                                filter_pred=self.pred,
                                                filter_keep=True)
-        return results + temp_res
+        return temp_res
 
+    @staticmethod
+    def _get_df(list_triples):
+        return pd.DataFrame({"subject": [row[0] for row in list_triples],
+                             "predicate": [row[1] for row in list_triples],
+                             "object": [row[2] for row in list_triples]}).drop_duplicates()
 
     def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
-        results = self._get_all_results(node=node, predicate=predicate)
-        return pd.DataFrame({"subject": [row[0] for row in results],
-                             "predicate": [row[1] for row in results],
-                             "object": [row[2] for row in results]}).drop_duplicates()
+        ingoing, outgoing, types = self._get_all_results(node=node, predicate=predicate)
+        return self._get_df(ingoing), self._get_df(outgoing), self._get_df(types)
+
 
 
 if __name__ == '__main__':
@@ -70,8 +90,7 @@ if __name__ == '__main__':
                     "http://dbpedia.org/property/wikiPageUsesTemplate",
                     "http://www.w3.org/2002/07/owl#sameAs",
                     "http://www.w3.org/ns/prov#wasDerivedFrom"]
-    # PREDICATE = []
 
-    interface = TriplInterface()
-    df = interface(node=NODE, predicate=PREDICATE)
-    df.sort_values(by=['predicate', 'subject']).to_csv("triply.csv")
+    interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
+    ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)
+    print(f"{ingoing_test}\n{outgoing_test}\n{types_test}")

@@ -50,6 +50,7 @@ class Ranker:
         return new_dico
 
     def __call__(self, occurences):
+        # TO ADD: include outgoing in ranking
         if "pred" in self.type:
             if "inverse" in self.type:
                 return self._sort_dict(dico=occurences, reverse=False)

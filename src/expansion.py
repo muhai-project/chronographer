@@ -12,7 +12,8 @@ class NodeExpansion:
     """
 
     def __init__(self, rdf_type: list[tuple], iteration: int,
-                 interface=TriplInterface()):
+                 interface=TriplInterface(
+                     default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])):
 
         self.interface = interface
         self.rdf_type = rdf_type
@@ -48,11 +49,9 @@ class NodeExpansion:
         return self._get_output_triples(node, predicate)
 
     def _get_output_triples(self, node, predicate):
-        output_sparql = self.interface(node=node,
-                                       predicate=predicate)
-        type_df = output_sparql[output_sparql.predicate == self.type_pred]
-        path_df = output_sparql[output_sparql.predicate != self.type_pred]
-        return type_df, path_df
+        ingoing, outgoing, types = self.interface(node=node,
+                                                  predicate=predicate)
+        return ingoing, outgoing, types
 
     # def _get_info_from_type(self, type_df, path):
 
@@ -79,6 +78,7 @@ class NodeExpansion:
         return self._filter_sub_graph(type_df, path_df)
 
     def _filter_sub_graph(self, type_df, path_df):
+        # TO ADD: concat ingoing + outgoing (ingoing filter on subject, outgoing on object)
         to_keep = type_df[type_df.object.isin(list(self.mapping.keys()))].subject.values
         return path_df[path_df.subject.isin(to_keep)], path_df[~path_df.subject.isin(to_keep)]
 
@@ -90,7 +90,7 @@ class NodeExpansion:
         # new_path = args["path"] + [args["node"]]
 
         # Querying sparql
-        type_df, path_df = self._get_output_triples(node=args["node"], predicate=args["predicate"])
+        ingoing, _, types = self._get_output_triples(node=args["node"], predicate=args["predicate"])
         # type_df_modified = pd.merge(type_df[["subject", "object"]],
         #                             path_df[["subject", 'predicate']],
         #                             how="left", on="subject")[["subject", "predicate", "object"]]
@@ -99,7 +99,7 @@ class NodeExpansion:
         # info = self._get_info_from_type(type_df=type_df_modified, path=new_path)
 
         # Filter subgraph to keep
-        subgraph, path_df = self._filter_sub_graph(type_df=type_df, path_df=path_df)
+        subgraph, path_df = self._filter_sub_graph(type_df=types, path_df=ingoing)
 
         return subgraph, path_df
 
@@ -113,4 +113,6 @@ if __name__ == '__main__':
     ITERATION = 2
 
     node_expander = NodeExpansion(rdf_type=RDF_TYPE, iteration=ITERATION)
-    node_expander(args={"path": list(), "node": NODE, "predicate": PREDICATE})
+    subgraph_test, path_df_test = \
+        node_expander(args={"path": [], "node": NODE, "predicate": PREDICATE})
+    print(f"{subgraph_test}\n{path_df_test}")

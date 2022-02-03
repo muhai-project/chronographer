@@ -36,7 +36,7 @@ class Metrics:
             0.5 * (args["false_pos"] + args["false_neg"]))
 
     def __call__(self, found: list, gold_standard: list,
-                 type_metrics: list = ['precision', 'recall', 'f1']):
+                 type_metrics: list):
         if any(metric not in self.metrics_to_calc for metric in type_metrics):
             raise ValueError(f"Current metrics implemented: {list(self.metrics_to_calc.keys())}" \
                 + "\tOne of the metrics in parameter not implemented")

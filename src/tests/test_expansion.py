@@ -22,7 +22,7 @@ class TestNodeExpansion(unittest.TestCase):
     def test_init_rdf_type(self):
         """ Test __init__: checking param `rdf_type`  """
         iteration = 10
-        interface = TriplInterface()
+        interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
 
         # Working
         rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event")),
@@ -42,7 +42,7 @@ class TestNodeExpansion(unittest.TestCase):
     def test_init_iteration(self):
         """ Test __init__: checking param `iteration`  """
         rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-        interface = TriplInterface()
+        interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
 
         # Working
         try:
@@ -62,7 +62,7 @@ class TestNodeExpansion(unittest.TestCase):
         iteration = 10
 
         # Working
-        for interface in [TriplInterface(), SPARQLInterface()]:
+        for interface in [TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]), SPARQLInterface()]:
             try:
                 NodeExpansion(rdf_type=rdf_type, iteration=10, interface=interface)
             except ValueError as error:
@@ -81,7 +81,7 @@ class TestNodeExpansion(unittest.TestCase):
 
         rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
         iteration = 10
-        interface = create_autospec(TriplInterface())
+        interface = create_autospec(TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]))
         interface.return_value = output_interface
 
         expansion = NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
@@ -108,7 +108,7 @@ class TestNodeExpansion(unittest.TestCase):
 
         rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
         iteration = 10
-        interface = create_autospec(TriplInterface())
+        interface = create_autospec(TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]))
         interface.return_value = output_interface
         print(type(interface))
         expansion = NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)

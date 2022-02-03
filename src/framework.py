@@ -65,7 +65,9 @@ class GraphSearchFramework:
 
         if config["type_interface"] not in ["triply", "sparql"]:
             raise ValueError("Type of database interface not implemented")
-        self.interface = TriplInterface() if config["type_interface"] == 'triply' \
+        self.interface = TriplInterface(
+            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]) \
+            if config["type_interface"] == 'triply' \
             else SPARQLInterface()
 
         self.type_interface = config["type_interface"]
@@ -85,6 +87,7 @@ class GraphSearchFramework:
         self.expanded = {}
 
         self.metrics = Metrics()
+        self.type_metrics = config["type_metrics"]
         df_gs = pd.read_csv(config['gold_standard'])
         self.event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
         self.metrics_data = {}
@@ -178,6 +181,7 @@ class GraphSearchFramework:
 
 
     def _merge_outputs(self, output):
+        # TO ADD: include outgoing links+entities
         for subgraph, pending in output:
             # TO DO heuristics: updating ranking
             # after each iteration (with global and not just local)
@@ -188,6 +192,7 @@ class GraphSearchFramework:
             self.occurence = self._update_occurence(dataframe=pending,
                                                     occurence=self.occurence)
 
+        # TO ADD: include outgoing in ranking
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
             self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
@@ -213,7 +218,8 @@ class GraphSearchFramework:
 
     def _update_metrics(self, iteration, found):
         self.metrics_data[iteration] = \
-            self.metrics(found=found, gold_standard=self.event_gs)
+            self.metrics(found=found, gold_standard=self.event_gs,
+                         type_metrics=self.type_metrics)
 
 
     def __call__(self):
@@ -252,7 +258,7 @@ class GraphSearchFramework:
             else:
                 print("According to params, no further nodes to expand," \
                     + f"finishing process at {datetime.now()}\n=====")
-        
+
         self.plotter(info=json.load(open(f"{save_folder}/metrics.json",
                                          "r", encoding="utf-8")),
                      save_folder=save_folder)
