@@ -13,17 +13,19 @@ class TriplInterface:
     #TO DO: add documentation on this script
     """
 
-    def __init__(self, url: str = TPF_DBPEDIA):
+    def __init__(self, url: str = TPF_DBPEDIA,
+                 default_pred: list[str] = ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]):
         # Former url: "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/fragments"
         self.url = url
         self.headers = {
             'Accept': 'application/trig'
         }
         self.format = "trig"
-        self.pred = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+        self.pred = default_pred
 
-    def _run_curl_request(self, params: dict[str, str], filter_pred: list,
+    def run_curl_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
+        """ Returning triples corresponding to query """
         response = requests.get(self.url, headers=self.headers,
                                 params=params, timeout=10)
         graph = Graph().parse(data=response.content, format=self.format)
@@ -33,13 +35,13 @@ class TriplInterface:
             return [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
 
     def _get_all_results(self, node: str, predicate: list[str]):
-        results = self._run_curl_request(params=dict(object=str(node)),
+        results = self.run_curl_request(params=dict(object=str(node)),
                                          filter_pred=predicate,
                                          filter_keep=False)
         temp_res = []
         for i, (subject, _, _) in enumerate(results):
             print(f"Processing subject {i+1}/{len(results)}")
-            temp_res += self._run_curl_request(params=dict(subject=str(subject)),
+            temp_res += self.run_curl_request(params=dict(subject=str(subject)),
                                                filter_pred=self.pred,
                                                filter_keep=True)
         return results + temp_res
@@ -53,9 +55,21 @@ class TriplInterface:
 
 
 if __name__ == '__main__':
-    NODE = "http://dbpedia.org/resource/Category:French_Revolution"
+    NODE = "http://dbpedia.org/resource/French_Revolution"
     PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
-                 "http://dbpedia.org/ontology/wikiPageRedirects"]
+                    "http://dbpedia.org/ontology/wikiPageRedirects",
+                    "http://dbpedia.org/ontology/wikiPageDisambiguates",
+                    "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+                    "http://xmlns.com/foaf/0.1/depiction",
+                    "http://xmlns.com/foaf/0.1/isPrimaryTopicOf",
+                    "http://dbpedia.org/ontology/thumbnail",
+                    "http://dbpedia.org/ontology/wikiPageExternalLink",
+                    "http://dbpedia.org/ontology/wikiPageID",
+                    "http://dbpedia.org/ontology/wikiPageLength",
+                    "http://dbpedia.org/ontology/wikiPageRevisionID",
+                    "http://dbpedia.org/property/wikiPageUsesTemplate",
+                    "http://www.w3.org/2002/07/owl#sameAs",
+                    "http://www.w3.org/ns/prov#wasDerivedFrom"]
     # PREDICATE = []
 
     interface = TriplInterface()

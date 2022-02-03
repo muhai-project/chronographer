@@ -1,6 +1,8 @@
 """
 #TO DO: add documentation on this script
 """
+import os
+import json
 from time import sleep
 import multiprocessing as mp
 from datetime import datetime
@@ -8,7 +10,10 @@ from collections import defaultdict
 
 import pandas as pd
 from rdflib.term import URIRef
+from settings import FOLDER_PATH
 from src.ranker import Ranker
+from src.metrics import Metrics
+from src.plotter import Plotter
 from src.expansion import NodeExpansion
 from src.triply_interface import TriplInterface
 from src.sparql_interface import SPARQLInterface
@@ -21,7 +26,7 @@ CONFIG = {
     "predicate_filter": ["http://dbpedia.org/ontology/wikiPageWikiLink",
                          "http://dbpedia.org/ontology/wikiPageRedirects"],
     "start": "http://dbpedia.org/resource/Category:French_Revolution",
-    "iterations": 10,
+    "iterations": 2,
     "type_ranking": "entropy_pred_object_freq",
     "type_interface": "triply",
 }
@@ -34,8 +39,10 @@ class GraphSearchFramework:
         """
         Type of ranking strategies implemented:
             - pred_freq:
+            - entropy_pred_freq:
             - inverse_pred_freq:
             - pred_object_freq:
+            - entropy_pred_object_freq:
             - inverse_pred_object_freq:
             - not implemented: subject_freq:
             - not implemented: inverse_subject_freq:
@@ -69,14 +76,27 @@ class GraphSearchFramework:
             [x for elt in self.rdf_type for x in [f"{elt[0]}"] ])
 
         self.nb_cpu = mp.cpu_count()
-        self.paths = list()
+        self.paths = []
 
         self.ranker = Ranker(type_ranking=self.type_ranking)
-        self.nodes_expanded = list()
+        self.nodes_expanded = []
         self.occurence = defaultdict(int)
         self.to_expand = None
+        self.expanded = {}
 
-    def _check_config(self, config: dict):
+        self.metrics = Metrics()
+        df_gs = pd.read_csv(config['gold_standard'])
+        self.event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
+        self.metrics_data = {}
+
+        self.plotter = Plotter()
+
+        self.folder_name_suffix = \
+            f"iter-{self.iterations}-{self.type_interface}-{self.type_ranking}"
+        self.config = config
+
+    @staticmethod
+    def _check_config(config: dict):
         # TO DO init: check keys + correct format for values
         # TO DO init: more readable format for prefixes?
         return config
@@ -169,35 +189,87 @@ class GraphSearchFramework:
                                                     occurence=self.occurence)
 
         self.to_expand = self.ranker(occurences=self.occurence)
-        self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() if k != self.to_expand})
-        self.expanded.append(self.to_expand)
-        self.pending_nodes = self.pending_nodes[\
-            ~self.pending_nodes.subject.isin(self.nodes_expanded)]
-        
+        if self.to_expand:
+            self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
+                if k != self.to_expand})
+            self.pending_nodes = self.pending_nodes[\
+                ~self.pending_nodes.subject.isin(self.nodes_expanded)]
+
+    def _add_save_info(self):
+        date_begin = datetime.now()
+        date = '-'.join([str(date_begin)[:10], str(date_begin)[11:19]])
+
+        folder_path = os.path.join(FOLDER_PATH, "data")
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        save_folder = os.path.join(folder_path,
+                                 f"{date}-{self.folder_name_suffix}")
+        if os.path.exists(save_folder):
+            raise ValueError("Folder to save data already exists, content will be overwritten")
+        else:
+            os.makedirs(save_folder)
+        return save_folder
+
+    def _update_metrics(self, iteration, found):
+        self.metrics_data[iteration] = \
+            self.metrics(found=found, gold_standard=self.event_gs)
 
 
     def __call__(self):
-        self.expanded = []
+        save_folder = self._add_save_info()
+        json.dump(self.config, open(f"{save_folder}/config.json", "w", encoding='utf-8'),
+                      indent=4)
+        self.expanded = {}
+        self.metrics_data = {}
+
         for i in range(1, self.iterations+1):
             print(f"Iteration {i} started at {datetime.now()}")
             output = self._run_one_iteration(iteration=i)
             self._merge_outputs(output=output)
 
-            self.subgraph.to_csv(f"{i}-subgraph.csv")
-            self.pending_nodes.to_csv(f"{i}-pending_nodes.csv")
-            import json
-            json.dump(self.occurence, open(f"{i}-occurences.csv", "w"), indent=4)
-            # self.info.to_csv(f"{i}-info.csv")
+            if self.to_expand:
+                self.expanded[i+1] = self.to_expand
 
-            print(f"Iteration {i} finished at {datetime.now()}\n=====")
+                self.subgraph.to_csv(f"{save_folder}/{i}-subgraph.csv")
+                events_found = list(set(\
+                [str(e) for e in self.subgraph.subject.values]))
+                self._update_metrics(iteration=i, found=events_found)
+                self.pending_nodes.to_csv(f"{save_folder}/{i}-pending_nodes.csv")
+                json.dump(self.occurence, open(f"{save_folder}/{i}-occurences.json",
+                                                "w", encoding='utf-8'),
+                        indent=4)
+                # self.info.to_csv(f"{i}-info.csv")
+                json.dump(self.expanded, open(\
+                    f"{save_folder}/expanded.json", "w", encoding='utf-8'),
+                        indent=4)
+                json.dump(self.metrics_data, open(\
+                    f"{save_folder}/metrics.json", "w", encoding='utf-8'),
+                        indent=4)
+
+                print(f"Iteration {i} finished at {datetime.now()}\n=====")
+
+            else:
+                print("According to params, no further nodes to expand," \
+                    + f"finishing process at {datetime.now()}\n=====")
         
-        for elt in self.expanded:
-            print(elt)
-
+        self.plotter(info=json.load(open(f"{save_folder}/metrics.json",
+                                         "r", encoding="utf-8")),
+                     save_folder=save_folder)
 
 
 if __name__ == '__main__':
-    framework = GraphSearchFramework(config=CONFIG)
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-j", "--json", required=True,
+                    help="Path to json file containing configuration file")
+    json_path = vars(ap.parse_args())["json"]
+
+    config_loaded = json.load(open(json_path, "r", encoding="utf-8"))
+    config_loaded["rdf_type"] = [(name, URIRef(link)) \
+        for name, link in config_loaded["rdf_type"].items()]
+
+    framework = GraphSearchFramework(config=config_loaded)
     start = datetime.now()
     print(f"Process started at {start}")
     framework()

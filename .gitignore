@@ -6,3 +6,9 @@ miscellaneous/
 other/
 dist/
 build/
+data/
+configs/
+*.egg-info
+.vscode/
+iter-*/
+settings/private.py
