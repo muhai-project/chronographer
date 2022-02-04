@@ -49,9 +49,7 @@ class NodeExpansion:
         return self._get_output_triples(node, predicate)
 
     def _get_output_triples(self, node, predicate):
-        ingoing, outgoing, types = self.interface(node=node,
-                                                  predicate=predicate)
-        return ingoing, outgoing, types
+        return self.interface(node=node, predicate=predicate)
 
     # def _get_info_from_type(self, type_df, path):
 
@@ -73,14 +71,17 @@ class NodeExpansion:
 
     #     return info
 
-    def filter_sub_graph(self, type_df, path_df):
+    def filter_sub_graph(self, type_df, triple_ingoing, triple_outgoing):
         """ Direct call to _filter_sub_graph """
-        return self._filter_sub_graph(type_df, path_df)
+        return self._filter_sub_graph(type_df, triple_ingoing, triple_outgoing)
 
-    def _filter_sub_graph(self, type_df, path_df):
-        # TO ADD: concat ingoing + outgoing (ingoing filter on subject, outgoing on object)
+    def _filter_sub_graph(self, type_df, triple_ingoing, triple_outgoing):
         to_keep = type_df[type_df.object.isin(list(self.mapping.keys()))].subject.values
-        return path_df[path_df.subject.isin(to_keep)], path_df[~path_df.subject.isin(to_keep)]
+        return triple_ingoing[triple_ingoing.subject.isin(to_keep)], \
+            triple_ingoing[~triple_ingoing.subject.isin(to_keep)], \
+            triple_outgoing[triple_outgoing.object.isin(to_keep)], \
+            triple_outgoing[~triple_outgoing.object.isin(to_keep)]
+
 
 
     def __call__(self, args):
@@ -90,7 +91,8 @@ class NodeExpansion:
         # new_path = args["path"] + [args["node"]]
 
         # Querying sparql
-        ingoing, _, types = self._get_output_triples(node=args["node"], predicate=args["predicate"])
+        ingoing, outgoing, types = self._get_output_triples(
+            node=args["node"], predicate=args["predicate"])
         # type_df_modified = pd.merge(type_df[["subject", "object"]],
         #                             path_df[["subject", 'predicate']],
         #                             how="left", on="subject")[["subject", "predicate", "object"]]
@@ -99,9 +101,11 @@ class NodeExpansion:
         # info = self._get_info_from_type(type_df=type_df_modified, path=new_path)
 
         # Filter subgraph to keep
-        subgraph, path_df = self._filter_sub_graph(type_df=types, path_df=ingoing)
+        subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing = \
+            self._filter_sub_graph(type_df=types, triple_ingoing=ingoing,
+                                   triple_outgoing=outgoing)
 
-        return subgraph, path_df
+        return subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing
 
 
 

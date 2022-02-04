@@ -73,7 +73,8 @@ class GraphSearchFramework:
         self.type_interface = config["type_interface"]
 
         self.subgraph = pd.DataFrame(columns=["subject", "predicate", "object"])
-        self.pending_nodes = pd.DataFrame(columns=["subject", "predicate", "object"])
+        self.pending_nodes_ingoing = pd.DataFrame(columns=["subject", "predicate", "object"])
+        self.pending_nodes_outgoing = pd.DataFrame(columns=["subject", "predicate", "object"])
         self.info = pd.DataFrame(columns=["path", "iteration", "tot"] + \
             [x for elt in self.rdf_type for x in [f"{elt[0]}"] ])
 
@@ -117,11 +118,11 @@ class GraphSearchFramework:
             if ";" in self.to_expand:
                 pred, obj = self.to_expand.split(";")
                 pred, obj = URIRef(pred), URIRef(obj)
-                nodes = list(self.pending_nodes[(self.pending_nodes.predicate == pred) & \
-                            (self.pending_nodes.object == obj)].subject.values)
+                nodes = list(self.pending_nodes_ingoing[(self.pending_nodes_ingoing.predicate == pred) & \
+                            (self.pending_nodes_ingoing.object == obj)].subject.values)
             else:
-                nodes = list(self.pending_nodes[\
-                    (self.pending_nodes.predicate == self.to_expand)].subject.values)
+                nodes = list(self.pending_nodes_ingoing[\
+                    (self.pending_nodes_ingoing.predicate == self.to_expand)].subject.values)
 
             # TO DO heuristics: either path based on pred+object, either based on pred score only
 
@@ -181,15 +182,18 @@ class GraphSearchFramework:
 
 
     def _merge_outputs(self, output):
-        # TO ADD: include outgoing links+entities
-        for subgraph, pending in output:
+        for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing in output:
             # TO DO heuristics: updating ranking
             # after each iteration (with global and not just local)
-            self.subgraph = pd.concat([self.subgraph, subgraph], axis=0)
-            self.pending_nodes = pd.concat([self.pending_nodes, pending], axis=0)
+            self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
+            self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
+            self.pending_nodes_ingoing = pd.concat(
+                [self.pending_nodes_ingoing, path_ingoing], axis=0)
+            self.pending_nodes_outgoing = pd.concat(
+                [self.pending_nodes_outgoing, path_outgoing], axis=0)
             # self.info = pd.concat([self.info, info], axis=0)
 
-            self.occurence = self._update_occurence(dataframe=pending,
+            self.occurence = self._update_occurence(dataframe=path_ingoing,
                                                     occurence=self.occurence)
 
         # TO ADD: include outgoing in ranking
@@ -197,8 +201,8 @@ class GraphSearchFramework:
         if self.to_expand:
             self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
                 if k != self.to_expand})
-            self.pending_nodes = self.pending_nodes[\
-                ~self.pending_nodes.subject.isin(self.nodes_expanded)]
+            self.pending_nodes_ingoing = self.pending_nodes_ingoing[\
+                ~self.pending_nodes_ingoing.subject.isin(self.nodes_expanded)]
 
     def _add_save_info(self):
         date_begin = datetime.now()
@@ -241,7 +245,8 @@ class GraphSearchFramework:
                 events_found = list(set(\
                 [str(e) for e in self.subgraph.subject.values]))
                 self._update_metrics(iteration=i, found=events_found)
-                self.pending_nodes.to_csv(f"{save_folder}/{i}-pending_nodes.csv")
+                self.pending_nodes_ingoing.to_csv(f"{save_folder}/{i}-pending_nodes_ingoing.csv")
+                self.pending_nodes_outgoing.to_csv(f"{save_folder}/{i}-pending_nodes_outgoing.csv")
                 json.dump(self.occurence, open(f"{save_folder}/{i}-occurences.json",
                                                 "w", encoding='utf-8'),
                         indent=4)

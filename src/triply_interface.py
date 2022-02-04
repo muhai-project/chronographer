@@ -63,7 +63,7 @@ class TriplInterface:
         return temp_res
 
     @staticmethod
-    def _get_df(list_triples):
+    def _get_df(list_triples: list[tuple]) -> pd.core.frame.DataFrame:
         return pd.DataFrame({"subject": [row[0] for row in list_triples],
                              "predicate": [row[1] for row in list_triples],
                              "object": [row[2] for row in list_triples]}).drop_duplicates()
@@ -94,3 +94,10 @@ if __name__ == '__main__':
     interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
     ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)
     print(f"{ingoing_test}\n{outgoing_test}\n{types_test}")
+
+    import os
+    from settings import FOLDER_PATH
+    folder = os.path.join(FOLDER_PATH, "src/tests/")
+    ingoing_test.to_csv(f"{folder}triply_ingoing_expected.csv")
+    outgoing_test.to_csv(f"{folder}triply_outgoing_expected.csv")
+    types_test.to_csv(f"{folder}triply_types_expected.csv")

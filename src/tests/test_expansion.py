@@ -14,6 +14,10 @@ from src.expansion import NodeExpansion
 from src.triply_interface import TriplInterface
 from src.sparql_interface import SPARQLInterface
 
+def clean_df(df_pd):
+    """ Keeping 3 columns """
+    return df_pd[['subject', 'object', 'predicate']]
+
 class TestNodeExpansion(unittest.TestCase):
     """
     Test class for Expansion class
@@ -62,7 +66,9 @@ class TestNodeExpansion(unittest.TestCase):
         iteration = 10
 
         # Working
-        for interface in [TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]), SPARQLInterface()]:
+        for interface in [TriplInterface(
+            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]), \
+                          SPARQLInterface()]:
             try:
                 NodeExpansion(rdf_type=rdf_type, iteration=10, interface=interface)
             except ValueError as error:
@@ -73,53 +79,37 @@ class TestNodeExpansion(unittest.TestCase):
         with self.assertRaises(ValueError):
             NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface="test")
 
-    def test_get_output_triples(self):
-        """ Test get_output_triples """
-        output_interface = pd.read_csv(\
-            os.path.join(FOLDER_PATH,
-                         "src/tests/triply_expected.csv"))
-
-        rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-        iteration = 10
-        interface = create_autospec(TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]))
-        interface.return_value = output_interface
-
-        expansion = NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
-
-        type_df_expected = output_interface[output_interface.predicate == \
-            URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")]
-        path_df_expected = output_interface[output_interface.predicate != \
-            URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")]
-
-        type_df, path_df = expansion.get_output_triples(node=None, predicate=None)
-
-        self.assertTrue(\
-            pd.concat([type_df,type_df_expected]) \
-                .drop_duplicates(keep=False).shape[0] == 0)
-        self.assertTrue(\
-            pd.concat([path_df,path_df_expected]) \
-                .drop_duplicates(keep=False).shape[0] == 0)
-
     def test_filter_sub_graph(self):
         """ Test get_output_triples """
-        output_interface = pd.read_csv(\
-            os.path.join(FOLDER_PATH,
-                         "src/tests/triply_expected.csv"))
+        folder = os.path.join(FOLDER_PATH, "src/tests/")
+        ingoing_expected = clean_df(pd.read_csv(f"{folder}triply_ingoing_expected.csv"))
+        outgoing_expected = clean_df(pd.read_csv(f"{folder}triply_outgoing_expected.csv"))
+        types_expected = clean_df(pd.read_csv(f"{folder}triply_types_expected.csv"))
 
         rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
         iteration = 10
-        interface = create_autospec(TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]))
-        interface.return_value = output_interface
-        print(type(interface))
+        interface = create_autospec(TriplInterface(
+            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]))
+        interface.return_value = (ingoing_expected, outgoing_expected, types_expected)
+
         expansion = NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
-        type_df, path_df = expansion.get_output_triples(node=None, predicate=None)
+        ingoing, outgoing, types = expansion.get_output_triples(node=None, predicate=None)
 
-        subject = type_df[type_df.object.isin(expansion.mapping.keys())] \
+        subject = types[types.object.isin(expansion.mapping.keys())] \
             .subject.values
-        subgraph_expected = path_df[path_df.subject.isin(subject)]
+        subgraph_ingoing_expected = ingoing[ingoing.subject.isin(subject)]
+        path_ingoing_expected = ingoing[~ingoing.subject.isin(subject)]
+        subgraph_outgoing_expected = outgoing[outgoing.object.isin(subject)]
+        path_outgoing_expected = outgoing[~outgoing.object.isin(subject)]
 
-        subgraph = expansion.filter_sub_graph(type_df, path_df)
 
-        self.assertTrue(\
-            pd.concat([subgraph,subgraph_expected]) \
-                .drop_duplicates(keep=False).shape[0] == 0)
+        subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing = \
+            expansion.filter_sub_graph(types_expected, ingoing_expected, outgoing_expected)
+
+        for df1, df2 in [(subgraph_ingoing, subgraph_ingoing_expected),
+                           (path_ingoing, path_ingoing_expected),
+                           (subgraph_outgoing, subgraph_outgoing_expected),
+                           (path_outgoing, path_outgoing_expected)]:
+            merged = df1.merge(df2, how='left', on=["subject", "object", "predicate"])
+            self.assertTrue(merged.shape == df1.shape)
+            self.assertTrue(merged.shape == df2.shape)
