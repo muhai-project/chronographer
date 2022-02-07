@@ -50,13 +50,11 @@ class Ranker:
         return new_dico
 
     def __call__(self, occurences):
-        # TO ADD: include outgoing in ranking
         if "pred" in self.type:
             if "inverse" in self.type:
                 return self._sort_dict(dico=occurences, reverse=False)
             if "entropy" in self.type:
                 dico = self._add_entropy_score(dico=occurences)
-                print(dico)
                 return self._sort_dict(dico=dico, reverse=True,
                                        filter_items=False)
             return self._sort_dict(dico=occurences, reverse=True)

@@ -73,6 +73,7 @@ class GraphSearchFramework:
         self.type_interface = config["type_interface"]
 
         self.subgraph = pd.DataFrame(columns=["subject", "predicate", "object"])
+
         self.pending_nodes_ingoing = pd.DataFrame(columns=["subject", "predicate", "object"])
         self.pending_nodes_outgoing = pd.DataFrame(columns=["subject", "predicate", "object"])
         self.info = pd.DataFrame(columns=["path", "iteration", "tot"] + \
@@ -115,14 +116,26 @@ class GraphSearchFramework:
             path = [self.to_expand]
 
             # Gettings args for next iteration
-            if ";" in self.to_expand:
-                pred, obj = self.to_expand.split(";")
+            if (";" in self.to_expand) and ("ingoing" in self.to_expand):
+                pred, obj = self.to_expand.replace('ingoing-', '').split(";")
                 pred, obj = URIRef(pred), URIRef(obj)
-                nodes = list(self.pending_nodes_ingoing[(self.pending_nodes_ingoing.predicate == pred) & \
-                            (self.pending_nodes_ingoing.object == obj)].subject.values)
+                nodes = list(
+                    self.pending_nodes_ingoing[
+                        (self.pending_nodes_ingoing.predicate.isin([pred, str(pred)])) & \
+                        (self.pending_nodes_ingoing.object.isin([obj, str(obj)]))].subject.values)
+            elif (";" in self.to_expand) and ("outgoing" in self.to_expand):
+                subj, pred = self.to_expand.replace('outgoing-', '').split(";")
+                subj, pred = URIRef(subj), URIRef(pred)
+                nodes = list(
+                    self.pending_nodes_outgoing[
+                        (self.pending_nodes_outgoing.predicate.isin([pred, str(pred)])) & \
+                        (self.pending_nodes_outgoing.subject \
+                            .isin([subj, str(subj)]))].object.values)
             else:
                 nodes = list(self.pending_nodes_ingoing[\
-                    (self.pending_nodes_ingoing.predicate == self.to_expand)].subject.values)
+                    self.pending_nodes_ingoing.predicate == self.to_expand].subject.values) + \
+                        list(self.pending_nodes_outgoing[\
+                    self.pending_nodes_outgoing.predicate == self.to_expand].object.values)
 
             # TO DO heuristics: either path based on pred+object, either based on pred score only
 
@@ -164,20 +177,24 @@ class GraphSearchFramework:
 
         return output
 
-    def update_occurence(self, dataframe, occurence):
+    def update_occurence(self, ingoing, outgoing, occurence):
         """ Accessible call to _update_occurence """
-        return self._update_occurence(dataframe, occurence)
+        return self._update_occurence(ingoing, outgoing, occurence)
 
-    def _update_occurence(self, dataframe, occurence):
+    def _update_occurence(self, ingoing, outgoing, occurence):
         if self.type_ranking in ["pred_freq", "entropy_pred_freq",
                                  "inverse_pred_freq"]:  # predicate
-            for _, row in dataframe.iterrows():
+            for _, row in ingoing.iterrows():
+                occurence[row.predicate] += 1
+            for _, row in outgoing.iterrows():
                 occurence[row.predicate] += 1
         if self.type_ranking in ["pred_object_freq",
                                  "entropy_pred_object_freq",
                                  "inverse_pred_object_freq"]:  # subject predicate
-            for _, row in dataframe.iterrows():
-                occurence[f"{str(row.predicate)};{str(row.object)}"] += 1
+            for _, row in ingoing.iterrows():
+                occurence[f"ingoing-{str(row.predicate)};{str(row.object)}"] += 1
+            for _, row in outgoing.iterrows():
+                occurence[f"outgoing-{str(row.subject)};{str(row.predicate)}"] += 1
         return occurence
 
 
@@ -187,16 +204,19 @@ class GraphSearchFramework:
             # after each iteration (with global and not just local)
             self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
             self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
+
             self.pending_nodes_ingoing = pd.concat(
                 [self.pending_nodes_ingoing, path_ingoing], axis=0)
             self.pending_nodes_outgoing = pd.concat(
                 [self.pending_nodes_outgoing, path_outgoing], axis=0)
             # self.info = pd.concat([self.info, info], axis=0)
 
-            self.occurence = self._update_occurence(dataframe=path_ingoing,
+            # TO ADD: filtering step (remove incorrect predicates)
+
+            self.occurence = self._update_occurence(ingoing=path_ingoing,
+                                                    outgoing=path_outgoing,
                                                     occurence=self.occurence)
 
-        # TO ADD: include outgoing in ranking
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
             self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
@@ -242,8 +262,9 @@ class GraphSearchFramework:
                 self.expanded[i+1] = self.to_expand
 
                 self.subgraph.to_csv(f"{save_folder}/{i}-subgraph.csv")
-                events_found = list(set(\
-                [str(e) for e in self.subgraph.subject.values]))
+                events_found = list(
+                    {str(e) for e in self.subgraph.subject.values})
+
                 self._update_metrics(iteration=i, found=events_found)
                 self.pending_nodes_ingoing.to_csv(f"{save_folder}/{i}-pending_nodes_ingoing.csv")
                 self.pending_nodes_outgoing.to_csv(f"{save_folder}/{i}-pending_nodes_outgoing.csv")

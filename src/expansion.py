@@ -1,5 +1,6 @@
 """
-#TO DO: add documentation on this script
+Expanding one node by retrieving its ingoing and outgoing edges
+Filtering subgraph and pending nodes to be explored
 """
 from rdflib.term import URIRef
 from src.triply_interface import TriplInterface
@@ -90,7 +91,7 @@ class NodeExpansion:
         # Updating path
         # new_path = args["path"] + [args["node"]]
 
-        # Querying sparql
+        # Querying knowledge base
         ingoing, outgoing, types = self._get_output_triples(
             node=args["node"], predicate=args["predicate"])
         # type_df_modified = pd.merge(type_df[["subject", "object"]],
@@ -117,6 +118,7 @@ if __name__ == '__main__':
     ITERATION = 2
 
     node_expander = NodeExpansion(rdf_type=RDF_TYPE, iteration=ITERATION)
-    subgraph_test, path_df_test = \
+    subgraph_ingoing_test, path_ingoing_test, subgraph_outgoing_test, path_outgoing_test = \
         node_expander(args={"path": [], "node": NODE, "predicate": PREDICATE})
-    print(f"{subgraph_test}\n{path_df_test}")
+    print(f"{subgraph_ingoing_test}\n{path_ingoing_test}")
+    print(f"{subgraph_outgoing_test}\n{path_outgoing_test}")

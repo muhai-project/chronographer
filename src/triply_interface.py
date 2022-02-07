@@ -1,6 +1,7 @@
 """
 #TO DO: add documentation on this script
 """
+import time
 import pandas as pd
 import requests
 from rdflib import Graph
@@ -31,12 +32,12 @@ class TriplInterface:
         graph = Graph().parse(data=response.content, format=self.format)
         if filter_keep:
             return [(a, b, c) for (a, b, c) in graph if str(b) in filter_pred]
-        else:
-            return [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
+        return [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
 
     def _get_all_results(self, node: str, predicate: list[str]):
 
         ingoing = self._get_ingoing(node, predicate)
+        time.sleep(0.2)
         outgoing = self._get_outgoing(node, predicate)
         return ingoing, outgoing, self._get_type(nodes=ingoing+outgoing)
 
@@ -95,9 +96,9 @@ if __name__ == '__main__':
     ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)
     print(f"{ingoing_test}\n{outgoing_test}\n{types_test}")
 
-    import os
-    from settings import FOLDER_PATH
-    folder = os.path.join(FOLDER_PATH, "src/tests/")
-    ingoing_test.to_csv(f"{folder}triply_ingoing_expected.csv")
-    outgoing_test.to_csv(f"{folder}triply_outgoing_expected.csv")
-    types_test.to_csv(f"{folder}triply_types_expected.csv")
+    # import os
+    # from settings import FOLDER_PATH
+    # folder = os.path.join(FOLDER_PATH, "src/tests/")
+    # ingoing_test.to_csv(f"{folder}triply_ingoing_expected.csv")
+    # outgoing_test.to_csv(f"{folder}triply_outgoing_expected.csv")
+    # types_test.to_csv(f"{folder}triply_types_expected.csv")

@@ -1,6 +1,6 @@
 """
 Unittest of file `framework.py`, class GraphSearchFramework
-python -m unittest -v test_framework.py
+python -m unittest -v test_ranker.py
 
 Different types of ranking strategies:
 - pred_freq:
