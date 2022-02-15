@@ -86,7 +86,6 @@ class NodeExpansion:
 
 
     def __call__(self, args):
-        # TO DO heuristics: check if needs update
 
         # Updating path
         # new_path = args["path"] + [args["node"]]

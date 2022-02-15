@@ -14,19 +14,21 @@ from settings import FOLDER_PATH
 from src.ranker import Ranker
 from src.metrics import Metrics
 from src.plotter import Plotter
+from src.filtering import Filtering
 from src.expansion import NodeExpansion
 from src.triply_interface import TriplInterface
-from src.sparql_interface import SPARQLInterface
+from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
+    as config_error_messages
 
 
 CONFIG = {
     # "rdf_type": [("event", URIRef("http://dbpedia.org/ontology/Event")),
     #              ("person", URIRef("http://dbpedia.org/ontology/Person"))],
-    "rdf_type": [("event", URIRef("http://dbpedia.org/ontology/Event")),],
+    "rdf_type": [("event", URIRef("http://dbpedia.org/ontology/Event"))],
     "predicate_filter": ["http://dbpedia.org/ontology/wikiPageWikiLink",
                          "http://dbpedia.org/ontology/wikiPageRedirects"],
     "start": "http://dbpedia.org/resource/Category:French_Revolution",
-    "iterations": 2,
+    "iterations": 0,
     "type_ranking": "entropy_pred_object_freq",
     "type_interface": "triply",
 }
@@ -48,8 +50,13 @@ class GraphSearchFramework:
             - not implemented: inverse_subject_freq:
             - not implemented: inverse_pred_object_split_freq:
         """
-        # TO DO heuristics: change saving format (proper folder with timestamp etc etc)
-        # TO DO heuristics: add searcg strategy (update type_ranking)
+        self.possible_type_interface = ["triply"]
+        self.possible_type_ranking = [
+            "pred_freq", "inverse_pred_freq", "entropy_pred_freq",
+            "pred_object_freq", "inverse_pred_object_freq", "entropy_pred_object_freq"]
+        self.possible_type_metrics = ["precision", "recall", "f1"]
+        self.config_error_messages = config_error_messages
+
         self._check_config(config=config)
         self.config = config
         self.rdf_type = config["rdf_type"]
@@ -57,18 +64,9 @@ class GraphSearchFramework:
         self.start = config["start"]
         self.iterations = config["iterations"]
         self.type_ranking = config["type_ranking"]
-        if self.type_ranking not in ["pred_freq", "inverse_pred_freq",
-                                     "entropy_pred_freq",
-                                     "pred_object_freq", "inverse_pred_object_freq",
-                                     "entropy_pred_object_freq"]:
-            raise ValueError("Type ranking not implemented")
 
-        if config["type_interface"] not in ["triply", "sparql"]:
-            raise ValueError("Type of database interface not implemented")
         self.interface = TriplInterface(
-            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]) \
-            if config["type_interface"] == 'triply' \
-            else SPARQLInterface()
+            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
 
         self.type_interface = config["type_interface"]
 
@@ -100,11 +98,61 @@ class GraphSearchFramework:
             f"iter-{self.iterations}-{self.type_interface}-{self.type_ranking}"
         self.config = config
 
-    @staticmethod
-    def _check_config(config: dict):
-        # TO DO init: check keys + correct format for values
-        # TO DO init: more readable format for prefixes?
-        return config
+        self.filtering = Filtering()
+
+    def _check_config(self, config: dict):
+        if not isinstance(config, dict):
+            raise TypeError("`config` param type should be dict`")
+
+        if "rdf_type" not in config:
+            raise ValueError(self.config_error_messages['rdf_type'])
+        if not isinstance(config["rdf_type"], list) or \
+            any(not isinstance(elt, tuple) for elt in config["rdf_type"]) or \
+            any(not isinstance(k, str) \
+            or not isinstance(v, URIRef) for k, v in config['rdf_type']):
+            raise TypeError(self.config_error_messages['rdf_type'])
+
+        if "predicate_filter" not in config:
+            raise ValueError(self.config_error_messages['predicate_filter'])
+        if not isinstance(config["predicate_filter"], list) or \
+            any(not isinstance(elt, str) for elt in config["predicate_filter"]):
+            raise TypeError(self.config_error_messages['predicate_filter'])
+
+        if "start" not in config:
+            raise ValueError(self.config_error_messages['start'])
+        if not isinstance(config["start"], str):
+            raise TypeError(self.config_error_messages['start'])
+
+        if "iterations" not in config:
+            raise ValueError(self.config_error_messages['iterations'])
+        if not isinstance(config["iterations"], int):
+            raise TypeError(self.config_error_messages['iterations'])
+
+        if "type_ranking" not in config:
+            raise ValueError(self.config_error_messages['type_ranking'])
+        if config["type_ranking"] not in self.possible_type_ranking:
+            raise TypeError(self.config_error_messages['type_ranking'])
+
+        if "type_interface" not in config:
+            raise ValueError(self.config_error_messages['type_interface'])
+        if config["type_interface"] not in self.possible_type_interface:
+            raise TypeError(self.config_error_messages['type_interface'])
+
+        if "gold_standard" not in config:
+            raise ValueError(self.config_error_messages['gold_standard'])
+        try:
+            pd.read_csv(config["gold_standard"])[['startTime', 'callret-1', 'linkDBpediaEn']]
+        except Exception as type_error:
+            raise TypeError(self.config_error_messages['gold_standard']) from type_error
+
+        if "type_metrics" not in config:
+            raise ValueError(self.config_error_messages['type_metrics'])
+        if not isinstance(config['type_metrics'], list) or \
+            any(elt not in self.possible_type_metrics for elt in config['type_metrics']):
+            raise TypeError(self.config_error_messages['type_metrics'])
+
+
+        return
 
     def select_nodes_to_expand(self):
         """ Accessible call to _select_nodes_to_expand"""
@@ -112,7 +160,6 @@ class GraphSearchFramework:
 
     def _select_nodes_to_expand(self):
         if self.to_expand:
-            # TO DO init: check if still pending nodes/info, and end process if needed (edge cases)
             path = [self.to_expand]
 
             # Gettings args for next iteration
@@ -136,8 +183,6 @@ class GraphSearchFramework:
                     self.pending_nodes_ingoing.predicate == self.to_expand].subject.values) + \
                         list(self.pending_nodes_outgoing[\
                     self.pending_nodes_outgoing.predicate == self.to_expand].object.values)
-
-            # TO DO heuristics: either path based on pred+object, either based on pred score only
 
         else:  # INIT state: only starting node
             path, nodes = [], [self.start]
@@ -170,7 +215,7 @@ class GraphSearchFramework:
                       "predicate": self.predicate_filter,
                       "iteration": iteration,
                       } for node in nodes_to_expand]):
-            print(f"Processing node {i+1}/{len(nodes_to_expand)}")
+            print(f"Processing node {i+1}/{len(nodes_to_expand)}\t{nodes_to_expand[i]}")
             self.nodes_expanded.append(args["node"])
             output.append(self._expand_one_node(args))
             sleep(0.2)
@@ -200,8 +245,6 @@ class GraphSearchFramework:
 
     def _merge_outputs(self, output):
         for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing in output:
-            # TO DO heuristics: updating ranking
-            # after each iteration (with global and not just local)
             self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
             self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
 
@@ -211,7 +254,11 @@ class GraphSearchFramework:
                 [self.pending_nodes_outgoing, path_outgoing], axis=0)
             # self.info = pd.concat([self.info, info], axis=0)
 
-            # TO ADD: filtering step (remove incorrect predicates)
+            # TO ADD: filtering step (remove non relevant predicates)
+            # 1st filtering = removing literals (not possible to expand)
+            # 2d = filter on predicates (using domain/range or embeddings)
+            self.pending_nodes_outgoing = self.filtering(
+                triple_df=self.pending_nodes_outgoing)
 
             self.occurence = self._update_occurence(ingoing=path_ingoing,
                                                     outgoing=path_outgoing,

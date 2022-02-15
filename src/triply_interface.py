@@ -1,7 +1,6 @@
 """
 #TO DO: add documentation on this script
 """
-import time
 import pandas as pd
 import requests
 from rdflib import Graph
@@ -24,20 +23,46 @@ class TriplInterface:
         self.format = "trig"
         self.pred = default_pred
 
+    def _run_get_request(self, params: dict[str, str]):
+        """ Retrieving get curl request by chunks """
+        content = bytes('', 'utf-8')
+        with requests.get(self.url, headers=self.headers,
+                          params=params, timeout=10,
+                          stream=True) as response:
+            response.raise_for_status()
+            for chunk in response.iter_content(chunk_size=8192):
+                content += chunk
+        return content
+
     def run_curl_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
         """ Returning triples corresponding to query """
-        response = requests.get(self.url, headers=self.headers,
-                                params=params, timeout=10)
-        graph = Graph().parse(data=response.content, format=self.format)
+        # response = requests.get(self.url, headers=self.headers,
+        #                         params=params, timeout=10)
+        content = self._run_get_request(params)
+        graph = Graph().parse(data=content, format=self.format)
+        # graph = Graph().parse(data=response.content, format=self.format)
         if filter_keep:
             return [(a, b, c) for (a, b, c) in graph if str(b) in filter_pred]
         return [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
 
+    def get_superclass(self, node):
+        """ Superclass of a node
+        Most ancient ancestor before owl:Thing """
+        info = self.run_curl_request(
+            params=dict(subject=str(node)),
+            filter_pred=["http://www.w3.org/2000/01/rdf-schema#subClassOf"],
+            filter_keep=True)
+
+        if not info:
+            return node
+        if str(info[0][2]) == "http://www.w3.org/2002/07/owl#Thing":
+            return node
+        return self.get_superclass(str(info[0][2]))
+
     def _get_all_results(self, node: str, predicate: list[str]):
 
         ingoing = self._get_ingoing(node, predicate)
-        time.sleep(0.2)
         outgoing = self._get_outgoing(node, predicate)
         return ingoing, outgoing, self._get_type(nodes=ingoing+outgoing)
 

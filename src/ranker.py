@@ -1,8 +1,6 @@
 """
 #TO DO: add documentation on this script
 """
-# TO DO heuristics: add other heuristics
-# TO DO heuristics: when to call this ranker
 from math import log
 
 class Ranker:
@@ -23,6 +21,9 @@ class Ranker:
         self.type = type_ranking
         self.low_thresold = low_thresold
         self.high_threshold = high_threshold
+
+        self.domain = "http://www.w3.org/2000/01/rdf-schema#domain"
+        self.range = "http://www.w3.org/2000/01/rdf-schema#range"
 
     # def _split(self, d):
     #     return
