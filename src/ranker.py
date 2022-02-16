@@ -51,6 +51,12 @@ class Ranker:
         return new_dico
 
     def __call__(self, occurences):
+        """
+        TO DO: sort values with superclass info
+        1. domain/range + score
+        2. http://dbpedia.org/property/event + score
+        3. Only score
+        """
         if "pred" in self.type:
             if "inverse" in self.type:
                 return self._sort_dict(dico=occurences, reverse=False)
