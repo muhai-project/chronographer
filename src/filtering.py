@@ -18,7 +18,7 @@ class Filtering:
     (p, rdf:range, o3)
 
     (s, a , o2)
-    (s, a, o3)
+    (p, a, o3)
 
     ingoing -> filter on domain
     outgoing -> filter on range
@@ -41,6 +41,7 @@ class Filtering:
             "event": "http://dbpedia.org/ontology/Event"
         }
         self.focus_pred = self.focus_to_pred[focus]
+        self.discard_nodes = ["http://dbpedia.org/resource/Category:"]
 
     def __call__(self, triple_df: pd.core.frame.DataFrame,
                  type_node: str, info: dict[str, int],
@@ -62,6 +63,7 @@ class Filtering:
         # (Not expandable for search + Can create URI Too Long errors)
         if type_node == 'outgoing':
             triple_df = self.remove_literals(triple_df=triple_df)
+        triple_df = self.remove_nodes(triple_df=triple_df, type_node=type_node)
 
         # 2. Superclasses
         # Fetching newly non encountered superclasses for
@@ -76,7 +78,7 @@ class Filtering:
                                        info=info, iteration=iteration)
 
     def update_info_filter(self, triple_df: pd.core.frame.DataFrame,
-                    type_node: str, info: dict[str, int], iteration: int):
+                           type_node: str, info: dict[str, int], iteration: int):
         """
         1. Counting number of ingoing/outgoing edges,
         2. Counting number of triples with superclass info
@@ -84,6 +86,8 @@ class Filtering:
         """
         if iteration not in info:
             info[iteration] = {}
+
+        triple_df.to_csv(f"{type_node}.csv")
 
         info[iteration][f"{type_node}"] = triple_df.shape[0]
         info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}"] = \
@@ -107,7 +111,7 @@ class Filtering:
         else:  # type_node == "outgoing" | self.range
             triple_df["superclass"] = triple_df["predicate"].apply(
                 lambda x: str(self.superclasses[self.range[str(x)]]) if \
-                    str(x) in self.domain else ""
+                    str(x) in self.range else ""
             )
         return triple_df
 
@@ -116,6 +120,14 @@ class Filtering:
         """ Removing outgoing nodes that are Literals """
         return triple_df[triple_df.object.str.startswith('http://')] \
             [["subject", "predicate", "object"]]
+
+    def remove_nodes(self, triple_df, type_node):
+        """ Filtering out certain nodes """
+        col = "subject" if type_node == "ingoing" else "object"
+        triple_df['filter'] = str(triple_df[col])
+        for node in self.discard_nodes:
+            triple_df = triple_df[~triple_df[col].str.startswith(node)]
+        return triple_df[["subject", "predicate", "object"]]
 
     def add_superclass_to_class(self, df_pd: pd.core.frame.DataFrame, type_node: str):
         """

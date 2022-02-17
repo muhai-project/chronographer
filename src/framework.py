@@ -189,13 +189,13 @@ class GraphSearchFramework:
 
         return nodes, path
 
-    def _expand_one_node(self, args):
+    def _expand_one_node(self, args: dict):
         node_expander = NodeExpansion(rdf_type=self.rdf_type,
                                       iteration=args["iteration"],
                                       interface=self.interface)
         return node_expander(args=args)
 
-    def _run_one_iteration(self, iteration):
+    def _run_one_iteration(self, iteration: int):
         nodes_to_expand, path = self._select_nodes_to_expand()
 
         # pool = mp.Pool(self.nb_cpu)
@@ -222,11 +222,13 @@ class GraphSearchFramework:
 
         return output
 
-    def update_occurence(self, ingoing, outgoing, occurence):
+    def update_occurence(self, ingoing: pd.core.frame.DataFrame,
+                         outgoing: pd.core.frame.DataFrame, occurence: dict):
         """ Accessible call to _update_occurence """
         return self._update_occurence(ingoing, outgoing, occurence)
 
-    def _update_occurence(self, ingoing, outgoing, occurence):
+    def _update_occurence(self, ingoing: pd.core.frame.DataFrame,
+                          outgoing: pd.core.frame.DataFrame, occurence: dict):
         if self.type_ranking in ["pred_freq", "entropy_pred_freq",
                                  "inverse_pred_freq"]:  # predicate
             for _, row in ingoing.iterrows():
@@ -243,22 +245,24 @@ class GraphSearchFramework:
         return occurence
 
 
-    def _merge_outputs(self, output):
+    def _merge_outputs(self, output: list, iteration: int, info: dict):
         for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing in output:
             self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
             self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
+
+            # Filtering step (remove non relevant predicates)
+            # 1st filtering = removing literals (not possible to expand)
+            # 2d = filter on predicates (using domain/range or embeddings)
+            path_ingoing, info = self.filtering(triple_df=path_ingoing, type_node="ingoing",
+                                          info=info, iteration=iteration)  # TO CHANGE
+            path_outgoing, info = self.filtering(triple_df=path_outgoing, type_node="outgoing",
+                                          info=info, iteration=iteration)  # TO CHANGE
 
             self.pending_nodes_ingoing = pd.concat(
                 [self.pending_nodes_ingoing, path_ingoing], axis=0)
             self.pending_nodes_outgoing = pd.concat(
                 [self.pending_nodes_outgoing, path_outgoing], axis=0)
             # self.info = pd.concat([self.info, info], axis=0)
-
-            # TO ADD: filtering step (remove non relevant predicates)
-            # 1st filtering = removing literals (not possible to expand)
-            # 2d = filter on predicates (using domain/range or embeddings)
-            self.pending_nodes_outgoing = self.filtering(
-                triple_df=self.pending_nodes_outgoing)
 
             self.occurence = self._update_occurence(ingoing=path_ingoing,
                                                     outgoing=path_outgoing,
@@ -270,6 +274,8 @@ class GraphSearchFramework:
                 if k != self.to_expand})
             self.pending_nodes_ingoing = self.pending_nodes_ingoing[\
                 ~self.pending_nodes_ingoing.subject.isin(self.nodes_expanded)]
+
+        return info
 
     def _add_save_info(self):
         date_begin = datetime.now()
@@ -299,11 +305,12 @@ class GraphSearchFramework:
                       indent=4)
         self.expanded = {}
         self.metrics_data = {}
+        self.info = {}
 
         for i in range(1, self.iterations+1):
             print(f"Iteration {i} started at {datetime.now()}")
             output = self._run_one_iteration(iteration=i)
-            self._merge_outputs(output=output)
+            self.info = self._merge_outputs(output=output, iteration=i, info=self.info)
 
             if self.to_expand:
                 self.expanded[i+1] = self.to_expand
@@ -324,6 +331,9 @@ class GraphSearchFramework:
                         indent=4)
                 json.dump(self.metrics_data, open(\
                     f"{save_folder}/metrics.json", "w", encoding='utf-8'),
+                        indent=4)
+                json.dump(self.info, open(\
+                    f"{save_folder}/info.json", "w", encoding='utf-8'),
                         indent=4)
 
                 print(f"Iteration {i} finished at {datetime.now()}\n=====")
@@ -354,3 +364,6 @@ if __name__ == '__main__':
     framework()
     end = datetime.now()
     print(f"Process ended at {end}, took {end-start}")
+    print(framework.filtering.superclasses)
+    print(framework.filtering.domain)
+    print(framework.filtering.range)

@@ -54,7 +54,8 @@ class Ranker:
         """
         TO DO: sort values with superclass info
         1. domain/range + score
-        2. http://dbpedia.org/property/event + score
+        2. http://dbpedia.org/property/event |
+           http://dbpedia.org/property/partof + score
         3. Only score
         """
         if "pred" in self.type:
