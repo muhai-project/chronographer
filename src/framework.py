@@ -65,8 +65,8 @@ class GraphSearchFramework:
         self.iterations = config["iterations"]
         self.type_ranking = config["type_ranking"]
 
-        self.interface = TriplInterface(
-            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
+        self.dates = [config["start_date"], config["end_date"]]
+        self.interface = TriplInterface()
 
         self.type_interface = config["type_interface"]
 
@@ -151,8 +151,13 @@ class GraphSearchFramework:
             any(elt not in self.possible_type_metrics for elt in config['type_metrics']):
             raise TypeError(self.config_error_messages['type_metrics'])
 
-
-        return
+        for date in ["start_date", "end_date"]:
+            if date not in config:
+                raise ValueError(self.config_error_messages[date])
+            try:
+                datetime(int(config[date][:4]), int(config[date][5:7]), int(config[date][8:10]))
+            except Exception as type_error:
+                raise TypeError(self.config_error_messages[date]) from type_error
 
     def select_nodes_to_expand(self):
         """ Accessible call to _select_nodes_to_expand"""
@@ -160,6 +165,7 @@ class GraphSearchFramework:
 
     def _select_nodes_to_expand(self):
         if self.to_expand:
+            self.to_expand = self.to_expand[2:]
             path = [self.to_expand]
 
             # Gettings args for next iteration
@@ -179,21 +185,25 @@ class GraphSearchFramework:
                         (self.pending_nodes_outgoing.subject \
                             .isin([subj, str(subj)]))].object.values)
             else:
+                print(self.pending_nodes_ingoing.predicate.unique())
                 nodes = list(self.pending_nodes_ingoing[\
-                    self.pending_nodes_ingoing.predicate == self.to_expand].subject.values) + \
+                    self.pending_nodes_ingoing.predicate.isin(
+                        [self.to_expand, URIRef(self.to_expand)])].subject.values) + \
                         list(self.pending_nodes_outgoing[\
-                    self.pending_nodes_outgoing.predicate == self.to_expand].object.values)
+                    self.pending_nodes_outgoing.predicate.isin(
+                        [self.to_expand, URIRef(self.to_expand)])].object.values)
+                print(nodes)
 
         else:  # INIT state: only starting node
             path, nodes = [], [self.start]
 
-        return nodes, path
+        return [node for node in nodes if node not in self.nodes_expanded], path
 
     def _expand_one_node(self, args: dict):
         node_expander = NodeExpansion(rdf_type=self.rdf_type,
                                       iteration=args["iteration"],
                                       interface=self.interface)
-        return node_expander(args=args)
+        return node_expander(args=args, dates=self.dates)
 
     def _run_one_iteration(self, iteration: int):
         nodes_to_expand, path = self._select_nodes_to_expand()
@@ -216,7 +226,7 @@ class GraphSearchFramework:
                       "iteration": iteration,
                       } for node in nodes_to_expand]):
             print(f"Processing node {i+1}/{len(nodes_to_expand)}\t{nodes_to_expand[i]}")
-            self.nodes_expanded.append(args["node"])
+            self.nodes_expanded.append(URIRef(args["node"]))
             output.append(self._expand_one_node(args))
             sleep(0.2)
 
@@ -227,26 +237,45 @@ class GraphSearchFramework:
         """ Accessible call to _update_occurence """
         return self._update_occurence(ingoing, outgoing, occurence)
 
+    @staticmethod
+    def _get_nb(superclass, pred):
+        if superclass:
+            return "1"
+        if pred in []:
+            return "2"
+        return "3"
+
     def _update_occurence(self, ingoing: pd.core.frame.DataFrame,
                           outgoing: pd.core.frame.DataFrame, occurence: dict):
+        """
+        Updating occurences for future path ranking
+        In any case: adding info about the type of predicate
+        1 = relevant superclass | 2 = filtered predicate | 3 = other
+        - If path on predicate only: {1-3} + pred
+        - If pred_object: adding whether ingoing or outgoing
+        """
         if self.type_ranking in ["pred_freq", "entropy_pred_freq",
                                  "inverse_pred_freq"]:  # predicate
             for _, row in ingoing.iterrows():
-                occurence[row.predicate] += 1
+                nb_order = self._get_nb(superclass=row.superclass, pred=row.predicate)
+                occurence[f"{nb_order}-{str(row.predicate)}"] += 1
             for _, row in outgoing.iterrows():
-                occurence[row.predicate] += 1
+                nb_order = self._get_nb(superclass=row.superclass, pred=row.predicate)
+                occurence[f"{nb_order}-{str(row.predicate)}"] += 1
         if self.type_ranking in ["pred_object_freq",
                                  "entropy_pred_object_freq",
                                  "inverse_pred_object_freq"]:  # subject predicate
             for _, row in ingoing.iterrows():
-                occurence[f"ingoing-{str(row.predicate)};{str(row.object)}"] += 1
+                nb_order = self._get_nb(superclass=row.superclass, pred=row.predicate)
+                occurence[f"{nb_order}-ingoing-{str(row.predicate)};{str(row.object)}"] += 1
             for _, row in outgoing.iterrows():
-                occurence[f"outgoing-{str(row.subject)};{str(row.predicate)}"] += 1
+                nb_order = self._get_nb(superclass=row.superclass, pred=row.predicate)
+                occurence[f"{nb_order}-outgoing-{str(row.subject)};{str(row.predicate)}"] += 1
         return occurence
 
 
     def _merge_outputs(self, output: list, iteration: int, info: dict):
-        for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing in output:
+        for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing, _ in output:
             self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
             self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
 
@@ -254,9 +283,9 @@ class GraphSearchFramework:
             # 1st filtering = removing literals (not possible to expand)
             # 2d = filter on predicates (using domain/range or embeddings)
             path_ingoing, info = self.filtering(triple_df=path_ingoing, type_node="ingoing",
-                                          info=info, iteration=iteration)  # TO CHANGE
+                                          info=info, iteration=iteration)
             path_outgoing, info = self.filtering(triple_df=path_outgoing, type_node="outgoing",
-                                          info=info, iteration=iteration)  # TO CHANGE
+                                          info=info, iteration=iteration)
 
             self.pending_nodes_ingoing = pd.concat(
                 [self.pending_nodes_ingoing, path_ingoing], axis=0)
@@ -274,6 +303,8 @@ class GraphSearchFramework:
                 if k != self.to_expand})
             self.pending_nodes_ingoing = self.pending_nodes_ingoing[\
                 ~self.pending_nodes_ingoing.subject.isin(self.nodes_expanded)]
+            self.pending_nodes_outgoing = self.pending_nodes_outgoing[\
+                ~self.pending_nodes_outgoing.object.isin(self.nodes_expanded)]
 
         return info
 
@@ -316,8 +347,11 @@ class GraphSearchFramework:
                 self.expanded[i+1] = self.to_expand
 
                 self.subgraph.to_csv(f"{save_folder}/{i}-subgraph.csv")
-                events_found = list(
-                    {str(e) for e in self.subgraph.subject.values})
+                events_found = \
+                    [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
+                        .subject.unique()] + \
+                        [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
+                            .object.unique()]
 
                 self._update_metrics(iteration=i, found=events_found)
                 self.pending_nodes_ingoing.to_csv(f"{save_folder}/{i}-pending_nodes_ingoing.csv")
@@ -338,13 +372,14 @@ class GraphSearchFramework:
 
                 print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
+                self.plotter(info=json.load(open(f"{save_folder}/metrics.json",
+                                         "r", encoding="utf-8")),
+                     save_folder=save_folder)
+
             else:
                 print("According to params, no further nodes to expand," \
                     + f"finishing process at {datetime.now()}\n=====")
-
-        self.plotter(info=json.load(open(f"{save_folder}/metrics.json",
-                                         "r", encoding="utf-8")),
-                     save_folder=save_folder)
+                break
 
 
 if __name__ == '__main__':

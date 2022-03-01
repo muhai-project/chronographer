@@ -43,7 +43,7 @@ if __name__ == '__main__':
     from settings import FOLDER_PATH
     INFO=json.load(open(
         os.path.join(FOLDER_PATH,
-                     "data/2021-12-20-16:32:49-iter-8-triply-entropy_pred_freq/metrics.json"),
+                     "data/2022-03-01-14:56:59-iter-30-triply-entropy_pred_object_freq/metrics.json"),
         "r", encoding="utf-8"))
     plotter=Plotter()
     plotter(INFO, SAVE_FOLDER)

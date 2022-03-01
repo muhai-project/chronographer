@@ -1,19 +1,29 @@
 """
 #TO DO: add documentation on this script
 """
+from tqdm import tqdm
 import pandas as pd
 import requests
 from rdflib import Graph
+from rdflib.term import Literal
 
 TPF_DBPEDIA = \
     "https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000"
+
+DEFAULT_PRED = \
+    ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+     "http://dbpedia.org/ontology/date",
+     "http://dbpedia.org/ontology/startDate",
+     "http://dbpedia.org/ontology/endDate",
+     "http://dbpedia.org/property/birthDate",
+     "http://dbpedia.org/property/deathDate"]
 
 class TriplInterface:
     """
     #TO DO: add documentation on this script
     """
 
-    def __init__(self, default_pred: list[str],
+    def __init__(self, dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
                  url: str = TPF_DBPEDIA):
         # Former url: "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/fragments"
         self.url = url
@@ -22,6 +32,9 @@ class TriplInterface:
         }
         self.format = "trig"
         self.pred = default_pred
+
+        self.start_date = dates[0]
+        self.end_date = dates[1]
 
     def _run_get_request(self, params: dict[str, str]):
         """ Retrieving get curl request by chunks """
@@ -64,7 +77,8 @@ class TriplInterface:
 
         ingoing = self._get_ingoing(node, predicate)
         outgoing = self._get_outgoing(node, predicate)
-        return ingoing, outgoing, self._get_type(nodes=ingoing+outgoing)
+        return ingoing, outgoing, self._get_specific_outgoing(ingoing=ingoing,
+                                                              outgoing=outgoing)
 
     def _get_ingoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
@@ -72,31 +86,45 @@ class TriplInterface:
         return self.run_curl_request(params=dict(object=str(node)),
                                      filter_pred=predicate, filter_keep=False)
 
+    def _filter_outgoing(self, outgoing):
+        return [elt for elt in outgoing if not isinstance(elt[2], Literal)]
+
     def _get_outgoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
-        return self.run_curl_request(params=dict(subject=str(node)),
-                                     filter_pred=predicate, filter_keep=False)
+        return self._filter_outgoing(
+            outgoing=self.run_curl_request(params=dict(subject=str(node)),
+                                           filter_pred=predicate, filter_keep=False))
 
-    def _get_type(self, nodes: list[str]):
+    def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
         temp_res = []
 
-        for i, (subject, _, _) in enumerate(nodes):
-            print(f"Processing subject {i+1}/{len(nodes)}")
+        for i in tqdm(range(len(ingoing))):
+            subject = ingoing[i][0]
             temp_res += self.run_curl_request(params=dict(subject=str(subject)),
                                                filter_pred=self.pred,
                                                filter_keep=True)
+
+        for i in tqdm(range(len(outgoing))):
+            object_t = outgoing[i][2]
+            temp_res += self.run_curl_request(params=dict(subject=str(object_t)),
+                                                          filter_pred=self.pred,
+                                                          filter_keep=True)
+
         return temp_res
 
     @staticmethod
-    def _get_df(list_triples: list[tuple]) -> pd.core.frame.DataFrame:
+    def _get_df(list_triples: list[tuple], type_df: str) -> pd.core.frame.DataFrame:
         return pd.DataFrame({"subject": [row[0] for row in list_triples],
                              "predicate": [row[1] for row in list_triples],
-                             "object": [row[2] for row in list_triples]}).drop_duplicates()
+                             "object": [row[2] for row in list_triples],
+                             "type_df": [type_df] * len(list_triples)}).drop_duplicates()
 
     def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
         ingoing, outgoing, types = self._get_all_results(node=node, predicate=predicate)
-        return self._get_df(ingoing), self._get_df(outgoing), self._get_df(types)
+        return self._get_df(ingoing, type_df="ingoing"), \
+            self._get_df(outgoing, type_df="outgoing"), \
+            self._get_df(types, type_df="spec. outgoing")
 
 
 
@@ -117,7 +145,7 @@ if __name__ == '__main__':
                     "http://www.w3.org/2002/07/owl#sameAs",
                     "http://www.w3.org/ns/prov#wasDerivedFrom"]
 
-    interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
+    interface = TriplInterface()
     ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)
     print(f"{ingoing_test}\n{outgoing_test}\n{types_test}")
 

@@ -85,17 +85,24 @@ class Filtering:
         3. Counting number of triples with correct superclass info
         """
         if iteration not in info:
-            info[iteration] = {}
+            info[iteration] = {
+                "ingoing": 0,
+                "ingoing_domain": 0,
+                "ingoing_domain_relevant": 0,
+                "outgoing": 0,
+                "outgoing_range": 0,
+                "outgoing_range_relevant": 0
+            }
 
         triple_df.to_csv(f"{type_node}.csv")
 
-        info[iteration][f"{type_node}"] = triple_df.shape[0]
-        info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}"] = \
+        info[iteration][f"{type_node}"] += triple_df.shape[0]
+        info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}"] += \
             triple_df[triple_df.superclass != ""].shape[0]
 
         triple_df = triple_df[triple_df.superclass.isin(["", self.focus_pred])]
 
-        info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}_relevant"] = \
+        info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}_relevant"] += \
             triple_df[triple_df.superclass != ""].shape[0]
 
         return triple_df, info
@@ -118,11 +125,13 @@ class Filtering:
     @staticmethod
     def remove_literals(triple_df):
         """ Removing outgoing nodes that are Literals """
+        triple_df = triple_df.fillna("")
         return triple_df[triple_df.object.str.startswith('http://')] \
             [["subject", "predicate", "object"]]
 
     def remove_nodes(self, triple_df, type_node):
         """ Filtering out certain nodes """
+        triple_df = triple_df.fillna("")
         col = "subject" if type_node == "ingoing" else "object"
         triple_df['filter'] = str(triple_df[col])
         for node in self.discard_nodes:

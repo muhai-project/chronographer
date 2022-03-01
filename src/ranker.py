@@ -28,7 +28,17 @@ class Ranker:
     # def _split(self, d):
     #     return
 
+    @staticmethod
+    def filter_dict(dico):
+        """ Filtering dico based on path info
+        If starts by 1: highest priority, then descending order """
+        for order in ["1", "2", "3"]:
+            if any(k.startswith(order) for k in dico.keys()):
+                return {k: v for k, v in dico.items() if k.startswith(order)}
+        return dico
+
     def _sort_dict(self, dico, reverse, filter_items=True):
+        dico = self.filter_dict(dico=dico)
         if filter_items:
             sorted_filtered_items = \
                 list({k: v for k, v in sorted(dico.items(),
@@ -52,10 +62,9 @@ class Ranker:
 
     def __call__(self, occurences):
         """
-        TO DO: sort values with superclass info
+        sorted values with superclass info
         1. domain/range + score
-        2. http://dbpedia.org/property/event |
-           http://dbpedia.org/property/partof + score
+        2. manually selected predicates + score (N/A)
         3. Only score
         """
         if "pred" in self.type:

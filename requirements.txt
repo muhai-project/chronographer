@@ -9,3 +9,4 @@ requests==2.26.0
 coverage==6.2
 plotly==5.4.0
 tqdm==4.62.3
+pydeps==1.10.12
