@@ -135,7 +135,7 @@ class Filtering:
         col = "subject" if type_node == "ingoing" else "object"
         triple_df['filter'] = str(triple_df[col])
         for node in self.discard_nodes:
-            triple_df = triple_df[~triple_df[col].str.startswith(node)]
+            triple_df = triple_df[~triple_df["filter"].str.startswith(node)]
         return triple_df[["subject", "predicate", "object"]]
 
     def add_superclass_to_class(self, df_pd: pd.core.frame.DataFrame, type_node: str):

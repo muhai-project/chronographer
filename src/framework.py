@@ -5,6 +5,7 @@ import os
 import json
 from time import sleep
 import multiprocessing as mp
+from ray.util.multiprocessing import Pool
 from datetime import datetime
 from collections import defaultdict
 
@@ -208,27 +209,16 @@ class GraphSearchFramework:
     def _run_one_iteration(self, iteration: int):
         nodes_to_expand, path = self._select_nodes_to_expand()
 
-        # pool = mp.Pool(self.nb_cpu)
-        # output = pool.map(lambda args: self._expand_one_node(args),
-        #                     [{
-        #                         "node": node,
-        #                         "path": path,
-        #                         "predicate": self.predicate_filter,
-        #                         "iteration": iteration
-        #                         } for node in nodes_to_expand])
-        # pool.close()
-        # pool.join()
-
-        output = []
-        for i, args in enumerate([{"node": node,
-                      "path": path,
-                      "predicate": self.predicate_filter,
-                      "iteration": iteration,
-                      } for node in nodes_to_expand]):
-            print(f"Processing node {i+1}/{len(nodes_to_expand)}\t{nodes_to_expand[i]}")
-            self.nodes_expanded.append(URIRef(args["node"]))
-            output.append(self._expand_one_node(args))
-            sleep(0.2)
+        pool = Pool(self.nb_cpu)
+        output = pool.map(self._expand_one_node,
+                            [{
+                                "node": node,
+                                "path": path,
+                                "predicate": self.predicate_filter,
+                                "iteration": iteration
+                                } for node in nodes_to_expand])
+        pool.close()
+        pool.join()
 
         return output
 
