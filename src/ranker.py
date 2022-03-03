@@ -30,7 +30,7 @@ class Ranker:
 
     @staticmethod
     def filter_dict(dico):
-        """ Filtering dico based on path info
+        """ Ordering dico based on path info
         If starts by 1: highest priority, then descending order """
         for order in ["1", "2", "3"]:
             if any(k.startswith(order) for k in dico.keys()):

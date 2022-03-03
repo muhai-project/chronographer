@@ -1,192 +1,93 @@
 """
-Filtering class: preprocessing outgoing nodes retrieved
-(e.g. we only want to keep nodes with a URI, and not literals)
+Filtering class: Filtering out certain types of nodes
+- Given a specific narrative dimension (who/where/when)
+- Two types of filtering can be applied
+    - Filtering on subgraph: node that matches the node type to be searched,
+    but some properties don't match
+        --> filtered out from subgraph, and removed from expandable nodes space
+    - Filtering on pending nodes (nodes that could be expanded): same than above but for expansion
+        --> removed from expandable nodes space
 """
-
-from tqdm import tqdm
-
+import re
+from rdflib.term import URIRef
 import pandas as pd
-from src.triply_interface import TriplInterface
-
 
 class Filtering:
     """
-    Main filtering class for outgoing nodes
-
-    (s, p, o)
-    (p, rdf:domain, o2)
-    (p, rdf:range, o3)
-
-    (s, a , o2)
-    (p, a, o3)
-
-    ingoing -> filter on domain
-    outgoing -> filter on range
+    Main Filtering class for subgraph and pending nodes
 
     """
-    def __init__(self, focus: str = "event"):
-        self.domain_pred = "http://www.w3.org/2000/01/rdf-schema#domain"
-        self.range_pred = "http://www.w3.org/2000/01/rdf-schema#range"
-        self.interface = TriplInterface(default_pred=[])
-
-        self.superclasses = {}
-        self.domain = {}
-        self.range = {}
-
-        self.type_node_to_pred = {
-            "ingoing": "domain", "outgoing": "range"
-        }
-
-        self.focus_to_pred = {
-            "event": "http://dbpedia.org/ontology/Event"
-        }
-        self.focus_pred = self.focus_to_pred[focus]
-        self.discard_nodes = ["http://dbpedia.org/resource/Category:"]
-
-    def __call__(self, triple_df: pd.core.frame.DataFrame,
-                 type_node: str, info: dict[str, int],
-                 iteration: int):
+    def __init__(self, args):
         """
-        Params:
-        - triple_df: pandas dataframe representing triples
-        - type_node: type of triples of triple_df (`ingoing` or `outgoing`)
-        - info: generic info updated in the filtering
-        - iteration: iteration number
-        Returns:
-        - triple_df with superclass info
-        - updated info
+        - args dict: keys = narrative dimensions, value = boolean
         """
-        if type_node not in ['ingoing', 'outgoing']:
-            raise ValueError("`type_node` should be either `ingoing` or `outgoing`")
+        self._check_args(args=args)
+        self.where = args["where"] if "where" in args else 0
+        self.when = args["when"] if "when" in args else 0
 
-        # 1. Removing literals from outgoing nodes
-        # (Not expandable for search + Can create URI Too Long errors)
-        if type_node == 'outgoing':
-            triple_df = self.remove_literals(triple_df=triple_df)
-        triple_df = self.remove_nodes(triple_df=triple_df, type_node=type_node)
+        self.dates = [
+            URIRef("http://dbpedia.org/ontology/date")
+        ]
+        self.start_dates = [
+            URIRef("http://dbpedia.org/ontology/startDate"),
+            URIRef("http://dbpedia.org/property/birthDate")
+        ]
+        self.end_dates = [
+            URIRef("http://dbpedia.org/ontology/endDate"),
+            URIRef("http://dbpedia.org/property/deathDate")
+        ]
 
-        # 2. Superclasses
-        # Fetching newly non encountered superclasses for
-        # domain if ingoing, range if outgoing
-        self.add_superclass_to_class(df_pd=triple_df, type_node=type_node)
+        self.temporal = self.dates + self.start_dates + self.end_dates
 
-        # Adding superclass of domain/range predicate to the dataframe
-        triple_df = self.add_superclass_to_df(triple_df=triple_df, type_node=type_node)
-
-        # 3. Updating info + Filtering out non relevant predicates
-        return self.update_info_filter(triple_df=triple_df, type_node=type_node,
-                                       info=info, iteration=iteration)
-
-    def update_info_filter(self, triple_df: pd.core.frame.DataFrame,
-                           type_node: str, info: dict[str, int], iteration: int):
-        """
-        1. Counting number of ingoing/outgoing edges,
-        2. Counting number of triples with superclass info
-        3. Counting number of triples with correct superclass info
-        """
-        if iteration not in info:
-            info[iteration] = {
-                "ingoing": 0,
-                "ingoing_domain": 0,
-                "ingoing_domain_relevant": 0,
-                "outgoing": 0,
-                "outgoing_range": 0,
-                "outgoing_range_relevant": 0
-            }
-
-        triple_df.to_csv(f"{type_node}.csv")
-
-        info[iteration][f"{type_node}"] += triple_df.shape[0]
-        info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}"] += \
-            triple_df[triple_df.superclass != ""].shape[0]
-
-        triple_df = triple_df[triple_df.superclass.isin(["", self.focus_pred])]
-
-        info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}_relevant"] += \
-            triple_df[triple_df.superclass != ""].shape[0]
-
-        return triple_df, info
-
-
-    def add_superclass_to_df(self, triple_df, type_node):
-        """ Adding col in df to add superclass of domain/range predicaten"""
-        if type_node == "ingoing":  # self.domain
-            triple_df["superclass"] = triple_df["predicate"].apply(
-                lambda x: str(self.superclasses[self.domain[str(x)]]) if \
-                    str(x) in self.domain else ""
-            )
-        else:  # type_node == "outgoing" | self.range
-            triple_df["superclass"] = triple_df["predicate"].apply(
-                lambda x: str(self.superclasses[self.range[str(x)]]) if \
-                    str(x) in self.range else ""
-            )
-        return triple_df
+        self.places = [
+            URIRef("http://dbpedia.org/ontology/Place"),
+            URIRef("http://dbpedia.org/ontology/Location")
+        ]
 
     @staticmethod
-    def remove_literals(triple_df):
-        """ Removing outgoing nodes that are Literals """
-        triple_df = triple_df.fillna("")
-        return triple_df[triple_df.object.str.startswith('http://')] \
-            [["subject", "predicate", "object"]]
+    def _check_args(args):
+        for val in ["where", "when"]:
+            if val in args and args[val] not in [0, 1]:
+                raise ValueError(f"`{val}` value from args should be 0 or 1 (int)")
 
-    def remove_nodes(self, triple_df, type_node):
-        """ Filtering out certain nodes """
-        triple_df = triple_df.fillna("")
-        col = "subject" if type_node == "ingoing" else "object"
-        triple_df['filter'] = str(triple_df[col])
-        for node in self.discard_nodes:
-            triple_df = triple_df[~triple_df["filter"].str.startswith(node)]
-        return triple_df[["subject", "predicate", "object"]]
+    def get_to_discard_date(self, date_df: pd.core.frame.DataFrame, dates: list[str]):
+        """ Filtering on temporal dimension
+        - checking date/start date/end date """
 
-    def add_superclass_to_class(self, df_pd: pd.core.frame.DataFrame, type_node: str):
+        return list(date_df[((date_df.predicate.isin(self.end_dates)) & \
+                             (date_df.object < dates[0])) | \
+                            ((date_df.predicate.isin(self.start_dates)) & \
+                             (date_df.object > dates[1])) | \
+                            ((date_df.predicate.isin(self.dates)) & \
+                             (date_df.object < dates[0])) | \
+                            ((date_df.predicate.isin(self.dates)) & \
+                             (date_df.object > dates[1]))].subject.unique())
+
+    @staticmethod
+    def get_to_discard_regex(df_pd: pd.core.frame.DataFrame, dates: list[str]):
+        """ Filtering on string uri
+        - temporal dimension: regex on the URL (and therefore name of the events,
+            e.g. 1997_National_Championships > non relevant """
+        pattern = "\\d{4}"
+        df_pd['regex_helper'] = df_pd.subject.apply(lambda x: re.search(pattern, str(x)))
+        df_pd['regex_helper'] = df_pd.apply(
+            lambda x: str(re.findall(pattern, x.subject)[0]) \
+                if x['regex_helper'] else dates[0], axis=1)
+        return list(df_pd[(df_pd.regex_helper < dates[0][:4]) | \
+                          (df_pd.regex_helper > dates[1][:4])].subject.unique())
+
+    def get_to_discard_location(self, df_pd: pd.core.frame.DataFrame):
+        """ Location filter: retrieving nodes that correspond to locations
+        (would be too broad for the search, hence later discarded """
+        return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
+
+    def __call__(self, df_pd: pd.core.frame.DataFrame, dates: list[str]):
         """
-        Input params:
-        - df_pd: columns should be subject, predicate, object
-            either ingoing or outgoing edges
-        - type_node: types of nodes extracted, either
-            `ingoing` (then interested in domain) or
-            `outgoing` (then interested in range)
-
-        Adds superclasses
         """
-        if type_node == 'ingoing':
-            filter_pred = [self.domain_pred]
-        else:  # type_node == 'outgoing':
-            filter_pred = [self.range_pred]
+        date_df = df_pd[df_pd.predicate.isin(self.temporal)]
+        date_df.object = date_df.object.astype(str)
 
-        preds = df_pd.predicate.unique()
-        for i in tqdm(range(len(preds))):
-            pred = preds[i]
-            output = self.interface.run_curl_request(
-                params=dict(subject=str(pred)),
-                filter_pred=filter_pred,
-                filter_keep=True)
-
-            for row in output:
-                if str(row[1]) == self.domain_pred:
-                    self.domain[str(row[0])] = str(row[2])
-                else:
-                    self.range[str(row[0])] = str(row[2])
-
-                if row[2] not in self.superclasses:
-                    self.superclasses[str(row[2])] = \
-                        self.interface.get_superclass(node=str(row[2]))
-
-
-if __name__ == '__main__':
-    import os
-    from settings import FOLDER_PATH
-
-    folder = os.path.join(FOLDER_PATH, "src/tests")
-    pending_ingoing_iter_1 = pd.read_csv(
-        os.path.join(folder, "triply_ingoing_expected.csv")) \
-            .fillna("")[["subject", "object", "predicate"]]
-
-    filtering = Filtering()
-    df_test, info_test = filtering(triple_df=pending_ingoing_iter_1,
-                        type_node="ingoing", info={}, iteration=1)
-
-    for _, row_test in df_test.iterrows():
-        print(f"{row_test.predicate}\t {row_test.superclass}")
-
-    print(info_test)
+        to_discard = list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
+                              self.get_to_discard_regex(df_pd=df_pd, dates=dates) + \
+                              self.get_to_discard_location(df_pd=df_pd)))
+        return [URIRef(elt) for elt in to_discard]

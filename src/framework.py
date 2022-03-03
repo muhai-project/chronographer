@@ -3,11 +3,10 @@
 """
 import os
 import json
-from time import sleep
 import multiprocessing as mp
-from ray.util.multiprocessing import Pool
 from datetime import datetime
 from collections import defaultdict
+from ray.util.multiprocessing import Pool
 
 import pandas as pd
 from rdflib.term import URIRef
@@ -15,8 +14,9 @@ from settings import FOLDER_PATH
 from src.ranker import Ranker
 from src.metrics import Metrics
 from src.plotter import Plotter
-from src.filtering import Filtering
+from src.ordering import Ordering
 from src.expansion import NodeExpansion
+from src.hdt_interface import HDTInterface
 from src.triply_interface import TriplInterface
 from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
     as config_error_messages
@@ -51,7 +51,7 @@ class GraphSearchFramework:
             - not implemented: inverse_subject_freq:
             - not implemented: inverse_pred_object_split_freq:
         """
-        self.possible_type_interface = ["triply"]
+        self.possible_type_interface = ["triply", "hdt"]
         self.possible_type_ranking = [
             "pred_freq", "inverse_pred_freq", "entropy_pred_freq",
             "pred_object_freq", "inverse_pred_object_freq", "entropy_pred_object_freq"]
@@ -67,9 +67,12 @@ class GraphSearchFramework:
         self.type_ranking = config["type_ranking"]
 
         self.dates = [config["start_date"], config["end_date"]]
-        self.interface = TriplInterface()
 
         self.type_interface = config["type_interface"]
+        if self.type_interface == "triply":
+            self.interface = TriplInterface()
+        else:  # type_interface == "triply"
+            self.interface = HDTInterface()
 
         self.subgraph = pd.DataFrame(columns=["subject", "predicate", "object"])
 
@@ -99,7 +102,24 @@ class GraphSearchFramework:
             f"iter-{self.iterations}-{self.type_interface}-{self.type_ranking}"
         self.config = config
 
-        self.filtering = Filtering()
+
+        ordering_domain_range = config["ordering"]["domain-range"] if \
+            "ordering" in config and "domain-range" in config["ordering"] else 0
+        self.ordering = Ordering(domain_range=ordering_domain_range)
+
+        if "filtering" in config and "what" in config["filtering"] and \
+            config["filtering"]["what"]:
+            self.predicate_filter += ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+
+        filtering_when = config["filtering"]["when"] if \
+            "fitlering" in config and "when" in config["filtering"] else 0
+        filtering_where = config["filtering"]["where"] if \
+            "fitlering" in config and "where" in config["filtering"] else 0
+
+        self.node_expander = NodeExpansion(rdf_type=self.rdf_type,
+                                           interface=self.interface,
+                                           args_filtering={"when": filtering_when,
+                                                           "where": filtering_where})
 
     def _check_config(self, config: dict):
         if not isinstance(config, dict):
@@ -160,6 +180,16 @@ class GraphSearchFramework:
             except Exception as type_error:
                 raise TypeError(self.config_error_messages[date]) from type_error
 
+        for k_p, v_p in [
+            ("ordering", "domain-range"), ("filtering", "what"),
+            ("filtering", "when"), ("filtering", "where")
+        ]:
+
+            if k_p in config and \
+                isinstance(config[k_p], dict) and v_p in config[k_p]:
+                if config[k_p][v_p] not in [0, 1]:
+                    raise TypeError(self.config_error_messages[k_p][v_p])
+
     def select_nodes_to_expand(self):
         """ Accessible call to _select_nodes_to_expand"""
         return self._select_nodes_to_expand()
@@ -201,10 +231,7 @@ class GraphSearchFramework:
         return [node for node in nodes if node not in self.nodes_expanded], path
 
     def _expand_one_node(self, args: dict):
-        node_expander = NodeExpansion(rdf_type=self.rdf_type,
-                                      iteration=args["iteration"],
-                                      interface=self.interface)
-        return node_expander(args=args, dates=self.dates)
+        return self.node_expander(args=args, dates=self.dates)
 
     def _run_one_iteration(self, iteration: int):
         nodes_to_expand, path = self._select_nodes_to_expand()
@@ -266,26 +293,8 @@ class GraphSearchFramework:
 
     def _merge_outputs(self, output: list, iteration: int, info: dict):
         for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing, _ in output:
-            self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
-            self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
-
-            # Filtering step (remove non relevant predicates)
-            # 1st filtering = removing literals (not possible to expand)
-            # 2d = filter on predicates (using domain/range or embeddings)
-            path_ingoing, info = self.filtering(triple_df=path_ingoing, type_node="ingoing",
-                                          info=info, iteration=iteration)
-            path_outgoing, info = self.filtering(triple_df=path_outgoing, type_node="outgoing",
-                                          info=info, iteration=iteration)
-
-            self.pending_nodes_ingoing = pd.concat(
-                [self.pending_nodes_ingoing, path_ingoing], axis=0)
-            self.pending_nodes_outgoing = pd.concat(
-                [self.pending_nodes_outgoing, path_outgoing], axis=0)
-            # self.info = pd.concat([self.info, info], axis=0)
-
-            self.occurence = self._update_occurence(ingoing=path_ingoing,
-                                                    outgoing=path_outgoing,
-                                                    occurence=self.occurence)
+            self._merge_outputs_single_run(subgraph_ingoing, path_ingoing,
+                                           subgraph_outgoing, path_outgoing, info, iteration)
 
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
@@ -297,6 +306,32 @@ class GraphSearchFramework:
                 ~self.pending_nodes_outgoing.object.isin(self.nodes_expanded)]
 
         return info
+
+    def _merge_outputs_single_run(self, subgraph_ingoing: pd.core.frame.DataFrame,
+                                  path_ingoing: pd.core.frame.DataFrame,
+                                  subgraph_outgoing: pd.core.frame.DataFrame,
+                                  path_outgoing: pd.core.frame.DataFrame,
+                                  info: dict, iteration: int):
+        self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
+        self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
+
+        # Pre-ordering step (remove non relevant predicates)
+        # 1st = add info on predicates (using domain/range information)
+        path_ingoing, info = self.ordering(triple_df=path_ingoing, type_node="ingoing",
+                                            info=info, iteration=iteration)
+        path_outgoing, info = self.ordering(triple_df=path_outgoing, type_node="outgoing",
+                                            info=info, iteration=iteration)
+
+        self.pending_nodes_ingoing = pd.concat(
+            [self.pending_nodes_ingoing, path_ingoing], axis=0)
+        self.pending_nodes_outgoing = pd.concat(
+            [self.pending_nodes_outgoing, path_outgoing], axis=0)
+        # self.info = pd.concat([self.info, info], axis=0)
+
+        self.occurence = self._update_occurence(ingoing=path_ingoing,
+                                                outgoing=path_outgoing,
+                                                occurence=self.occurence)
+
 
     def _add_save_info(self):
         date_begin = datetime.now()
@@ -389,6 +424,6 @@ if __name__ == '__main__':
     framework()
     end = datetime.now()
     print(f"Process ended at {end}, took {end-start}")
-    print(framework.filtering.superclasses)
-    print(framework.filtering.domain)
-    print(framework.filtering.range)
+    print(framework.ordering.superclasses)
+    print(framework.ordering.domain)
+    print(framework.ordering.range)

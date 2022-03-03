@@ -2,9 +2,8 @@
 Expanding one node by retrieving its ingoing and outgoing edges
 Filtering subgraph and pending nodes to be explored
 """
-import re
 from rdflib.term import URIRef
-import pandas as pd
+from src.filtering import Filtering
 from src.triply_interface import TriplInterface
 
 class NodeExpansion:
@@ -14,38 +13,24 @@ class NodeExpansion:
     or a src.triply_interface.TriplInterface
     """
 
-    def __init__(self, rdf_type: list[tuple], iteration: int,
+    def __init__(self, rdf_type: list[tuple], args_filtering: dict,
                  interface=TriplInterface()):
 
         self.interface = interface
         self.rdf_type = rdf_type
-        self.iter = iteration
         self._check_args()
 
         self.type_pred = URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
         self.mapping = {uri: name for (name, uri) in rdf_type}
 
-        self.dates = [
-            URIRef("http://dbpedia.org/ontology/date")
-        ]
-        self.start_dates = [
-            URIRef("http://dbpedia.org/ontology/startDate"),
-            URIRef("http://dbpedia.org/property/birthDate")
-        ]
-        self.end_dates = [
-            URIRef("http://dbpedia.org/ontology/endDate"),
-            URIRef("http://dbpedia.org/property/deathDate")
-        ]
-
-        self.places = [
-            URIRef("http://dbpedia.org/ontology/Place"),
-            URIRef("http://dbpedia.org/ontology/Location")
-        ]
+        self.filtering = Filtering(args=args_filtering)
 
     def _check_args(self):
+        print(repr(self.interface))
         if not any(elt in repr(self.interface) for elt in \
             ["src.sparql_interface.SPARQLInterface",
              "src.triply_interface.TriplInterface",
+             "src.hdt_interface.HDTInterface",
              'MagicMock']):
             raise ValueError('Wrong type of `interface` passed as arguments')
 
@@ -59,9 +44,6 @@ class NodeExpansion:
                     for (a, b) in self.rdf_type):
                     raise ValueError("Type of two-element tuples should be" \
                             + "(str, type('rdflib.term.URIRef'))")
-
-        if not isinstance(self.iter, int):
-            raise ValueError("`iteration` param should be an integer")
 
     def get_output_triples(self, node, predicate):
         """ Direct call to _get_output_triples """
@@ -94,53 +76,12 @@ class NodeExpansion:
         """ Direct call to _filter_sub_graph """
         return self._filter_sub_graph(type_date_df, triple_ingoing, triple_outgoing, dates)
 
-    def get_to_discard_date(self, date_df: pd.core.frame.DataFrame, dates: list[str]):
-        """ Filtering on temporal dimension
-        - checking date/start date/end date """
-
-        # return list(date_df[(date_df.object < dates[0]) | \
-        #                           (date_df.object > dates[1])].subject.unique())
-        return list(date_df[((date_df.predicate.isin(self.end_dates)) & \
-                             (date_df.object < dates[0])) | \
-                            ((date_df.predicate.isin(self.start_dates)) & \
-                             (date_df.object > dates[1])) | \
-                            ((date_df.predicate.isin(self.dates)) & \
-                             (date_df.object < dates[0])) | \
-                            ((date_df.predicate.isin(self.dates)) & \
-                             (date_df.object > dates[1]))].subject.unique())
-
-    @staticmethod
-    def get_to_discard_regex(df_pd: pd.core.frame.DataFrame, dates: list[str]):
-        """ Filtering on string uri
-        - temporal dimension: regex on the URL (and therefore name of the events,
-            e.g. 1997_National_Championships > non relevant """
-        pattern = "\\d{4}"
-        df_pd['regex_helper'] = df_pd.subject.apply(lambda x: re.search(pattern, str(x)))
-        df_pd['regex_helper'] = df_pd.apply(
-            lambda x: str(re.findall(pattern, x.subject)[0]) \
-                if x['regex_helper'] else dates[0], axis=1)
-        return list(df_pd[(df_pd.regex_helper < dates[0][:4]) | \
-                          (df_pd.regex_helper > dates[1][:4])].subject.unique())
-
-    def get_to_discard_location(self, df_pd: pd.core.frame.DataFrame):
-        """ Location filter: retrieving nodes that correspond to locations
-        (would be too broad for the search, hence later discarded """
-        return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
-
     def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
-        # Filter on dates
-        type_date_df.to_csv("type_date.csv")
-        date_df = type_date_df[type_date_df.predicate.isin(
-            self.dates + self.start_dates + self.end_dates)]
-        date_df.to_csv("dates.csv")
-        date_df.object = date_df.object.astype(str)
+        # Getting nodes to discard (both for subgraph and pending nodes)
 
         # to_keep_date = date_df[(date_df.object >= dates[0]) & \
         #                        (date_df.object <= dates[1])].subject.unique()
-        to_discard = list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
-                              self.get_to_discard_regex(df_pd=type_date_df, dates=dates) + \
-                              self.get_to_discard_location(df_pd=type_date_df)))
-        to_discard = [URIRef(elt) for elt in to_discard]
+        to_discard = self.filtering(df_pd=type_date_df, dates=dates)
         print(to_discard)
 
         # Filter on types of nodes that should be retrieved
@@ -196,9 +137,8 @@ if __name__ == '__main__':
                     "http://www.w3.org/2002/07/owl#sameAs",
                     "http://www.w3.org/ns/prov#wasDerivedFrom"]
     RDF_TYPE = [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-    ITERATION = 2
 
-    node_expander = NodeExpansion(rdf_type=RDF_TYPE, iteration=ITERATION)
+    node_expander = NodeExpansion(rdf_type=RDF_TYPE, args_filtering={"who": 0, "when": 0})
     subgraph_ingoing_test, path_ingoing_test, subgraph_outgoing_test, \
         path_outgoing_test, to_discard_test = \
             node_expander(args={"path": [], "node": NODE, "predicate": PREDICATE},
