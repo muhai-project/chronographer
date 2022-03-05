@@ -9,7 +9,6 @@ Filtering class: Filtering out certain types of nodes
         --> removed from expandable nodes space
 """
 import re
-from rdflib.term import URIRef
 import pandas as pd
 
 class Filtering:
@@ -26,22 +25,22 @@ class Filtering:
         self.when = args["when"] if "when" in args else 0
 
         self.dates = [
-            URIRef("http://dbpedia.org/ontology/date")
+            "http://dbpedia.org/ontology/date"
         ]
         self.start_dates = [
-            URIRef("http://dbpedia.org/ontology/startDate"),
-            URIRef("http://dbpedia.org/property/birthDate")
+            "http://dbpedia.org/ontology/startDate",
+            "http://dbpedia.org/property/birthDate"
         ]
         self.end_dates = [
-            URIRef("http://dbpedia.org/ontology/endDate"),
-            URIRef("http://dbpedia.org/property/deathDate")
+            "http://dbpedia.org/ontology/endDate",
+            "http://dbpedia.org/property/deathDate"
         ]
 
         self.temporal = self.dates + self.start_dates + self.end_dates
 
         self.places = [
-            URIRef("http://dbpedia.org/ontology/Place"),
-            URIRef("http://dbpedia.org/ontology/Location")
+            "http://dbpedia.org/ontology/Place",
+            "http://dbpedia.org/ontology/Location"
         ]
 
     @staticmethod
@@ -69,6 +68,7 @@ class Filtering:
         - temporal dimension: regex on the URL (and therefore name of the events,
             e.g. 1997_National_Championships > non relevant """
         pattern = "\\d{4}"
+        df_pd = df_pd.fillna("")
         df_pd['regex_helper'] = df_pd.subject.apply(lambda x: re.search(pattern, str(x)))
         df_pd['regex_helper'] = df_pd.apply(
             lambda x: str(re.findall(pattern, x.subject)[0]) \
@@ -87,7 +87,13 @@ class Filtering:
         date_df = df_pd[df_pd.predicate.isin(self.temporal)]
         date_df.object = date_df.object.astype(str)
 
-        to_discard = list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
-                              self.get_to_discard_regex(df_pd=df_pd, dates=dates) + \
-                              self.get_to_discard_location(df_pd=df_pd)))
-        return [URIRef(elt) for elt in to_discard]
+        to_discard = []
+
+        if self.where:
+            to_discard += list(set(self.get_to_discard_location(df_pd=df_pd)))
+
+        if self.when:
+            to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
+                              self.get_to_discard_regex(df_pd=df_pd, dates=dates)))
+
+        return to_discard

@@ -47,7 +47,7 @@ class TriplInterface:
                 content += chunk
         return content
 
-    def run_curl_request(self, params: dict[str, str], filter_pred: list,
+    def run_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
         """ Returning triples corresponding to query """
         # response = requests.get(self.url, headers=self.headers,
@@ -62,7 +62,7 @@ class TriplInterface:
     def get_superclass(self, node):
         """ Superclass of a node
         Most ancient ancestor before owl:Thing """
-        info = self.run_curl_request(
+        info = self.run_request(
             params=dict(subject=str(node)),
             filter_pred=["http://www.w3.org/2000/01/rdf-schema#subClassOf"],
             filter_keep=True)
@@ -83,7 +83,7 @@ class TriplInterface:
     def _get_ingoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and o = node """
-        return self.run_curl_request(params=dict(object=str(node)),
+        return self.run_request(params=dict(object=str(node)),
                                      filter_pred=predicate, filter_keep=False)
 
     def _filter_outgoing(self, outgoing):
@@ -93,7 +93,7 @@ class TriplInterface:
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
         return self._filter_outgoing(
-            outgoing=self.run_curl_request(params=dict(subject=str(node)),
+            outgoing=self.run_request(params=dict(subject=str(node)),
                                            filter_pred=predicate, filter_keep=False))
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
@@ -101,13 +101,13 @@ class TriplInterface:
 
         for i in tqdm(range(len(ingoing))):
             subject = ingoing[i][0]
-            temp_res += self.run_curl_request(params=dict(subject=str(subject)),
+            temp_res += self.run_request(params=dict(subject=str(subject)),
                                                filter_pred=self.pred,
                                                filter_keep=True)
 
         for i in tqdm(range(len(outgoing))):
             object_t = outgoing[i][2]
-            temp_res += self.run_curl_request(params=dict(subject=str(object_t)),
+            temp_res += self.run_request(params=dict(subject=str(object_t)),
                                                           filter_pred=self.pred,
                                                           filter_keep=True)
 
@@ -115,9 +115,9 @@ class TriplInterface:
 
     @staticmethod
     def _get_df(list_triples: list[tuple], type_df: str) -> pd.core.frame.DataFrame:
-        return pd.DataFrame({"subject": [row[0] for row in list_triples],
-                             "predicate": [row[1] for row in list_triples],
-                             "object": [row[2] for row in list_triples],
+        return pd.DataFrame({"subject": [str(row[0]) for row in list_triples],
+                             "predicate": [str(row[1]) for row in list_triples],
+                             "object": [str(row[2]) for row in list_triples],
                              "type_df": [type_df] * len(list_triples)}).drop_duplicates()
 
     def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
@@ -129,7 +129,7 @@ class TriplInterface:
 
 
 if __name__ == '__main__':
-    NODE = "http://dbpedia.org/resource/French_Revolution"
+    NODE = "http://dbpedia.org/resource/Insurrection_of_10_August_1792"
     PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
                     "http://dbpedia.org/ontology/wikiPageRedirects",
                     "http://dbpedia.org/ontology/wikiPageDisambiguates",

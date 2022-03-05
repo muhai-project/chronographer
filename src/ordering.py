@@ -6,7 +6,6 @@ Ordering class: preprocessing outgoing nodes retrieved
 from tqdm import tqdm
 
 import pandas as pd
-from src.triply_interface import TriplInterface
 
 
 class Ordering:
@@ -24,10 +23,10 @@ class Ordering:
     outgoing -> filter on range
 
     """
-    def __init__(self, domain_range: int = 1, focus: str = "event"):
+    def __init__(self, interface, domain_range: int = 1, focus: str = "event"):
         self.domain_pred = "http://www.w3.org/2000/01/rdf-schema#domain"
         self.range_pred = "http://www.w3.org/2000/01/rdf-schema#range"
-        self.interface = TriplInterface(default_pred=[])
+        self.interface = interface
 
         self.superclasses = {}
         self.domain = {}
@@ -165,7 +164,7 @@ class Ordering:
         preds = df_pd.predicate.unique()
         for i in tqdm(range(len(preds))):
             pred = preds[i]
-            output = self.interface.run_curl_request(
+            output = self.interface.run_request(
                 params=dict(subject=str(pred)),
                 filter_pred=filter_pred,
                 filter_keep=True)
@@ -184,13 +183,14 @@ class Ordering:
 if __name__ == '__main__':
     import os
     from settings import FOLDER_PATH
+    from src.hdt_interface import HDTInterface
 
     folder = os.path.join(FOLDER_PATH, "src/tests")
     pending_ingoing_iter_1 = pd.read_csv(
         os.path.join(folder, "triply_ingoing_expected.csv")) \
             .fillna("")[["subject", "object", "predicate"]]
 
-    ordering = Ordering()
+    ordering = Ordering(interface=HDTInterface())
     df_test, info_test = ordering(triple_df=pending_ingoing_iter_1,
                         type_node="ingoing", info={}, iteration=1)
 

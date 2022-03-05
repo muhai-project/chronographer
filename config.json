@@ -16,13 +16,26 @@
                          "http://dbpedia.org/property/wikiPageUsesTemplate",
                          "http://www.w3.org/2002/07/owl#sameAs",
                          "http://www.w3.org/ns/prov#wasDerivedFrom",
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"],
+                         "http://dbpedia.org/ontology/wikiPageWikiLinkText",
+                         "http://dbpedia.org/ontology/wikiPageOutDegree",
+                         "http://dbpedia.org/ontology/abstract",
+                         "http://www.w3.org/2000/01/rdf-schema#comment",
+                         "http://www.w3.org/2000/01/rdf-schema#label"],
     "start": "http://dbpedia.org/resource/French_Revolution",
     "start_date": "1789-01-01",
-    "end_date": "1799-12-31",
-    "iterations": 30,
+    "end_date": "1804-12-31",
+    "iterations": 50,
     "type_ranking": "entropy_pred_object_freq",
-    "type_interface": "triply",
-    "gold_standard": "events.csv",
-    "type_metrics": ["precision", "recall", "f1"]
+    "type_interface": "hdt",
+    "gold_standard": "events_french_revolution.csv",
+    "referents": "referents_french_revolution.json",
+    "type_metrics": ["precision", "recall", "f1"],
+    "ordering": {
+        "domain_range": 1
+    },
+    "filtering": {
+        "what": 1,
+        "where": 1,
+        "when": 1
+    }
     }

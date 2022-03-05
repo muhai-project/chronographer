@@ -33,7 +33,7 @@ class HDTInterface:
         self.start_date = dates[0]
         self.end_date = dates[1]
 
-    def run_hdt_request(self, params: dict[str, str], filter_pred: list,
+    def run_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
         """ Returning triples corresponding to query """
         subject_t = params["subject"] if "subject" in params else ""
@@ -50,7 +50,7 @@ class HDTInterface:
     def get_superclass(self, node):
         """ Superclass of a node
         Most ancient ancestor before owl:Thing """
-        info = self.run_hdt_request(
+        info = self.run_request(
             params=dict(subject=str(node)),
             filter_pred=["http://www.w3.org/2000/01/rdf-schema#subClassOf"],
             filter_keep=True)
@@ -65,25 +65,55 @@ class HDTInterface:
 
         ingoing = self._get_ingoing(node, predicate)
         outgoing = self._get_outgoing(node, predicate)
-        return ingoing, outgoing, self._get_specific_outgoing(ingoing=ingoing,
-                                                              outgoing=outgoing)
+        return ingoing, outgoing, self._filter_specific(
+            self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
     def _get_ingoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and o = node """
         return self._filter(
-            triples=self.run_hdt_request(params=dict(object=str(node)),
+            triples=self.run_request(params=dict(object=str(node)),
                                      filter_pred=predicate, filter_keep=False))
 
+    def _filter_old(self, triples):
+        to_discard = [
+            "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
+            "http://books.google.com/"
+        ]
+        triples = [elt for elt in triples if \
+            not any(elt[2].startswith(discard) for discard in to_discard)]
+        triples = [elt for elt in triples if \
+            not any(elt[0].startswith(discard) for discard in to_discard)]
+
+        f_date = lambda x: x if not "<http://www.w3.org/2001/XMLSchema#date>" in x else x[1:11]
+        return [(sub, pred, f_date(obj)) for (sub, pred, obj) in triples]
+
+    @staticmethod
+    def pre_process_date(x_date):
+        """ Pre processing date (to be format comparable later) """
+        if "<http://www.w3.org/2001/XMLSchema#date>" in x_date:
+            return x_date[1:11]
+        elif "<http://www.w3.org/2001/XMLSchema#integer>" in x_date:
+            return x_date[1:5]
+        else:
+            return x_date
+
     def _filter(self, triples):
-        triples = [elt for elt in triples if elt[2].startswith("http://dbpedia.org")]
-        return [elt for elt in triples if elt[0].startswith("http://dbpedia.org")]
+        triples = [elt for elt in triples if elt[0].startswith('http://dbpedia.org/')]
+        triples = [elt for elt in triples if elt[2].startswith('http://dbpedia.org/')]
+        triples = [elt for elt in triples if not elt[0].startswith('http://dbpedia.org/resource/Category:')]
+        return [elt for elt in triples if not elt[2].startswith('http://dbpedia.org/resource/Category:')]
+
+    def _filter_specific(self, triples):
+        invalid = ['"Unknown"@']
+        triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
+        return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
 
     def _get_outgoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
         return self._filter(
-            triples=self.run_hdt_request(params=dict(subject=str(node)),
+            triples=self.run_request(params=dict(subject=str(node)),
                                            filter_pred=predicate, filter_keep=False))
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
@@ -91,13 +121,13 @@ class HDTInterface:
 
         for i in tqdm(range(len(ingoing))):
             subject = ingoing[i][0]
-            temp_res += self.run_hdt_request(params=dict(subject=str(subject)),
+            temp_res += self.run_request(params=dict(subject=str(subject)),
                                              filter_pred=self.pred,
                                              filter_keep=True)
 
         for i in tqdm(range(len(outgoing))):
             object_t = outgoing[i][2]
-            temp_res += self.run_hdt_request(params=dict(subject=str(object_t)),
+            temp_res += self.run_request(params=dict(subject=str(object_t)),
                                                          filter_pred=self.pred,
                                                          filter_keep=True)
 
@@ -105,9 +135,9 @@ class HDTInterface:
 
     @staticmethod
     def _get_df(list_triples: list[tuple], type_df: str) -> pd.core.frame.DataFrame:
-        return pd.DataFrame({"subject": [row[0] for row in list_triples],
-                             "predicate": [row[1] for row in list_triples],
-                             "object": [row[2] for row in list_triples],
+        return pd.DataFrame({"subject": [str(row[0]) for row in list_triples],
+                             "predicate": [str(row[1]) for row in list_triples],
+                             "object": [str(row[2]) for row in list_triples],
                              "type_df": [type_df] * len(list_triples)}).drop_duplicates()
 
     def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
@@ -119,7 +149,7 @@ class HDTInterface:
 
 
 if __name__ == '__main__':
-    NODE = "http://dbpedia.org/resource/French_Revolution"
+    NODE = "http://dbpedia.org/resource/André_Masséna"
     PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
                     "http://dbpedia.org/ontology/wikiPageRedirects",
                     "http://dbpedia.org/ontology/wikiPageDisambiguates",
@@ -133,7 +163,12 @@ if __name__ == '__main__':
                     "http://dbpedia.org/ontology/wikiPageRevisionID",
                     "http://dbpedia.org/property/wikiPageUsesTemplate",
                     "http://www.w3.org/2002/07/owl#sameAs",
-                    "http://www.w3.org/ns/prov#wasDerivedFrom"]
+                    "http://www.w3.org/ns/prov#wasDerivedFrom",
+                    "http://dbpedia.org/ontology/wikiPageWikiLinkText",
+                    "http://dbpedia.org/ontology/wikiPageOutDegree",
+                    "http://dbpedia.org/ontology/abstract",
+                    "http://www.w3.org/2000/01/rdf-schema#comment",
+                    "http://www.w3.org/2000/01/rdf-schema#label"]
 
     interface = HDTInterface()
     ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)

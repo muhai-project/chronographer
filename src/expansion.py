@@ -2,31 +2,29 @@
 Expanding one node by retrieving its ingoing and outgoing edges
 Filtering subgraph and pending nodes to be explored
 """
-from rdflib.term import URIRef
 from src.filtering import Filtering
-from src.triply_interface import TriplInterface
 
 class NodeExpansion:
     """
     #TO DO: add documentation on this script
     interface: either a src.sparql_interface.SPARQLInterface class,
-    or a src.triply_interface.TriplInterface
+    or a src.triply_interface.TriplInterface,
+    or a src.hdt_interface.HDTInterface
     """
 
     def __init__(self, rdf_type: list[tuple], args_filtering: dict,
-                 interface=TriplInterface()):
+                 interface):
 
         self.interface = interface
         self.rdf_type = rdf_type
         self._check_args()
 
-        self.type_pred = URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+        self.type_pred = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         self.mapping = {uri: name for (name, uri) in rdf_type}
 
         self.filtering = Filtering(args=args_filtering)
 
     def _check_args(self):
-        print(repr(self.interface))
         if not any(elt in repr(self.interface) for elt in \
             ["src.sparql_interface.SPARQLInterface",
              "src.triply_interface.TriplInterface",
@@ -40,10 +38,10 @@ class NodeExpansion:
             if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
                 raise ValueError('`rdf_type` param should be a list of tuples')
             else:
-                if any(not ((isinstance(a, str)) and isinstance(b, URIRef)) \
+                if any(not ((isinstance(a, str)) and isinstance(b, str)) \
                     for (a, b) in self.rdf_type):
                     raise ValueError("Type of two-element tuples should be" \
-                            + "(str, type('rdflib.term.URIRef'))")
+                            + "(str, str)")
 
     def get_output_triples(self, node, predicate):
         """ Direct call to _get_output_triples """
@@ -121,7 +119,25 @@ class NodeExpansion:
 
 
 if __name__ == '__main__':
-    NODE = "http://dbpedia.org/resource/Rhode_Island"
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--interface", required=True,
+                    help="Type of interface to use, either `triply` or `hdt`")
+    interface_type = vars(ap.parse_args())["interface"]
+
+    if interface_type == 'triply':
+        from src.triply_interface import TriplInterface
+        interface_main = TriplInterface()
+
+    elif interface_type == 'hdt':
+        from src.hdt_interface import HDTInterface
+        interface_main = HDTInterface()
+
+    else:
+        raise ValueError('-i parameter should be either `triply` or `hdt`')
+
+
+    NODE = "http://dbpedia.org/resource/Antoine_Morlot"
     PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
                     "http://dbpedia.org/ontology/wikiPageRedirects",
                     "http://dbpedia.org/ontology/wikiPageDisambiguates",
@@ -136,13 +152,14 @@ if __name__ == '__main__':
                     "http://dbpedia.org/property/wikiPageUsesTemplate",
                     "http://www.w3.org/2002/07/owl#sameAs",
                     "http://www.w3.org/ns/prov#wasDerivedFrom"]
-    RDF_TYPE = [("event", URIRef("http://dbpedia.org/ontology/Event"))]
+    RDF_TYPE = [("event", "http://dbpedia.org/ontology/Event")]
 
-    node_expander = NodeExpansion(rdf_type=RDF_TYPE, args_filtering={"who": 0, "when": 0})
+    node_expander = NodeExpansion(interface=interface_main,
+                                  rdf_type=RDF_TYPE, args_filtering={"where": 1, "when": 1})
     subgraph_ingoing_test, path_ingoing_test, subgraph_outgoing_test, \
         path_outgoing_test, to_discard_test = \
             node_expander(args={"path": [], "node": NODE, "predicate": PREDICATE},
-                        dates=["1789-01-01", "1799-12-31"])
+                          dates=["1789-01-01", "1799-12-31"])
     print(f"{subgraph_ingoing_test}\n{path_ingoing_test}")
     print(f"{subgraph_outgoing_test}\n{path_outgoing_test}")
     print(f"\nTO DISCARD\n{to_discard_test}\n")
