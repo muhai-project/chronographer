@@ -36,6 +36,8 @@ class TriplInterface:
         self.start_date = dates[0]
         self.end_date = dates[1]
 
+        self.discard_nodes = ["http://dbpedia.org/resource/Category:"]
+
     def _run_get_request(self, params: dict[str, str]):
         """ Retrieving get curl request by chunks """
         content = bytes('', 'utf-8')
@@ -56,8 +58,16 @@ class TriplInterface:
         graph = Graph().parse(data=content, format=self.format)
         # graph = Graph().parse(data=response.content, format=self.format)
         if filter_keep:
-            return [(a, b, c) for (a, b, c) in graph if str(b) in filter_pred]
-        return [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
+            triples = [(a, b, c) for (a, b, c) in graph if str(b) in filter_pred]
+        else:
+            triples = [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
+
+        triples = [(a, b, c) for (a, b, c) in triples \
+            if not any(str(a).startswith(prefix) for prefix in self.discard_nodes)]
+        triples = [(a, b, c) for (a, b, c) in triples \
+            if not any(str(c).startswith(prefix) for prefix in self.discard_nodes)]
+
+        return triples
 
     def get_superclass(self, node):
         """ Superclass of a node
@@ -99,12 +109,14 @@ class TriplInterface:
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
         temp_res = []
 
+        print("ingoing")
         for i in tqdm(range(len(ingoing))):
             subject = ingoing[i][0]
             temp_res += self.run_request(params=dict(subject=str(subject)),
                                                filter_pred=self.pred,
                                                filter_keep=True)
 
+        print('outgoing')
         for i in tqdm(range(len(outgoing))):
             object_t = outgoing[i][2]
             temp_res += self.run_request(params=dict(subject=str(object_t)),
@@ -148,10 +160,3 @@ if __name__ == '__main__':
     interface = TriplInterface()
     ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)
     print(f"{ingoing_test}\n{outgoing_test}\n{types_test}")
-
-    # import os
-    # from settings import FOLDER_PATH
-    # folder = os.path.join(FOLDER_PATH, "src/tests/")
-    # ingoing_test.to_csv(f"{folder}triply_ingoing_expected.csv")
-    # outgoing_test.to_csv(f"{folder}triply_outgoing_expected.csv")
-    # types_test.to_csv(f"{folder}triply_types_expected.csv")

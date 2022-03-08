@@ -75,18 +75,19 @@ class HDTInterface:
             triples=self.run_request(params=dict(object=str(node)),
                                      filter_pred=predicate, filter_keep=False))
 
-    def _filter_old(self, triples):
+    @staticmethod
+    def _filter_namespace(triples):
         to_discard = [
             "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
-            "http://books.google.com/"
+            "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"'
         ]
         triples = [elt for elt in triples if \
             not any(elt[2].startswith(discard) for discard in to_discard)]
         triples = [elt for elt in triples if \
             not any(elt[0].startswith(discard) for discard in to_discard)]
 
-        f_date = lambda x: x if not "<http://www.w3.org/2001/XMLSchema#date>" in x else x[1:11]
-        return [(sub, pred, f_date(obj)) for (sub, pred, obj) in triples]
+        return triples
+
 
     @staticmethod
     def pre_process_date(x_date):
@@ -99,10 +100,11 @@ class HDTInterface:
             return x_date
 
     def _filter(self, triples):
-        triples = [elt for elt in triples if elt[0].startswith('http://dbpedia.org/')]
-        triples = [elt for elt in triples if elt[2].startswith('http://dbpedia.org/')]
-        triples = [elt for elt in triples if not elt[0].startswith('http://dbpedia.org/resource/Category:')]
-        return [elt for elt in triples if not elt[2].startswith('http://dbpedia.org/resource/Category:')]
+        triples = self._filter_namespace(triples)
+        triples = [elt for elt in triples if \
+            not elt[0].startswith('http://dbpedia.org/resource/Category:')]
+        return [elt for elt in triples if \
+            not elt[2].startswith('http://dbpedia.org/resource/Category:')]
 
     def _filter_specific(self, triples):
         invalid = ['"Unknown"@']

@@ -42,7 +42,7 @@ class TestGraphSearchFramework(unittest.TestCase):
             "gold_standard": "events.csv",
         }
 
-        folder = os.path.join(FOLDER_PATH, "src/tests")
+        folder = os.path.join(FOLDER_PATH, "src/tests/data")
         pending_ingoing_iter_1 = pd.read_csv(
             os.path.join(folder, "triply_ingoing_expected.csv")).fillna("")
         pending_outgoing_iter_1 = pd.read_csv(
@@ -107,7 +107,7 @@ class TestGraphSearchFramework(unittest.TestCase):
                 'http://dbpedia.org/resource/French_Revolution'
         }
 
-        folder = os.path.join(FOLDER_PATH, "src/tests")
+        folder = os.path.join(FOLDER_PATH, "src/tests/data")
         pending_ingoing_iter_1 = pd.read_csv(
             os.path.join(folder, "triply_ingoing_expected.csv")) \
                 .fillna("")[["subject", "object", "predicate"]]

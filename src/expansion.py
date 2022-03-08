@@ -34,14 +34,12 @@ class NodeExpansion:
 
         if (not isinstance(self.rdf_type, list)) or not self.rdf_type:
             raise ValueError('`rdf_type` param should be a non-empty list of tuples')
-        else:
-            if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
-                raise ValueError('`rdf_type` param should be a list of tuples')
-            else:
-                if any(not ((isinstance(a, str)) and isinstance(b, str)) \
-                    for (a, b) in self.rdf_type):
-                    raise ValueError("Type of two-element tuples should be" \
-                            + "(str, str)")
+        if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
+            raise ValueError('`rdf_type` param should be a list of tuples')
+        if any(not ((isinstance(a, str)) and isinstance(b, str)) \
+            for (a, b) in self.rdf_type):
+            raise ValueError("Type of two-element tuples should be" \
+                    + "(str, str)")
 
     def get_output_triples(self, node, predicate):
         """ Direct call to _get_output_triples """

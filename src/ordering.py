@@ -40,7 +40,6 @@ class Ordering:
             "event": "http://dbpedia.org/ontology/Event"
         }
         self.focus_pred = self.focus_to_pred[focus]
-        self.discard_nodes = ["http://dbpedia.org/resource/Category:"]
 
         self.domain_range = domain_range
 
@@ -64,7 +63,7 @@ class Ordering:
         # (Not expandable for search + Can create URI Too Long errors)
         # if type_node == 'outgoing':
         #     triple_df = self.remove_literals(triple_df=triple_df)
-        triple_df = self.remove_nodes(triple_df=triple_df, type_node=type_node)
+        # triple_df = self.remove_nodes(triple_df=triple_df, type_node=type_node)
 
         # 2. Superclasses
         if self.domain_range:  # retrieving info from domain_range
@@ -136,14 +135,14 @@ class Ordering:
         return triple_df[triple_df.object.str.startswith('http://')] \
             [["subject", "predicate", "object"]]
 
-    def remove_nodes(self, triple_df, type_node):
-        """ Filtering out certain nodes """
-        triple_df = triple_df.fillna("")
-        col = "subject" if type_node == "ingoing" else "object"
-        triple_df['filter'] = str(triple_df[col])
-        for node in self.discard_nodes:
-            triple_df = triple_df[~triple_df["filter"].str.startswith(node)]
-        return triple_df[["subject", "predicate", "object"]]
+    # def remove_nodes(self, triple_df, type_node):
+    #     """ Filtering out certain nodes """
+    #     triple_df = triple_df.fillna("")
+    #     col = "subject" if type_node == "ingoing" else "object"
+    #     triple_df['filter'] = str(triple_df[col])
+    #     for node in self.discard_nodes:
+    #         triple_df = triple_df[~triple_df["filter"].str.startswith(node)]
+    #     return triple_df[["subject", "predicate", "object"]]
 
     def add_superclass_to_class(self, df_pd: pd.core.frame.DataFrame, type_node: str):
         """
@@ -185,7 +184,7 @@ if __name__ == '__main__':
     from settings import FOLDER_PATH
     from src.hdt_interface import HDTInterface
 
-    folder = os.path.join(FOLDER_PATH, "src/tests")
+    folder = os.path.join(FOLDER_PATH, "src/tests/data")
     pending_ingoing_iter_1 = pd.read_csv(
         os.path.join(folder, "triply_ingoing_expected.csv")) \
             .fillna("")[["subject", "object", "predicate"]]

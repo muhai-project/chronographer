@@ -40,11 +40,11 @@ def get_exp_name(config):
             config.get('ordering').get('domain_range') \
             else ""
     if config.get('filtering'):
-        what = config.get('filtering').get('what') if \
+        what = "what" if \
             config.get('filtering').get('what') else ""
-        where = config.get('filtering').get('where') if \
+        where = "where" if \
             config.get('filtering').get('where') else ""
-        when = config.get('filtering').get('when') if \
+        when = "when" if \
             config.get('filtering').get('when') else ""
     return f"{config['type_ranking']}_{domain_range}_{what}_{where}_{when}"
 
@@ -106,28 +106,33 @@ if __name__ == '__main__':
     args_main = vars(ap.parse_args())
     json_path = args_main["json"]
 
-    config_loaded = json.load(open(json_path, "r", encoding="utf-8"))
-    config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
-    config_loaded = update_config(config=config_loaded, args=args_main)
+    if not (args_main["ordering_domain_range"] == "0" and \
+        args_main["filtering_where"] == "0" and \
+            args_main["filtering_when"] == "0"):
 
-    framework_main = GraphSearchFramework(config=config_loaded)
-    PROJECT_NAME = "event-graph-search-framework"
-    experiment_name = framework_main.save_folder
+        config_loaded = json.load(open(json_path, "r", encoding="utf-8"))
+        config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
+        config_loaded = update_config(config=config_loaded, args=args_main)
 
-    with open(
-        f"{framework_main.save_folder}/config.json", "w", encoding='utf-8'
-    ) as outfile:
-        json.dump(framework_main.config, outfile, indent=4)
-    framework_main.expanded = {}
-    framework_main.metrics_data = {}
-    framework_main.info = {}
+        framework_main = GraphSearchFramework(config=config_loaded)
+        PROJECT_NAME = "event-graph-search-framework"
+        experiment_name = framework_main.save_folder
 
-    for i_main in range(1, framework_main.iterations+1):
-        wandb.init(
-            project=PROJECT_NAME,
-            name=get_exp_name(config=config_loaded))
-        run_one_iteration(i=i_main, framework=framework_main)
+        with open(
+            f"{framework_main.save_folder}/config.json", "w", encoding='utf-8'
+        ) as outfile:
+            json.dump(framework_main.config, outfile, indent=4)
+        framework_main.expanded = {}
+        framework_main.metrics_data = {}
+        framework_main.info = {}
 
-        wandb.log(framework_main.metrics_data[i_main])
+        for i_main in range(1, framework_main.iterations+1):
+            wandb.init(
+                project=PROJECT_NAME,
+                name=get_exp_name(config=config_loaded))
+            run_one_iteration(i=i_main, framework=framework_main)
 
-    wandb.finish()
+            if 
+            wandb.log(framework_main.metrics_data[i_main])
+
+        wandb.finish()

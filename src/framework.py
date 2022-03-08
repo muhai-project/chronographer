@@ -314,6 +314,7 @@ class GraphSearchFramework:
             self._merge_outputs_single_run(subgraph_ingoing, path_ingoing,
                                            subgraph_outgoing, path_outgoing, info, iteration)
 
+        print(self.occurence)
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
             self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
@@ -385,18 +386,18 @@ class GraphSearchFramework:
             print(f"Iteration {i} started at {datetime.now()}")
             output = self.run_one_iteration(iteration=i)
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
+            events_found = \
+                    [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
+                        .subject.unique()] + \
+                        [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
+                            .object.unique()]
+            self.update_metrics(iteration=i, found=events_found)
 
             if self.to_expand:
                 self.expanded[i+1] = self.to_expand
 
                 self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
-                events_found = \
-                    [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
-                        .subject.unique()] + \
-                        [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
-                            .object.unique()]
 
-                self.update_metrics(iteration=i, found=events_found)
                 self.pending_nodes_ingoing.to_csv(
                     f"{self.save_folder}/{i}-pending_nodes_ingoing.csv")
                 self.pending_nodes_outgoing.to_csv(

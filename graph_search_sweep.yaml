@@ -7,11 +7,11 @@ parameters:
   json:
     value: config.json
   type_ranking:
-    values: ["pred_freq", "entropy_pred_freq", "pred_object_freq", "entropy_pred_object_freq"]
+    values: ["pred_object_freq", "entropy_pred_object_freq"]
   ordering_domain_range:
     values: [0, 1]
   filtering_what:
-    value: [0, 1]
+    value: 1
   filtering_where:
     values: [0, 1]
   filtering_when:
