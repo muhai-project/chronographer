@@ -25,10 +25,10 @@
     "start_date": "1789-01-01",
     "end_date": "1804-12-31",
     "iterations": 50,
-    "type_ranking": "entropy_pred_object_freq",
+    "type_ranking": "pred_object_freq",
     "type_interface": "hdt",
-    "gold_standard": "events_french_revolution.csv",
-    "referents": "referents_french_revolution.json",
+    "gold_standard": "./data/gs_events/events_french_revolution.csv",
+    "referents": "./data/referents/referents_french_revolution.json",
     "type_metrics": ["precision", "recall", "f1"],
     "ordering": {
         "domain_range": 1

@@ -168,7 +168,8 @@ class GraphSearchFramework:
         if "referents" not in config:
             raise ValueError(self.config_error_messages['referents'])
         try:
-            json.load(open(config["referents"], "r", encoding="utf-8"))
+            with open(config["referents"], "r", encoding='utf-8') as openfile:
+                json.load(openfile)
         except Exception as type_error:
             raise TypeError(self.config_error_messages['referents']) from type_error
 
@@ -202,7 +203,9 @@ class GraphSearchFramework:
 
     def _select_nodes_to_expand(self):
         if self.to_expand:
-            self.to_expand = self.to_expand[2:]
+            for elt in ["1-", '2-', "3-"]:
+                if self.to_expand.startswith(elt):
+                    self.to_expand = self.to_expand.replace(elt, "")
             path = [self.to_expand]
 
             # Gettings args for next iteration
@@ -220,14 +223,14 @@ class GraphSearchFramework:
                         (self.pending_nodes_outgoing.subject \
                             .isin([subj, str(subj)]))].object.values)
             else:
-                print(self.pending_nodes_ingoing.predicate.unique())
+                # print(self.pending_nodes_ingoing.predicate.unique())
                 nodes = list(self.pending_nodes_ingoing[\
                     self.pending_nodes_ingoing.predicate.isin(
                         [self.to_expand])].subject.values) + \
                         list(self.pending_nodes_outgoing[\
                     self.pending_nodes_outgoing.predicate.isin(
                         [self.to_expand])].object.values)
-                print(nodes)
+                # print(nodes)
 
         else:  # INIT state: only starting node
             path, nodes = [], [self.start]
@@ -314,7 +317,6 @@ class GraphSearchFramework:
             self._merge_outputs_single_run(subgraph_ingoing, path_ingoing,
                                            subgraph_outgoing, path_outgoing, info, iteration)
 
-        print(self.occurence)
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
             self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
@@ -363,9 +365,8 @@ class GraphSearchFramework:
         save_folder = os.path.join(folder_path,
                                  f"{date}-{self.folder_name_suffix}")
         if os.path.exists(save_folder):
-            raise ValueError("Folder to save data already exists, content will be overwritten")
-        else:
-            os.makedirs(save_folder)
+            raise ValueError("Folder to save data already exists, re creating one")
+        os.makedirs(save_folder)
         return save_folder
 
     def update_metrics(self, iteration, found):
@@ -376,7 +377,8 @@ class GraphSearchFramework:
 
 
     def __call__(self):
-        json.dump(self.config, open(f"{self.save_folder}/config.json", "w", encoding='utf-8'),
+        with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
+            json.dump(self.config, openfile,
                       indent=4)
         self.expanded = {}
         self.metrics_data = {}
@@ -386,41 +388,47 @@ class GraphSearchFramework:
             print(f"Iteration {i} started at {datetime.now()}")
             output = self.run_one_iteration(iteration=i)
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
+
+            self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
+
+            self.pending_nodes_ingoing.to_csv(
+                f"{self.save_folder}/{i}-pending_nodes_ingoing.csv")
+            self.pending_nodes_outgoing.to_csv(
+                f"{self.save_folder}/{i}-pending_nodes_outgoing.csv")
+
+            with open(f"{self.save_folder}/{i}-occurences.json", "w", encoding='utf-8') \
+                    as openfile:
+                json.dump(self.occurence, openfile,
+                            indent=4)
+            # self.info.to_csv(f"{i}-info.csv")
+            with open(f"{self.save_folder}/expanded.json", "w", encoding='utf-8') as openfile:
+                json.dump(self.expanded, openfile,
+                            indent=4)
+
             events_found = \
-                    [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
-                        .subject.unique()] + \
-                        [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
-                            .object.unique()]
+                [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
+                    .subject.unique()] + \
+                    [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
+                        .object.unique()]
             self.update_metrics(iteration=i, found=events_found)
+
+            with open(f"{self.save_folder}/metrics.json", "w", encoding='utf-8') as openfile:
+                json.dump(self.metrics_data, openfile,
+                            indent=4)
+            with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
+                json.dump(self.info, openfile,
+                            indent=4)
+
+
+            print(f"Iteration {i} finished at {datetime.now()}\n=====")
+
+            with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
+                self.plotter(info=json.load(openfile), save_folder=self.save_folder)
 
             if self.to_expand:
                 self.expanded[i+1] = self.to_expand
-
-                self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
-
-                self.pending_nodes_ingoing.to_csv(
-                    f"{self.save_folder}/{i}-pending_nodes_ingoing.csv")
-                self.pending_nodes_outgoing.to_csv(
-                    f"{self.save_folder}/{i}-pending_nodes_outgoing.csv")
-                json.dump(self.occurence, open(f"{self.save_folder}/{i}-occurences.json",
-                                                "w", encoding='utf-8'),
-                        indent=4)
-                # self.info.to_csv(f"{i}-info.csv")
-                json.dump(self.expanded, open(\
-                    f"{self.save_folder}/expanded.json", "w", encoding='utf-8'),
-                        indent=4)
-                json.dump(self.metrics_data, open(\
-                    f"{self.save_folder}/metrics.json", "w", encoding='utf-8'),
-                        indent=4)
-                json.dump(self.info, open(\
-                    f"{self.save_folder}/info.json", "w", encoding='utf-8'),
-                        indent=4)
-
-                print(f"Iteration {i} finished at {datetime.now()}\n=====")
-
-                self.plotter(info=json.load(open(f"{self.save_folder}/metrics.json",
-                                         "r", encoding="utf-8")),
-                     save_folder=self.save_folder)
+                with open(f"{self.save_folder}/expanded.json", "w", encoding='utf-8') as openfile:
+                    json.dump(self.expanded, openfile, indent=4)
 
             else:
                 print("According to params, no further nodes to expand," \
@@ -435,9 +443,9 @@ if __name__ == '__main__':
                     help="Path to json file containing configuration file")
     json_path = vars(ap.parse_args())["json"]
 
-    config_loaded = json.load(open(json_path, "r", encoding="utf-8"))
-    config_loaded["rdf_type"] = [(name, link) \
-        for name, link in config_loaded["rdf_type"].items()]
+    with open(json_path, "r", encoding="utf-8") as openfile_main:
+        config_loaded = json.load(openfile_main)
+    config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
 
     framework = GraphSearchFramework(config=config_loaded)
     start = datetime.now()
@@ -445,6 +453,6 @@ if __name__ == '__main__':
     framework()
     end = datetime.now()
     print(f"Process ended at {end}, took {end-start}")
-    print(framework.ordering.superclasses)
-    print(framework.ordering.domain)
-    print(framework.ordering.range)
+    # print(framework.ordering.superclasses)
+    # print(framework.ordering.domain)
+    # print(framework.ordering.range)

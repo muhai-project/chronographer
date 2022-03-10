@@ -79,7 +79,9 @@ class HDTInterface:
     def _filter_namespace(triples):
         to_discard = [
             "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
-            "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"'
+            "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"',
+            "http://whc.unesco.org", "http://www", "http://dinlarthelwa",
+            "http://afm"
         ]
         triples = [elt for elt in triples if \
             not any(elt[2].startswith(discard) for discard in to_discard)]

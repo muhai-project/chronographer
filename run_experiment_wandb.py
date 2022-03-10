@@ -132,7 +132,7 @@ if __name__ == '__main__':
                 name=get_exp_name(config=config_loaded))
             run_one_iteration(i=i_main, framework=framework_main)
 
-            if 
-            wandb.log(framework_main.metrics_data[i_main])
+            if i_main in framework_main.metrics_data:
+                wandb.log(framework_main.metrics_data[i_main])
 
         wandb.finish()

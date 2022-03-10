@@ -39,18 +39,19 @@ class Ranker:
 
     def _sort_dict(self, dico, reverse, filter_items=True):
         dico = self.filter_dict(dico=dico)
+        sorted_filtered_items = []
         if filter_items:
             sorted_filtered_items = \
                 list({k: v for k, v in sorted(dico.items(),
                     key=lambda item: item[1], reverse=reverse) if
                         self.low_thresold < v < self.high_threshold}.items())
-        else:
+        if not (filter_items and sorted_filtered_items):
             sorted_filtered_items = \
                 list({k: v for k, v in sorted(dico.items(),
                     key=lambda item: item[1], reverse=reverse)}.items())
-        if sorted_filtered_items:
-            return sorted_filtered_items[0][0]
-        return None
+
+        return sorted_filtered_items[0][0]
+
 
     @staticmethod
     def _add_entropy_score(dico):

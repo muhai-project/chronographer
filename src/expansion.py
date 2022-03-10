@@ -73,18 +73,23 @@ class NodeExpansion:
         return self._filter_sub_graph(type_date_df, triple_ingoing, triple_outgoing, dates)
 
     def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
-        # Getting nodes to discard (both for subgraph and pending nodes)
+        """ Filtering subgraph: nodes to be removed, nodes to be kept, other """
+        # Edge case: type_date_df is empty 
+        # --> we assume that the ingoing/outgoing nodes are not relevant for the search
+        if type_date_df.shape[0] == 0:
+            to_keep = []
+            to_discard = list(triple_ingoing.subject.unique()) + \
+                list(triple_outgoing.object.unique())
 
-        # to_keep_date = date_df[(date_df.object >= dates[0]) & \
-        #                        (date_df.object <= dates[1])].subject.unique()
-        to_discard = self.filtering(df_pd=type_date_df, dates=dates)
-        print(to_discard)
+        else:
+            to_discard = self.filtering(df_pd=type_date_df, dates=dates)
+        # print(to_discard)
 
         # Filter on types of nodes that should be retrieved
-        to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
-            (type_date_df.object.isin(list(self.mapping.keys())))].subject.unique())
+            to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
+                (type_date_df.object.isin(list(self.mapping.keys())))].subject.unique())
 
-        print(to_keep)
+        # print(to_keep)
 
         return triple_ingoing[triple_ingoing.subject.isin(to_keep)], \
             triple_ingoing[~triple_ingoing.subject.isin(to_discard)], \

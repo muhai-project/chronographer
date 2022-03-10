@@ -63,16 +63,22 @@ class Filtering:
                              (date_df.object > dates[1]))].subject.unique())
 
     @staticmethod
-    def get_to_discard_regex(df_pd: pd.core.frame.DataFrame, dates: list[str]):
+    def regex_helper(row, default_return_val):
+        """ Finding regex column name in subject str uri """
+        pattern = "\\d{4}"
+        matches = re.findall(pattern, row.subject)
+        if matches:
+            return str(matches[0])
+        return default_return_val
+
+
+    def get_to_discard_regex(self, df_pd: pd.core.frame.DataFrame, dates: list[str]):
         """ Filtering on string uri
         - temporal dimension: regex on the URL (and therefore name of the events,
             e.g. 1997_National_Championships > non relevant """
-        pattern = "\\d{4}"
-        df_pd = df_pd.fillna("")
-        df_pd['regex_helper'] = df_pd.subject.apply(lambda x: re.search(pattern, str(x)))
-        df_pd['regex_helper'] = df_pd.apply(
-            lambda x: str(re.findall(pattern, x.subject)[0]) \
-                if x['regex_helper'] else dates[0], axis=1)
+        df_pd['regex_helper']= df_pd.apply(
+            lambda x: self.regex_helper(x, dates[0]), axis=1)
+
         return list(df_pd[(df_pd.regex_helper < dates[0][:4]) | \
                           (df_pd.regex_helper > dates[1][:4])].subject.unique())
 

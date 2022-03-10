@@ -66,6 +66,28 @@ sh clean.sh
 4. Run experiments
 5. Visualise results (wandb recommended)
 
+## **Experiments**
+
+French Revolution
+start node: http://dbpedia.org/resource/French_Revolution
+start date: 1789-01-01
+end date: 1804-12-31
+
+WWII
+start node: http://dbpedia.org/resource/World_War_II
+start date: 1939-01-01
+end date: 1945-12-31
+
+Russian Revolution
+start node: http://dbpedia.org/resource/Russian_Revolution
+start date: 1917-01-01
+end date: 1923-12-31
+
+American Revolution
+start node: http://dbpedia.org/resource/American_Revolution
+start date: 1765-01-01
+end date: 1783-12-31
+
 ## **Weights and biases**
 
 It is also possible to run scripts using the [Weights and biases platform](https://wandb.ai/site) and its Python module, wandb.

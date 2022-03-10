@@ -5,19 +5,22 @@ import json
 
 class Metrics:
     """
-#TO DO: add documentation on this script
-"""
+    #TO DO: add documentation on this script
+    """
 
     def __init__(self, referent_path):
         self.metrics_to_calc = {
-            'precision': self._get_precision,
-            'recall': self._get_recall,
-            'f1': self._get_f1,
+            'precision': self.get_precision,
+            'recall': self.get_recall,
+            'f1': self.get_f1,
         }
 
-        self.referents = json.load(open(referent_path, "r", encoding="utf-8"))
+        with open(referent_path, "r", encoding='utf-8') as openfile:
+            self.referents = json.load(openfile)
 
-    def _get_numbers(self, found, gold_standard):
+    @staticmethod
+    def get_numbers(found, gold_standard):
+        """ Numbers necessary to calculate the metrics """
         found, gold_standard = set(found), set(gold_standard)
         true_pos = len(found.intersection(gold_standard))
         false_pos = len(found.difference(gold_standard))
@@ -27,19 +30,22 @@ class Metrics:
                     false_neg=false_neg)
 
     @staticmethod
-    def _get_precision(**args):
+    def get_precision(**args):
+        """ Precision """
         if args["true_pos"] + args["false_pos"] == 0:
             return 0
         return args["true_pos"] / (args["true_pos"] + args["false_pos"])
 
     @staticmethod
-    def _get_recall(**args):
+    def get_recall(**args):
+        """ Recall """
         if args["true_pos"] + args["false_neg"] == 0:
             return 0
         return args["true_pos"] / (args["true_pos"] + args["false_neg"])
 
     @staticmethod
-    def _get_f1(**args):
+    def get_f1(**args):
+        """ f1 """
         if args["true_pos"] + \
             0.5 * (args["false_pos"] + args["false_neg"]) == 0:
             return 0
@@ -55,7 +61,7 @@ class Metrics:
             raise ValueError(f"Current metrics implemented: {list(self.metrics_to_calc.keys())}" \
                 + "\tOne of the metrics in parameter not implemented")
 
-        args= self._get_numbers(found=found, gold_standard=gold_standard)
+        args= self.get_numbers(found=found, gold_standard=gold_standard)
         _metrics = {metric: f(**args) \
             for metric, f in self.metrics_to_calc.items()}
         return _metrics
