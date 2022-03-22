@@ -74,7 +74,7 @@ class NodeExpansion:
 
     def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
         """ Filtering subgraph: nodes to be removed, nodes to be kept, other """
-        # Edge case: type_date_df is empty 
+        # Edge case: type_date_df is empty
         # --> we assume that the ingoing/outgoing nodes are not relevant for the search
         if type_date_df.shape[0] == 0:
             to_keep = []

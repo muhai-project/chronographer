@@ -2,8 +2,10 @@
 Running several experiments using wandb
 # weights and biases
 """
+import os
 import json
 import argparse
+from pyvis.network import Network
 
 import wandb
 from src.framework import GraphSearchFramework
@@ -57,6 +59,7 @@ def run_one_iteration(i, framework):
     if framework.to_expand:
         framework.expanded[i+1] = framework.to_expand
 
+        framework.add_subgraph_info(iteration=i)
         framework.subgraph.to_csv(f"{framework.save_folder}/{i}-subgraph.csv")
         events_found = \
             [str(e) for e in framework.subgraph[framework.subgraph.type_df == "ingoing"] \
@@ -86,6 +89,32 @@ def run_one_iteration(i, framework):
         framework.plotter(info=json.load(open(f"{framework.save_folder}/metrics.json",
                             "r", encoding="utf-8")),
                 save_folder=framework.save_folder)
+
+
+def pre_process(node):
+    """ URI > more human-readable """
+    return node.split("/")[-1].replace('_', ' ')
+
+
+def build_network(subgraph):
+    """ Html network for final subgraph """
+    nt_subgraph = Network("800px", "800px",
+                 notebook=False, directed=True)
+    nodes = list(set(subgraph.subject.unique())) + \
+         list(set(subgraph.object.unique()))
+    for node in nodes:
+        nt_subgraph.add_node(pre_process(node), label=pre_process(node))
+    for _, row in subgraph.iterrows():
+        nt_subgraph.add_edge(pre_process(row.subject), pre_process(row.object),
+                             label=pre_process(row.predicate))
+
+    nt_subgraph.repulsion(node_distance=600, spring_length=340,
+                          spring_strength=0.4)
+    nt_subgraph.show("subgraph.html")
+    html_file = open("subgraph.html", 'r', encoding='utf-8')
+    source_code = html_file.read()
+    # os.remove("subgraph.html")
+    return source_code
 
 
 if __name__ == '__main__':
@@ -126,13 +155,29 @@ if __name__ == '__main__':
         framework_main.metrics_data = {}
         framework_main.info = {}
 
+        table_expanded = wandb.Table(columns=["iteration", "path_expanded"],
+                                     data=[[1, config_loaded["start"]]])
+
         for i_main in range(1, framework_main.iterations+1):
             wandb.init(
                 project=PROJECT_NAME,
                 name=get_exp_name(config=config_loaded))
             run_one_iteration(i=i_main, framework=framework_main)
 
-            if i_main in framework_main.metrics_data:
-                wandb.log(framework_main.metrics_data[i_main])
+            # if i_main in framework_main.metrics_data and i_main in framework_main.subgraph_info:
+            wandb.log(dict(framework_main.metrics_data[i_main],
+                            **framework_main.subgraph_info[i_main]), step=i_main)
+            if i_main in framework_main.info:
+                wandb.log(framework_main.info[i_main], step=i_main)
+
+            table_expanded.add_data(i_main+1, framework_main.expanded[i_main+1])
+
+        wandb.log({"subgraph": framework_main.subgraph,
+                   "nodes_expanded": framework_main.nodes_expanded_per_iter,
+                   "node_discarded": framework_main.discarded}, step=i_main)
+        wandb.log({"path_expanded": table_expanded})
+
+        html_subgraph = build_network(subgraph=framework_main.subgraph)
+        wandb.log({"subgraph_visualisation": wandb.Html(html_subgraph)})
 
         wandb.finish()

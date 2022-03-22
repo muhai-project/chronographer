@@ -77,7 +77,9 @@ class GraphSearchFramework:
         else:  # type_interface == "hdt"
             self.interface = HDTInterface()
 
-        self.subgraph = pd.DataFrame(columns=["subject", "predicate", "object"])
+        self.subgraph = pd.DataFrame(columns=[
+            "subject", "predicate", "object", "type_df", "iteration"])
+        self.subgraph_info = {}
 
         self.pending_nodes_ingoing = pd.DataFrame(columns=["subject", "predicate", "object"])
         self.pending_nodes_outgoing = pd.DataFrame(columns=["subject", "predicate", "object"])
@@ -91,7 +93,9 @@ class GraphSearchFramework:
         self.nodes_expanded = []
         self.occurence = defaultdict(int)
         self.to_expand = None
+        self.nodes_expanded_per_iter = pd.DataFrame(columns=["iteration", "node_expanded"])
         self.expanded = {}
+        self.discarded = pd.DataFrame(columns=["iteration", "node_discarded"])
 
         self.metrics = Metrics(config["referents"])
         self.type_metrics = config["type_metrics"]
@@ -240,9 +244,15 @@ class GraphSearchFramework:
     def _expand_one_node(self, args: dict):
         return self.node_expander(args=args, dates=self.dates)
 
+    def _update_nodes_expanded(self, iteration:int, nodes: list[str]):
+        self.nodes_expanded_per_iter = self.nodes_expanded_per_iter.append(
+            {"iteration": iteration,
+             "node_expanded": nodes}, ignore_index=True)
+
     def run_one_iteration(self, iteration: int):
         """ Running one iteration of the search framework """
         nodes_to_expand, path = self._select_nodes_to_expand()
+        self._update_nodes_expanded(iteration=iteration, nodes=nodes_to_expand)
 
         if self.type_interface == '':
             pool = Pool(self.nb_cpu)
@@ -313,9 +323,18 @@ class GraphSearchFramework:
 
     def merge_outputs(self, output: list, iteration: int, info: dict):
         """ Gather outputs from each of the nodes expanded """
-        for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing, _ in output:
+        curr_discarded = []
+        for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing, to_discard in output:
+            subgraph_ingoing["iteration"] = iteration
+            subgraph_outgoing["iteration"] = iteration
             self._merge_outputs_single_run(subgraph_ingoing, path_ingoing,
                                            subgraph_outgoing, path_outgoing, info, iteration)
+
+            curr_discarded += to_discard
+
+        self.discarded = self.discarded.append(
+            {"iteration": iteration,
+             "node_discarded": list(set(curr_discarded))}, ignore_index=True)
 
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
@@ -375,6 +394,16 @@ class GraphSearchFramework:
             self.metrics(found=found, gold_standard=self.event_gs,
                          type_metrics=self.type_metrics)
 
+    def add_subgraph_info(self, iteration):
+        """ Tracking # of events + unique events found """
+        size = self.subgraph.shape[0]
+        unique = len(set([str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
+                    .subject.unique()] + \
+                    [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
+                        .object.unique()]))
+        self.subgraph_info[iteration] = dict(subgraph_nb_event=size,
+                                             subgraph_nb_event_unique=unique)
+
 
     def __call__(self):
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
@@ -389,6 +418,7 @@ class GraphSearchFramework:
             output = self.run_one_iteration(iteration=i)
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
 
+            self.add_subgraph_info(iteration=i)
             self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
 
             self.pending_nodes_ingoing.to_csv(
