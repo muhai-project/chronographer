@@ -12,3 +12,6 @@ configs/
 .vscode/
 iter-*/
 settings/private.py
+experiments/
+wandb/
+dbpedia-archive/

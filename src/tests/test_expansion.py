@@ -12,7 +12,11 @@ import pandas as pd
 from settings import FOLDER_PATH
 from src.expansion import NodeExpansion
 from src.triply_interface import TriplInterface
-from src.sparql_interface import SPARQLInterface
+from src.hdt_interface import HDTInterface
+
+def clean_df(df_pd):
+    """ Keeping 3 columns """
+    return df_pd[['subject', 'object', 'predicate']]
 
 class TestNodeExpansion(unittest.TestCase):
     """
@@ -21,105 +25,84 @@ class TestNodeExpansion(unittest.TestCase):
 
     def test_init_rdf_type(self):
         """ Test __init__: checking param `rdf_type`  """
-        iteration = 10
-        interface = TriplInterface()
+        interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
 
         # Working
-        rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event")),
-                     ("person", URIRef("http://dbpedia.org/ontology/Person"))]
+        rdf_type =  [("event", "http://dbpedia.org/ontology/Event"),
+                     ("person", "http://dbpedia.org/ontology/Person")]
 
         try:
-            NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
+            NodeExpansion(rdf_type=rdf_type,
+                          interface=interface,
+                          args_filtering={"where": 1, "when": 1})
         except ValueError as error:
             print(error)
             self.fail("NodeExpansion()raised ValueError unexpectedly")
 
         # Not working
-        for rdf_type in [[], "test", [(1, 2, 3), (4, 5, 6)], [("hello", "test")]]:
+        for rdf_type in [[], "test", [(1, 2, 3), (4, 5, 6)]]:
             with self.assertRaises(ValueError):
-                NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
-
-    def test_init_iteration(self):
-        """ Test __init__: checking param `iteration`  """
-        rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-        interface = TriplInterface()
-
-        # Working
-        try:
-            NodeExpansion(rdf_type=rdf_type, iteration=10, interface=interface)
-        except ValueError as error:
-            print(error)
-            self.fail("NodeExpansion()raised ValueError unexpectedly")
-
-        # Not working
-        for iteration in [None, "test"]:
-            with self.assertRaises(ValueError):
-                NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
+                NodeExpansion(rdf_type=rdf_type,
+                              args_filtering={"where": 1, "when": 1},
+                              interface=interface)
 
     def test_init_interface(self):
         """ Test __init__: checking param `interface`  """
         rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-        iteration = 10
 
         # Working
-        for interface in [TriplInterface(), SPARQLInterface()]:
+        for interface in [TriplInterface(
+            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]), \
+                          HDTInterface()]:
             try:
-                NodeExpansion(rdf_type=rdf_type, iteration=10, interface=interface)
+                NodeExpansion(rdf_type=rdf_type,
+                              args_filtering={"where": 1, "when": 1},
+                              interface=interface)
             except ValueError as error:
                 print(error)
                 self.fail("NodeExpansion()raised ValueError unexpectedly")
 
         # Not working
         with self.assertRaises(ValueError):
-            NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface="test")
-
-    def test_get_output_triples(self):
-        """ Test get_output_triples """
-        output_interface = pd.read_csv(\
-            os.path.join(FOLDER_PATH,
-                         "src/tests/triply_expected.csv"))
-
-        rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-        iteration = 10
-        interface = create_autospec(TriplInterface())
-        interface.return_value = output_interface
-
-        expansion = NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
-
-        type_df_expected = output_interface[output_interface.predicate == \
-            URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")]
-        path_df_expected = output_interface[output_interface.predicate != \
-            URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")]
-
-        type_df, path_df = expansion.get_output_triples(node=None, predicate=None)
-
-        self.assertTrue(\
-            pd.concat([type_df,type_df_expected]) \
-                .drop_duplicates(keep=False).shape[0] == 0)
-        self.assertTrue(\
-            pd.concat([path_df,path_df_expected]) \
-                .drop_duplicates(keep=False).shape[0] == 0)
+            NodeExpansion(rdf_type=rdf_type,
+                          args_filtering={"where": 1, "when": 1},
+                          interface="test")
 
     def test_filter_sub_graph(self):
         """ Test get_output_triples """
-        output_interface = pd.read_csv(\
-            os.path.join(FOLDER_PATH,
-                         "src/tests/triply_expected.csv"))
+        folder = os.path.join(FOLDER_PATH, "src/tests/data/")
+        ingoing_expected = clean_df(pd.read_csv(f"{folder}triply_ingoing_expected.csv"))
+        outgoing_expected = clean_df(pd.read_csv(f"{folder}triply_outgoing_expected.csv"))
+        types_expected = clean_df(pd.read_csv(f"{folder}triply_types_expected.csv"))
 
-        rdf_type =  [("event", URIRef("http://dbpedia.org/ontology/Event"))]
-        iteration = 10
-        interface = create_autospec(TriplInterface())
-        interface.return_value = output_interface
-        print(type(interface))
-        expansion = NodeExpansion(rdf_type=rdf_type, iteration=iteration, interface=interface)
-        type_df, path_df = expansion.get_output_triples(node=None, predicate=None)
+        rdf_type =  [("event", "http://dbpedia.org/ontology/Event")]
+        interface = create_autospec(TriplInterface(
+            default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]))
+        interface.return_value = (ingoing_expected, outgoing_expected, types_expected)
 
-        subject = type_df[type_df.object.isin(expansion.mapping.keys())] \
-            .subject.values
-        subgraph_expected = path_df[path_df.subject.isin(subject)]
+        expansion = NodeExpansion(rdf_type=rdf_type,
+                                  args_filtering={"where": 1, "when": 1},
+                                  interface=interface)
+        ingoing, outgoing, types = expansion.get_output_triples(node=None, predicate=None)
 
-        subgraph = expansion.filter_sub_graph(type_df, path_df)
+        to_discard = expansion.filtering(df_pd=types, dates=["1789-01-01", "1804-12-31"])
+        to_keep = list(types[(~types.subject.isin(to_discard)) & \
+            (types.object.isin(list(expansion.mapping.keys())))].subject.unique())
 
-        self.assertTrue(\
-            pd.concat([subgraph,subgraph_expected]) \
-                .drop_duplicates(keep=False).shape[0] == 0)
+        subgraph_ingoing_expected = ingoing[ingoing.subject.isin(to_keep)]
+        path_ingoing_expected = ingoing[~ingoing.subject.isin(to_discard)]
+        subgraph_outgoing_expected = outgoing[outgoing.object.isin(to_keep)]
+        path_outgoing_expected = outgoing[~outgoing.object.isin(to_discard)]
+
+
+        subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing, _ = \
+            expansion.filter_sub_graph(types_expected, ingoing_expected, outgoing_expected,
+                                       ["1789-01-01", "1804-12-31"])
+
+        for df1, df2 in [(subgraph_ingoing, subgraph_ingoing_expected),
+                           (path_ingoing, path_ingoing_expected),
+                           (subgraph_outgoing, subgraph_outgoing_expected),
+                           (path_outgoing, path_outgoing_expected)]:
+            merged = df1.merge(df2, how='left', on=["subject", "object", "predicate"])
+            self.assertTrue(merged.shape == df1.shape)
+            self.assertTrue(merged.shape == df2.shape)

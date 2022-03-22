@@ -1,13 +1,13 @@
 """
-Unittest of file `triply_interface.py`, class TriplInterface
-python -m unittest -v test_triply_interface.py
+Unittest of file `hdt_interface.py`, class HDTInterface
+python -m unittest -v test_hdt_interface.py
 """
 
 import os
 import unittest
 import pandas as pd
 from settings import FOLDER_PATH
-from src.triply_interface import TriplInterface
+from src.hdt_interface import HDTInterface
 
 def reorder_df(df_pd):
     """ Reordering df rows and columns for comparison """
@@ -15,9 +15,9 @@ def reorder_df(df_pd):
                 .sort_values(by=['subject', 'object', 'predicate', 'type_df']) \
                     .reset_index(drop=True)
 
-class TestTriplInterface(unittest.TestCase):
+class TestHDTInterface(unittest.TestCase):
     """
-    Test class for Triply DB Interface (dbpedia 2021-09)
+    Test class for HDT Interface (dbpedia 2016-10)
     """
 
     def test_call(self):
@@ -36,15 +36,20 @@ class TestTriplInterface(unittest.TestCase):
                     "http://dbpedia.org/ontology/wikiPageRevisionID",
                     "http://dbpedia.org/property/wikiPageUsesTemplate",
                     "http://www.w3.org/2002/07/owl#sameAs",
-                    "http://www.w3.org/ns/prov#wasDerivedFrom"]
-        interface = TriplInterface(default_pred=["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"])
+                    "http://www.w3.org/ns/prov#wasDerivedFrom",
+                    "http://dbpedia.org/ontology/wikiPageWikiLinkText",
+                    "http://dbpedia.org/ontology/wikiPageOutDegree",
+                    "http://dbpedia.org/ontology/abstract",
+                    "http://www.w3.org/2000/01/rdf-schema#comment",
+                    "http://www.w3.org/2000/01/rdf-schema#label"]
+        interface = HDTInterface()
         ingoing, outgoing, types = interface(node=node, predicate=predicate)
         ingoing, outgoing, types = reorder_df(ingoing), reorder_df(outgoing), reorder_df(types)
 
         folder = os.path.join(FOLDER_PATH, "src/tests/data/")
-        ingoing_expected = reorder_df(pd.read_csv(f"{folder}triply_ingoing_expected.csv"))
-        outgoing_expected = reorder_df(pd.read_csv(f"{folder}triply_outgoing_expected.csv"))
-        types_expected = reorder_df(pd.read_csv(f"{folder}triply_types_expected.csv"))
+        ingoing_expected = reorder_df(pd.read_csv(f"{folder}hdt_ingoing_expected.csv"))
+        outgoing_expected = reorder_df(pd.read_csv(f"{folder}hdt_outgoing_expected.csv"))
+        types_expected = reorder_df(pd.read_csv(f"{folder}hdt_types_expected.csv"))
 
         for (df1, df2) in [(ingoing, ingoing_expected), (outgoing, outgoing_expected),
                            (types, types_expected)]:

@@ -12,8 +12,10 @@ class Plotter:
         dataframe = pd.DataFrame(dict(iteration=[], value=[], type_=[]))
 
         for i, metrics in info.items():
-            curr_df = pd.DataFrame.from_dict(dict(iteration=[i]*3, value=[metrics[t] for t in self.metrics],
-                                                  type_=self.metrics))
+            curr_df = pd.DataFrame.from_dict(
+                dict(iteration=[i]*3,
+                     value=[metrics[t] for t in self.metrics],
+                     type_=self.metrics))
             dataframe = dataframe.append(curr_df, ignore_index = True)
         return dataframe
 
@@ -36,7 +38,12 @@ class Plotter:
 
 if __name__ == '__main__':
     SAVE_FOLDER="/Users/ines/Projects/graph_search_framework"
+    import os
     import json
-    INFO=json.load(open("/Users/ines/Projects/graph_search_framework/data/2021-12-20-16:32:49-iter-8-triply-entropy_pred_freq/metrics.json", "r", encoding="utf-8"))
+    from settings import FOLDER_PATH
+    INFO=json.load(open(
+        os.path.join(FOLDER_PATH,
+                     "data/2022-03-01-14:56:59-iter-30-triply-entropy_pred_object_freq/metrics.json"),
+        "r", encoding="utf-8"))
     plotter=Plotter()
     plotter(INFO, SAVE_FOLDER)

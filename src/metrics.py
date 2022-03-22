@@ -1,19 +1,26 @@
 """
 #TO DO: add documentation on this script
 """
+import json
+
 class Metrics:
     """
-#TO DO: add documentation on this script
-"""
+    #TO DO: add documentation on this script
+    """
 
-    def __init__(self):
+    def __init__(self, referent_path):
         self.metrics_to_calc = {
-            'precision': self._get_precision,
-            'recall': self._get_recall,
-            'f1': self._get_f1,
+            'precision': self.get_precision,
+            'recall': self.get_recall,
+            'f1': self.get_f1,
         }
 
-    def _get_numbers(self, found, gold_standard):
+        with open(referent_path, "r", encoding='utf-8') as openfile:
+            self.referents = json.load(openfile)
+
+    @staticmethod
+    def get_numbers(found, gold_standard):
+        """ Numbers necessary to calculate the metrics """
         found, gold_standard = set(found), set(gold_standard)
         true_pos = len(found.intersection(gold_standard))
         false_pos = len(found.difference(gold_standard))
@@ -23,25 +30,38 @@ class Metrics:
                     false_neg=false_neg)
 
     @staticmethod
-    def _get_precision(**args):
+    def get_precision(**args):
+        """ Precision """
+        if args["true_pos"] + args["false_pos"] == 0:
+            return 0
         return args["true_pos"] / (args["true_pos"] + args["false_pos"])
 
     @staticmethod
-    def _get_recall(**args):
+    def get_recall(**args):
+        """ Recall """
+        if args["true_pos"] + args["false_neg"] == 0:
+            return 0
         return args["true_pos"] / (args["true_pos"] + args["false_neg"])
 
     @staticmethod
-    def _get_f1(**args):
+    def get_f1(**args):
+        """ f1 """
+        if args["true_pos"] + \
+            0.5 * (args["false_pos"] + args["false_neg"]) == 0:
+            return 0
         return args["true_pos"] / (args["true_pos"] + \
             0.5 * (args["false_pos"] + args["false_neg"]))
 
     def __call__(self, found: list, gold_standard: list,
-                 type_metrics: list = ['precision', 'recall', 'f1']):
+                 type_metrics: list):
+        f_change = lambda url: self.referents[url] if url in self.referents else url
+        found = [f_change(url) for url in found]
+
         if any(metric not in self.metrics_to_calc for metric in type_metrics):
             raise ValueError(f"Current metrics implemented: {list(self.metrics_to_calc.keys())}" \
                 + "\tOne of the metrics in parameter not implemented")
 
-        args= self._get_numbers(found=found, gold_standard=gold_standard)
+        args= self.get_numbers(found=found, gold_standard=gold_standard)
         _metrics = {metric: f(**args) \
             for metric, f in self.metrics_to_calc.items()}
         return _metrics
@@ -53,7 +73,7 @@ if __name__ == '__main__':
     import pandas as pd
     from os import listdir
     from settings import FOLDER_PATH
-    metrics = Metrics()
+    metrics = Metrics(referent_path=os.path.join(FOLDER_PATH, "referents.json"))
 
     df_gs = pd.read_csv(os.path.join(FOLDER_PATH, "test.csv"))
     event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())

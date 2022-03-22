@@ -1,8 +1,6 @@
 """
 #TO DO: add documentation on this script
 """
-# TO DO heuristics: add other heuristics
-# TO DO heuristics: when to call this ranker
 from math import log
 
 class Ranker:
@@ -24,22 +22,36 @@ class Ranker:
         self.low_thresold = low_thresold
         self.high_threshold = high_threshold
 
+        self.domain = "http://www.w3.org/2000/01/rdf-schema#domain"
+        self.range = "http://www.w3.org/2000/01/rdf-schema#range"
+
     # def _split(self, d):
     #     return
 
+    @staticmethod
+    def filter_dict(dico):
+        """ Ordering dico based on path info
+        If starts by 1: highest priority, then descending order """
+        for order in ["1", "2", "3"]:
+            if any(k.startswith(order) for k in dico.keys()):
+                return {k: v for k, v in dico.items() if k.startswith(order)}
+        return dico
+
     def _sort_dict(self, dico, reverse, filter_items=True):
+        dico = self.filter_dict(dico=dico)
+        sorted_filtered_items = []
         if filter_items:
             sorted_filtered_items = \
                 list({k: v for k, v in sorted(dico.items(),
                     key=lambda item: item[1], reverse=reverse) if
                         self.low_thresold < v < self.high_threshold}.items())
-        else:
+        if not (filter_items and sorted_filtered_items):
             sorted_filtered_items = \
                 list({k: v for k, v in sorted(dico.items(),
                     key=lambda item: item[1], reverse=reverse)}.items())
-        if sorted_filtered_items:
-            return sorted_filtered_items[0][0]
-        return None
+
+        return sorted_filtered_items[0][0]
+
 
     @staticmethod
     def _add_entropy_score(dico):
@@ -50,12 +62,17 @@ class Ranker:
         return new_dico
 
     def __call__(self, occurences):
+        """
+        sorted values with superclass info
+        1. domain/range + score
+        2. manually selected predicates + score (N/A)
+        3. Only score
+        """
         if "pred" in self.type:
             if "inverse" in self.type:
                 return self._sort_dict(dico=occurences, reverse=False)
             if "entropy" in self.type:
                 dico = self._add_entropy_score(dico=occurences)
-                print(dico)
                 return self._sort_dict(dico=dico, reverse=True,
                                        filter_items=False)
             return self._sort_dict(dico=occurences, reverse=True)

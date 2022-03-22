@@ -1,6 +1,6 @@
 """
 Unittest of file `framework.py`, class GraphSearchFramework
-python -m unittest -v test_framework.py
+python -m unittest -v test_ranker.py
 
 Different types of ranking strategies:
 - pred_freq:
@@ -51,7 +51,7 @@ class TestRanker(unittest.TestCase):
 
         self.assertEqual(ranker(occurences_expected),
                           "http://www.w3.org/2004/02/skos/core#broader")
-    
+
     def test_call_pred_object_freq(self):
         """ type_ranking='pred_freq' """
         ranker = Ranker(type_ranking='pred_object_freq')

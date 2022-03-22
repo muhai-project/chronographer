@@ -1,58 +1,52 @@
 """
-#TO DO: add documentation on this script
+Expanding one node by retrieving its ingoing and outgoing edges
+Filtering subgraph and pending nodes to be explored
 """
-from rdflib.term import URIRef
-from src.triply_interface import TriplInterface
+from src.filtering import Filtering
 
 class NodeExpansion:
     """
     #TO DO: add documentation on this script
     interface: either a src.sparql_interface.SPARQLInterface class,
-    or a src.triply_interface.TriplInterface
+    or a src.triply_interface.TriplInterface,
+    or a src.hdt_interface.HDTInterface
     """
 
-    def __init__(self, rdf_type: list[tuple], iteration: int,
-                 interface=TriplInterface()):
+    def __init__(self, rdf_type: list[tuple], args_filtering: dict,
+                 interface):
 
         self.interface = interface
         self.rdf_type = rdf_type
-        self.iter = iteration
         self._check_args()
 
-        self.type_pred = URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+        self.type_pred = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         self.mapping = {uri: name for (name, uri) in rdf_type}
+
+        self.filtering = Filtering(args=args_filtering)
 
     def _check_args(self):
         if not any(elt in repr(self.interface) for elt in \
             ["src.sparql_interface.SPARQLInterface",
              "src.triply_interface.TriplInterface",
+             "src.hdt_interface.HDTInterface",
              'MagicMock']):
             raise ValueError('Wrong type of `interface` passed as arguments')
 
         if (not isinstance(self.rdf_type, list)) or not self.rdf_type:
             raise ValueError('`rdf_type` param should be a non-empty list of tuples')
-        else:
-            if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
-                raise ValueError('`rdf_type` param should be a list of tuples')
-            else:
-                if any(not ((isinstance(a, str)) and isinstance(b, URIRef)) \
-                    for (a, b) in self.rdf_type):
-                    raise ValueError("Type of two-element tuples should be" \
-                            + "(str, type('rdflib.term.URIRef'))")
-
-        if not isinstance(self.iter, int):
-            raise ValueError("`iteration` param should be an integer")
+        if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
+            raise ValueError('`rdf_type` param should be a list of tuples')
+        if any(not ((isinstance(a, str)) and isinstance(b, str)) \
+            for (a, b) in self.rdf_type):
+            raise ValueError("Type of two-element tuples should be" \
+                    + "(str, str)")
 
     def get_output_triples(self, node, predicate):
         """ Direct call to _get_output_triples """
         return self._get_output_triples(node, predicate)
 
     def _get_output_triples(self, node, predicate):
-        output_sparql = self.interface(node=node,
-                                       predicate=predicate)
-        type_df = output_sparql[output_sparql.predicate == self.type_pred]
-        path_df = output_sparql[output_sparql.predicate != self.type_pred]
-        return type_df, path_df
+        return self.interface(node=node, predicate=predicate)
 
     # def _get_info_from_type(self, type_df, path):
 
@@ -74,23 +68,45 @@ class NodeExpansion:
 
     #     return info
 
-    def filter_sub_graph(self, type_df, path_df):
+    def filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
         """ Direct call to _filter_sub_graph """
-        return self._filter_sub_graph(type_df, path_df)
+        return self._filter_sub_graph(type_date_df, triple_ingoing, triple_outgoing, dates)
 
-    def _filter_sub_graph(self, type_df, path_df):
-        to_keep = type_df[type_df.object.isin(list(self.mapping.keys()))].subject.values
-        return path_df[path_df.subject.isin(to_keep)], path_df[~path_df.subject.isin(to_keep)]
+    def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
+        """ Filtering subgraph: nodes to be removed, nodes to be kept, other """
+        # Edge case: type_date_df is empty
+        # --> we assume that the ingoing/outgoing nodes are not relevant for the search
+        if type_date_df.shape[0] == 0:
+            to_keep = []
+            to_discard = list(triple_ingoing.subject.unique()) + \
+                list(triple_outgoing.object.unique())
+
+        else:
+            to_discard = self.filtering(df_pd=type_date_df, dates=dates)
+        # print(to_discard)
+
+        # Filter on types of nodes that should be retrieved
+            to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
+                (type_date_df.object.isin(list(self.mapping.keys())))].subject.unique())
+
+        # print(to_keep)
+
+        return triple_ingoing[triple_ingoing.subject.isin(to_keep)], \
+            triple_ingoing[~triple_ingoing.subject.isin(to_discard)], \
+            triple_outgoing[triple_outgoing.object.isin(to_keep)], \
+            triple_outgoing[~triple_outgoing.object.isin(to_discard)], \
+            to_discard
 
 
-    def __call__(self, args):
-        # TO DO heuristics: check if needs update
+
+    def __call__(self, args, dates):
 
         # Updating path
         # new_path = args["path"] + [args["node"]]
 
-        # Querying sparql
-        type_df, path_df = self._get_output_triples(node=args["node"], predicate=args["predicate"])
+        # Querying knowledge base
+        ingoing, outgoing, types_and_date = self._get_output_triples(
+            node=args["node"], predicate=args["predicate"])
         # type_df_modified = pd.merge(type_df[["subject", "object"]],
         #                             path_df[["subject", 'predicate']],
         #                             how="left", on="subject")[["subject", "predicate", "object"]]
@@ -99,18 +115,54 @@ class NodeExpansion:
         # info = self._get_info_from_type(type_df=type_df_modified, path=new_path)
 
         # Filter subgraph to keep
-        subgraph, path_df = self._filter_sub_graph(type_df=type_df, path_df=path_df)
+        return self._filter_sub_graph(type_date_df=types_and_date, triple_ingoing=ingoing,
+                                      triple_outgoing=outgoing, dates=dates)
 
-        return subgraph, path_df
 
 
 
 if __name__ == '__main__':
-    NODE = "http://dbpedia.org/resource/Category:French_Revolution"
-    PREDICATE = []
-    RDF_TYPE = [("event", URIRef("http://dbpedia.org/ontology/Event")),
-                ("person", URIRef("http://dbpedia.org/ontology/Person"))]
-    ITERATION = 2
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--interface", required=True,
+                    help="Type of interface to use, either `triply` or `hdt`")
+    interface_type = vars(ap.parse_args())["interface"]
 
-    node_expander = NodeExpansion(rdf_type=RDF_TYPE, iteration=ITERATION)
-    node_expander(args={"path": list(), "node": NODE, "predicate": PREDICATE})
+    if interface_type == 'triply':
+        from src.triply_interface import TriplInterface
+        interface_main = TriplInterface()
+
+    elif interface_type == 'hdt':
+        from src.hdt_interface import HDTInterface
+        interface_main = HDTInterface()
+
+    else:
+        raise ValueError('-i parameter should be either `triply` or `hdt`')
+
+
+    NODE = "http://dbpedia.org/resource/Antoine_Morlot"
+    PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
+                    "http://dbpedia.org/ontology/wikiPageRedirects",
+                    "http://dbpedia.org/ontology/wikiPageDisambiguates",
+                    "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+                    "http://xmlns.com/foaf/0.1/depiction",
+                    "http://xmlns.com/foaf/0.1/isPrimaryTopicOf",
+                    "http://dbpedia.org/ontology/thumbnail",
+                    "http://dbpedia.org/ontology/wikiPageExternalLink",
+                    "http://dbpedia.org/ontology/wikiPageID",
+                    "http://dbpedia.org/ontology/wikiPageLength",
+                    "http://dbpedia.org/ontology/wikiPageRevisionID",
+                    "http://dbpedia.org/property/wikiPageUsesTemplate",
+                    "http://www.w3.org/2002/07/owl#sameAs",
+                    "http://www.w3.org/ns/prov#wasDerivedFrom"]
+    RDF_TYPE = [("event", "http://dbpedia.org/ontology/Event")]
+
+    node_expander = NodeExpansion(interface=interface_main,
+                                  rdf_type=RDF_TYPE, args_filtering={"where": 1, "when": 1})
+    subgraph_ingoing_test, path_ingoing_test, subgraph_outgoing_test, \
+        path_outgoing_test, to_discard_test = \
+            node_expander(args={"path": [], "node": NODE, "predicate": PREDICATE},
+                          dates=["1789-01-01", "1799-12-31"])
+    print(f"{subgraph_ingoing_test}\n{path_ingoing_test}")
+    print(f"{subgraph_outgoing_test}\n{path_outgoing_test}")
+    print(f"\nTO DISCARD\n{to_discard_test}\n")

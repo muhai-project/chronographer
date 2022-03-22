@@ -1,0 +1,19 @@
+program: run_experiment_wandb.py
+method: grid
+metric:
+  goal: maximize
+  name: f1
+parameters:
+  json:
+    value: config.json
+  type_ranking:
+    values: ["pred_object_freq", "entropy_pred_object_freq"]
+  ordering_domain_range:
+    values: [0, 1]
+  filtering_what:
+    value: 1
+  filtering_where:
+    values: [0, 1]
+  filtering_when:
+    values: [0, 1]
+project: event-graph-search-framework

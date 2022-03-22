@@ -1,14 +1,15 @@
 """
 #TO DO: add documentation on this script
 """
+import os
 from tqdm import tqdm
 import pandas as pd
-import requests
-from rdflib import Graph
-from rdflib.term import Literal
+from hdt import HDTDocument
 
-TPF_DBPEDIA = \
-    "https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000"
+from settings import FOLDER_PATH
+
+HDT_DBPEDIA = \
+    os.path.join(FOLDER_PATH, "dbpedia-archive", "dbpedia2016-10.hdt")
 
 DEFAULT_PRED = \
     ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
@@ -18,56 +19,33 @@ DEFAULT_PRED = \
      "http://dbpedia.org/property/birthDate",
      "http://dbpedia.org/property/deathDate"]
 
-class TriplInterface:
+class HDTInterface:
     """
     #TO DO: add documentation on this script
     """
 
     def __init__(self, dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
-                 url: str = TPF_DBPEDIA):
-        # Former url: "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/fragments"
-        self.url = url
-        self.headers = {
-            'Accept': 'application/trig'
-        }
-        self.format = "trig"
+                 path_hdt: str = HDT_DBPEDIA):
+        self.db_hdt = HDTDocument(path_hdt)
+
         self.pred = default_pred
 
         self.start_date = dates[0]
         self.end_date = dates[1]
 
-        self.discard_nodes = ["http://dbpedia.org/resource/Category:"]
-
-    def _run_get_request(self, params: dict[str, str]):
-        """ Retrieving get curl request by chunks """
-        content = bytes('', 'utf-8')
-        with requests.get(self.url, headers=self.headers,
-                          params=params, timeout=10,
-                          stream=True) as response:
-            response.raise_for_status()
-            for chunk in response.iter_content(chunk_size=8192):
-                content += chunk
-        return content
-
     def run_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
         """ Returning triples corresponding to query """
-        # response = requests.get(self.url, headers=self.headers,
-        #                         params=params, timeout=10)
-        content = self._run_get_request(params)
-        graph = Graph().parse(data=content, format=self.format)
-        # graph = Graph().parse(data=response.content, format=self.format)
+        subject_t = params["subject"] if "subject" in params else ""
+        predicate_t = params["predicate"] if "predicate" in params else ""
+        object_t = params["object"] if "object" in params else ""
+
+        triples, _ = self.db_hdt.search_triples(subject_t, predicate_t, object_t)
+        triples = list(triples)
+
         if filter_keep:
-            triples = [(a, b, c) for (a, b, c) in graph if str(b) in filter_pred]
-        else:
-            triples = [(a, b, c) for (a, b, c) in graph if str(b) not in filter_pred]
-
-        triples = [(a, b, c) for (a, b, c) in triples \
-            if not any(str(a).startswith(prefix) for prefix in self.discard_nodes)]
-        triples = [(a, b, c) for (a, b, c) in triples \
-            if not any(str(c).startswith(prefix) for prefix in self.discard_nodes)]
-
-        return triples
+            return [(a, b, c) for (a, b, c) in triples if b in filter_pred]
+        return [(a, b, c) for (a, b, c) in triples if b not in filter_pred]
 
     def get_superclass(self, node):
         """ Superclass of a node
@@ -87,41 +65,75 @@ class TriplInterface:
 
         ingoing = self._get_ingoing(node, predicate)
         outgoing = self._get_outgoing(node, predicate)
-        return ingoing, outgoing, self._get_specific_outgoing(ingoing=ingoing,
-                                                              outgoing=outgoing)
+        return ingoing, outgoing, self._filter_specific(
+            self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
     def _get_ingoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and o = node """
-        return self.run_request(params=dict(object=str(node)),
-                                     filter_pred=predicate, filter_keep=False)
+        return self._filter(
+            triples=self.run_request(params=dict(object=str(node)),
+                                     filter_pred=predicate, filter_keep=False))
 
-    def _filter_outgoing(self, outgoing):
-        return [elt for elt in outgoing if not isinstance(elt[2], Literal)]
+    @staticmethod
+    def _filter_namespace(triples):
+        to_discard = [
+            "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
+            "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"',
+            "http://whc.unesco.org", "http://www", "http://dinlarthelwa",
+            "http://afm"
+        ]
+        triples = [elt for elt in triples if \
+            not any(elt[2].startswith(discard) for discard in to_discard)]
+        triples = [elt for elt in triples if \
+            not any(elt[0].startswith(discard) for discard in to_discard)]
+
+        return triples
+
+
+    @staticmethod
+    def pre_process_date(x_date):
+        """ Pre processing date (to be format comparable later) """
+        if "<http://www.w3.org/2001/XMLSchema#date>" in x_date:
+            return x_date[1:11]
+        elif "<http://www.w3.org/2001/XMLSchema#integer>" in x_date:
+            return x_date[1:5]
+        else:
+            return x_date
+
+    def _filter(self, triples):
+        triples = self._filter_namespace(triples)
+        triples = [elt for elt in triples if \
+            not elt[0].startswith('http://dbpedia.org/resource/Category:')]
+        return [elt for elt in triples if \
+            not elt[2].startswith('http://dbpedia.org/resource/Category:')]
+
+    def _filter_specific(self, triples):
+        invalid = ['"Unknown"@']
+        triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
+        return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
 
     def _get_outgoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
-        return self._filter_outgoing(
-            outgoing=self.run_request(params=dict(subject=str(node)),
+        return self._filter(
+            triples=self.run_request(params=dict(subject=str(node)),
                                            filter_pred=predicate, filter_keep=False))
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
         temp_res = []
 
-        print("ingoing")
         for i in tqdm(range(len(ingoing))):
             subject = ingoing[i][0]
             temp_res += self.run_request(params=dict(subject=str(subject)),
-                                               filter_pred=self.pred,
-                                               filter_keep=True)
+                                             filter_pred=self.pred,
+                                             filter_keep=True)
 
-        print('outgoing')
         for i in tqdm(range(len(outgoing))):
             object_t = outgoing[i][2]
             temp_res += self.run_request(params=dict(subject=str(object_t)),
-                                                          filter_pred=self.pred,
-                                                          filter_keep=True)
+                                                         filter_pred=self.pred,
+                                                         filter_keep=True)
 
         return temp_res
 
@@ -141,7 +153,7 @@ class TriplInterface:
 
 
 if __name__ == '__main__':
-    NODE = "http://dbpedia.org/resource/Insurrection_of_10_August_1792"
+    NODE = "http://dbpedia.org/resource/André_Masséna"
     PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
                     "http://dbpedia.org/ontology/wikiPageRedirects",
                     "http://dbpedia.org/ontology/wikiPageDisambiguates",
@@ -155,8 +167,17 @@ if __name__ == '__main__':
                     "http://dbpedia.org/ontology/wikiPageRevisionID",
                     "http://dbpedia.org/property/wikiPageUsesTemplate",
                     "http://www.w3.org/2002/07/owl#sameAs",
-                    "http://www.w3.org/ns/prov#wasDerivedFrom"]
+                    "http://www.w3.org/ns/prov#wasDerivedFrom",
+                    "http://dbpedia.org/ontology/wikiPageWikiLinkText",
+                    "http://dbpedia.org/ontology/wikiPageOutDegree",
+                    "http://dbpedia.org/ontology/abstract",
+                    "http://www.w3.org/2000/01/rdf-schema#comment",
+                    "http://www.w3.org/2000/01/rdf-schema#label"]
 
-    interface = TriplInterface()
+    interface = HDTInterface()
     ingoing_test, outgoing_test, types_test = interface(node=NODE, predicate=PREDICATE)
     print(f"{ingoing_test}\n{outgoing_test}\n{types_test}")
+
+    ingoing_test.to_csv(f"{FOLDER_PATH}/hdt_ingoing.csv")
+    outgoing_test.to_csv(f"{FOLDER_PATH}/hdt_outgoing.csv")
+    types_test.to_csv(f"{FOLDER_PATH}/hdt_types.csv")
