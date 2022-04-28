@@ -94,7 +94,7 @@ class GraphSearchFramework:
         self.occurence = defaultdict(int)
         self.to_expand = None
         self.nodes_expanded_per_iter = pd.DataFrame(columns=["iteration", "node_expanded"])
-        self.expanded = {}
+        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
         self.discarded = pd.DataFrame(columns=["iteration", "node_discarded"])
 
         self.metrics = Metrics(config["referents"])
@@ -165,7 +165,7 @@ class GraphSearchFramework:
         if "gold_standard" not in config:
             raise ValueError(self.config_error_messages['gold_standard'])
         try:
-            pd.read_csv(config["gold_standard"])[['startTime', 'callret-1', 'linkDBpediaEn']]
+            pd.read_csv(config["gold_standard"])['linkDBpediaEn']
         except Exception as type_error:
             raise TypeError(self.config_error_messages['gold_standard']) from type_error
 
@@ -200,6 +200,11 @@ class GraphSearchFramework:
                 isinstance(config[k_p], dict) and v_p in config[k_p]:
                 if config[k_p][v_p] not in [0, 1]:
                     raise TypeError(self.config_error_messages[k_p][v_p])
+        
+        if "name_exp" not in config:
+            raise ValueError(self.config_error_messages['name_exp'])
+        if not isinstance(config["name_exp"], str):
+            raise TypeError(self.config_error_messages['name_exp'])
 
     def select_nodes_to_expand(self):
         """ Accessible call to _select_nodes_to_expand"""
@@ -245,9 +250,12 @@ class GraphSearchFramework:
         return self.node_expander(args=args, dates=self.dates)
 
     def _update_nodes_expanded(self, iteration:int, nodes: list[str]):
-        self.nodes_expanded_per_iter = self.nodes_expanded_per_iter.append(
-            {"iteration": iteration,
-             "node_expanded": nodes}, ignore_index=True)
+        
+        self.nodes_expanded_per_iter = pd.concat(
+            [self.nodes_expanded_per_iter,
+             pd.DataFrame([[iteration, nodes]], columns=["iteration", "node_expanded"])],
+            ignore_index=True
+        )
 
     def run_one_iteration(self, iteration: int):
         """ Running one iteration of the search framework """
@@ -331,10 +339,12 @@ class GraphSearchFramework:
                                            subgraph_outgoing, path_outgoing, info, iteration)
 
             curr_discarded += to_discard
-
-        self.discarded = self.discarded.append(
-            {"iteration": iteration,
-             "node_discarded": list(set(curr_discarded))}, ignore_index=True)
+        
+        self.discarded = pd.concat(
+            [self.discarded,
+             pd.DataFrame([[iteration, list(set(curr_discarded))]], columns=["iteration", "node_discarded"])],
+            ignore_index=True
+        )
 
         self.to_expand = self.ranker(occurences=self.occurence)
         if self.to_expand:
@@ -409,7 +419,7 @@ class GraphSearchFramework:
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
-        self.expanded = {}
+        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
         self.metrics_data = {}
         self.info = {}
 
@@ -430,10 +440,8 @@ class GraphSearchFramework:
                     as openfile:
                 json.dump(self.occurence, openfile,
                             indent=4)
-            # self.info.to_csv(f"{i}-info.csv")
-            with open(f"{self.save_folder}/expanded.json", "w", encoding='utf-8') as openfile:
-                json.dump(self.expanded, openfile,
-                            indent=4)
+            self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
+
 
             events_found = \
                 [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
@@ -456,9 +464,13 @@ class GraphSearchFramework:
                 self.plotter(info=json.load(openfile), save_folder=self.save_folder)
 
             if self.to_expand:
-                self.expanded[i+1] = self.to_expand
-                with open(f"{self.save_folder}/expanded.json", "w", encoding='utf-8') as openfile:
-                    json.dump(self.expanded, openfile, indent=4)
+
+                self.expanded = pd.concat(
+                    [self.expanded, pd.DataFrame([[i, self.to_expand]], columns=["iteration", "path_expanded"])],
+                    ignore_index=True
+                )
+
+                self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
             else:
                 print("According to params, no further nodes to expand," \

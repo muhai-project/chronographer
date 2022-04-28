@@ -2,7 +2,6 @@
 Running several experiments using wandb
 # weights and biases
 """
-import os
 import json
 import argparse
 from pyvis.network import Network
@@ -37,7 +36,7 @@ def update_config(config, args):
 
 def get_exp_name(config):
     """ Get experiment name, depending on parameters """
-    domain_range = config.get('ordering').get('domain_range') if \
+    domain_range = "domain_range" if \
         config.get('ordering') and \
             config.get('ordering').get('domain_range') \
             else ""
@@ -48,7 +47,7 @@ def get_exp_name(config):
             config.get('filtering').get('where') else ""
         when = "when" if \
             config.get('filtering').get('when') else ""
-    return f"{config['type_ranking']}_{domain_range}_{what}_{where}_{when}"
+    return f"{config['name_exp']}_{config['type_ranking']}_{domain_range}_{what}_{where}_{when}"
 
 def run_one_iteration(i, framework):
     """ Running one iteration of the search framework """
@@ -132,11 +131,15 @@ if __name__ == '__main__':
                     help="Boolean, filtering with where constraints")
     ap.add_argument('-fwhen', '--filtering_when', default=None,
                     help="Boolean, filtering with when constraints")
+    ap.add_argument('-ltg', '--logtablegraph', default='0',
+                    help='Whether to log tables and booleans (e.g. non desired for grid search)')
     args_main = vars(ap.parse_args())
     json_path = args_main["json"]
+    LOG_TABLE_GRAPH = 1 if args_main['logtablegraph'] == '1' else 0
 
-    if not (args_main["ordering_domain_range"] == "0" and \
-        args_main["filtering_where"] == "0" and \
+    best_f_one = 0
+
+    if not (args_main["ordering_domain_range"] == "0" and
             args_main["filtering_when"] == "0"):
 
         config_loaded = json.load(open(json_path, "r", encoding="utf-8"))
@@ -159,25 +162,46 @@ if __name__ == '__main__':
                                      data=[[1, config_loaded["start"]]])
 
         for i_main in range(1, framework_main.iterations+1):
+            name_exp = get_exp_name(config=config_loaded)
             wandb.init(
                 project=PROJECT_NAME,
-                name=get_exp_name(config=config_loaded))
+                name=name_exp)
             run_one_iteration(i=i_main, framework=framework_main)
 
             # if i_main in framework_main.metrics_data and i_main in framework_main.subgraph_info:
             wandb.log(dict(framework_main.metrics_data[i_main],
                             **framework_main.subgraph_info[i_main]), step=i_main)
-            if i_main in framework_main.info:
+            if framework_main.metrics_data[i_main]["f1"] > best_f_one:
+                wandb.run.summary["best"] = {
+                    "f1": framework_main.metrics_data[i_main]["f1"],
+                    "precision": framework_main.metrics_data[i_main]["precision"],
+                    "recall": framework_main.metrics_data[i_main]["recall"],
+                    "name": name_exp,
+                    "iteration": i_main,
+                }
+                best_f_one = framework_main.metrics_data[i_main]["f1"]
+
+            if i_main == framework_main.iterations:
+                wandb.run.summary["last"] = {
+                    "f1": framework_main.metrics_data[i_main]["f1"],
+                    "precision": framework_main.metrics_data[i_main]["precision"],
+                    "recall": framework_main.metrics_data[i_main]["recall"],
+                    "name": name_exp,
+                    "iteration": i_main,
+                }
+
+            if LOG_TABLE_GRAPH and i_main in framework_main.info:
                 wandb.log(framework_main.info[i_main], step=i_main)
 
             table_expanded.add_data(i_main+1, framework_main.expanded[i_main+1])
 
-        wandb.log({"subgraph": framework_main.subgraph,
-                   "nodes_expanded": framework_main.nodes_expanded_per_iter,
-                   "node_discarded": framework_main.discarded}, step=i_main)
-        wandb.log({"path_expanded": table_expanded})
+        if LOG_TABLE_GRAPH:
+            wandb.log({"subgraph": framework_main.subgraph,
+                    "nodes_expanded": framework_main.nodes_expanded_per_iter,
+                    "node_discarded": framework_main.discarded}, step=i_main)
+            wandb.log({"path_expanded": table_expanded})
 
-        html_subgraph = build_network(subgraph=framework_main.subgraph)
-        wandb.log({"subgraph_visualisation": wandb.Html(html_subgraph)})
+            html_subgraph = build_network(subgraph=framework_main.subgraph)
+            wandb.log({"subgraph_visualisation": wandb.Html(html_subgraph)})
 
         wandb.finish()

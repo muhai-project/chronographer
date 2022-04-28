@@ -16,7 +16,7 @@ class Plotter:
                 dict(iteration=[i]*3,
                      value=[metrics[t] for t in self.metrics],
                      type_=self.metrics))
-            dataframe = dataframe.append(curr_df, ignore_index = True)
+            dataframe = pd.concat([dataframe, curr_df], ignore_index = True)
         return dataframe
 
     @staticmethod

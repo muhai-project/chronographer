@@ -12,6 +12,11 @@ configs/
 .vscode/
 iter-*/
 settings/private.py
-experiments/
+experiments/*
 wandb/
 dbpedia-archive/
+eventkg/
+*.parquet
+*.nq
+data-test/*
+snapshot-2021-09/*

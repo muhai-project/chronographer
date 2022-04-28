@@ -17,6 +17,7 @@ It is possible to use two types of data sources to query DBPedia:
 
 ### **Knowledge Base for ground truth**
 
+#### **SPARQL endpoint**
 The ground truth events used for calculating the metrics were taken from the [EventKG dataset](https://eventkg.l3s.uni-hannover.de)
 
 The [EventKG SPARQL Query Endpoint](http://eventkginterface.l3s.uni-hannover.de/sparql) was used to query the dataset and to retrieve a csv output with the following columns: `startTime`, `callret-1` and `linkDBpediaEn`.
@@ -43,6 +44,51 @@ GROUP BY ?startTime ?subEvent ?sa
 ORDER BY ASC(?startTime)
 ```
 
+#### **Downloading dataset**
+
+To ensure that EventKG was always queryable, another option was to download it locally and query it using GraphDB. 
+
+A bit of preprocessing was done for two main reasons:
+1. Some parsing errors were preventing the graph from being loaded locally
+2. Not all the graph was necessary for this experiment
+
+The notebook `eventkg-filtering.ipynb` selects a subgraph of EventKG and discards content that is not correctly parsed by GraphDB.
+
+EventKG (v3.0) was downloaded from [the website](https://eventkg.l3s.uni-hannover.de/data.html) and all files were put in an `eventkg` folder in this repository directory.
+
+Dask and pandas were used to load and process the data. The preprocessed files were then saved back to an `.nq` format.
+
+Loading into GraphDB + querying from there
+
+```
+PREFIX dbr: <http://dbpedia.org/resource/> 
+PREFIX sem: <http://semanticweb.cs.vu.nl/2009/11/sem/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT DISTINCT(?subEventKG as ?linkDBpediaEn)
+WHERE {
+    
+ ?event owl:sameAs dbr:Cold_War .
+ ?event sem:hasSubEvent* ?subEvent .
+ ?subEvent owl:sameAs ?subEventKG .
+    
+ ?event sem:hasBeginTimeStamp ?startTimeEvent .
+ ?event sem:hasEndTimeStamp ?endTimeEvent .
+
+ ?subEvent sem:hasBeginTimeStamp ?startTimeSubEvent .
+ ?subEvent sem:hasEndTimeStamp ?endTimeSubEvent .
+    
+ FILTER( strStarts( str(?subEventKG), "http://dbpedia" ) ) .
+ FILTER (?endTimeSubEvent >= ?startTimeEvent) .
+ FILTER (?startTimeSubEvent <= ?endTimeEvent) .
+}
+```
+
+Then downloading as csv and moving to folder `./data/gs_events/`
+
+### **URI mapping**
+
+cf. `./src/get_equivalent_url.py`
+
 ## **Installation**
 
 Python 3.9.7 was used, and a conda virtual environment.
@@ -60,8 +106,8 @@ sh clean.sh
 
 ## **Run one search**
 
-1. Get URI mapping (to account for different versions in DBPedia)
-2. Get ground truth
+1. Get ground truth
+2. Get URI mapping (to account for different versions in DBPedia)
 3. Set config file (node to start with, filters, start and end dates)
 4. Run experiments
 5. Visualise results (wandb recommended)

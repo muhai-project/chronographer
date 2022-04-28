@@ -13,9 +13,11 @@ pydeps==1.10.12
 ray==1.10.0
 pybind11==2.9.1
 hdt==2.3
-wandb==0.12.11
+wandb==0.12.15
 bokeh==2.4.2
 networkx==2.7.1
 graphviz==0.19.1
 holoviews==1.14.8
 pyvis==0.1.9
+dask==2022.3.0
+fastparquet==0.8.1

@@ -2,14 +2,17 @@
 #TO DO: add documentation on this script
 """
 import os
+import fnmatch
 from tqdm import tqdm
+
+import ray
 import pandas as pd
 from hdt import HDTDocument
 
 from settings import FOLDER_PATH
 
 HDT_DBPEDIA = \
-    os.path.join(FOLDER_PATH, "dbpedia-archive", "dbpedia2016-10.hdt")
+    os.path.join(FOLDER_PATH, "snapshot-2021-09")
 
 DEFAULT_PRED = \
     ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
@@ -25,8 +28,18 @@ class HDTInterface:
     """
 
     def __init__(self, dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
-                 path_hdt: str = HDT_DBPEDIA):
-        self.db_hdt = HDTDocument(path_hdt)
+                 folder_hdt: str = HDT_DBPEDIA, nested_dataset: bool = True):
+        if nested_dataset:
+            dirs = [os.path.join(folder_hdt, file) for file in os.listdir(folder_hdt)]
+            dirs = [elt for elt in dirs if not elt.split('/')[-1].startswith(".")]
+            dirs = [os.path.join(old_dir, new_dir, "hdt") \
+                for old_dir in dirs for new_dir in os.listdir(old_dir)]
+            dirs = [elt for elt in dirs if not elt.split('/')[-2].startswith(".")]
+            self.docs = [HDTDocument(file) for file in dirs]
+        else:
+            files = [os.path.join(folder_hdt, file) for file in os.listdir(folder_hdt) \
+                        if fnmatch.fnmatch(file, "*.hdt")]
+            self.docs = [HDTDocument(file) for file in files]
 
         self.pred = default_pred
 
@@ -40,8 +53,10 @@ class HDTInterface:
         predicate_t = params["predicate"] if "predicate" in params else ""
         object_t = params["object"] if "object" in params else ""
 
-        triples, _ = self.db_hdt.search_triples(subject_t, predicate_t, object_t)
-        triples = list(triples)
+        triples = []
+        for doc in self.docs:
+            curr_triples, _ = doc.search_triples(subject_t, predicate_t, object_t)
+            triples += list(curr_triples)
 
         if filter_keep:
             return [(a, b, c) for (a, b, c) in triples if b in filter_pred]
@@ -77,16 +92,23 @@ class HDTInterface:
 
     @staticmethod
     def _filter_namespace(triples):
-        to_discard = [
-            "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
-            "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"',
-            "http://whc.unesco.org", "http://www", "http://dinlarthelwa",
-            "http://afm"
-        ]
-        triples = [elt for elt in triples if \
-            not any(elt[2].startswith(discard) for discard in to_discard)]
-        triples = [elt for elt in triples if \
-            not any(elt[0].startswith(discard) for discard in to_discard)]
+        # to_discard = [
+        #     "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
+        #     "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"',
+        #     "http://whc.unesco.org", "http://www", "http://dinlarthelwa",
+        #     "http://afm", "http://news.bbc.co.uk", "http://hsbc.wimbledon.com"
+        # ]
+
+        # triples = [elt for elt in triples if \
+        #     not any(elt[2].startswith(discard) for discard in to_discard)]
+        # triples = [elt for elt in triples if \
+        #     not any(elt[0].startswith(discard) for discard in to_discard)]
+
+        filter_f = lambda x: x.startswith("http://dbpedia.org/") or \
+                            not any(x.startswith(elt) for elt in ["http", '"'])
+        
+        triples = [elt for elt in triples if filter_f(elt[2])]
+        triples = [elt for elt in triples if filter_f(elt[0])]
 
         return triples
 

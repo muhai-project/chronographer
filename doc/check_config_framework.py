@@ -48,4 +48,7 @@ CONFIG_TYPE_ERROR_MESSAGES = {
         "where": "Filtering parameter for where should be 1 or 0 (default 0)",
         "when": "Filtering parameter for when should be 1 or 0 (default 0)",
     },
+
+    "name_exp": "`name_exp` should be in the config keys" + \
+        "Format: str",
 }
