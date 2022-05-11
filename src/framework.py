@@ -62,7 +62,7 @@ class GraphSearchFramework:
         self.type_interface = config["type_interface"]
         self.type_ranking = config["type_ranking"]
         self.folder_name_suffix = \
-            f"iter-{self.iterations}-{self.type_interface}-{self.type_ranking}"
+            self.get_exp_name(config=config)
         self.save_folder = self._add_save_info()
 
         self.config = config
@@ -71,11 +71,16 @@ class GraphSearchFramework:
         self.start = config["start"]
 
         self.dates = [config["start_date"], config["end_date"]]
+        self.name_exp = config["name_exp"]
 
+        if "exclude_category" in config:
+            filter_kb = config["exclude_category"]
+        else:
+            filter_kb = 1
         if self.type_interface == "triply":
             self.interface = TriplInterface()
         else:  # type_interface == "hdt"
-            self.interface = HDTInterface()
+            self.interface = HDTInterface(filter_kb=filter_kb)
 
         self.subgraph = pd.DataFrame(columns=[
             "subject", "predicate", "object", "type_df", "iteration"])
@@ -200,11 +205,35 @@ class GraphSearchFramework:
                 isinstance(config[k_p], dict) and v_p in config[k_p]:
                 if config[k_p][v_p] not in [0, 1]:
                     raise TypeError(self.config_error_messages[k_p][v_p])
-        
+
         if "name_exp" not in config:
             raise ValueError(self.config_error_messages['name_exp'])
         if not isinstance(config["name_exp"], str):
             raise TypeError(self.config_error_messages['name_exp'])
+
+    @staticmethod
+    def get_exp_name(config):
+        """ Get experiment name, depending on parameters """
+        elts = [config['name_exp'], str(config["iterations"]), config["type_ranking"]]
+        domain_range = "domain_range" if \
+            config.get('ordering') and \
+                config.get('ordering').get('domain_range') \
+                else ""
+        elts.append(domain_range)
+        if config.get('filtering'):
+            what = "what" if \
+                config.get('filtering').get('what') else ""
+            where = "where" if \
+                config.get('filtering').get('where') else ""
+            when = "when" if \
+                config.get('filtering').get('when') else ""
+            elts += [what, where, when]
+        wikilink = "wikilink" if "http://dbpedia.org/ontology/wikiPageWikiLink" \
+            in config["predicate_filter"] else ""
+        elts.append(wikilink)
+        cat = "with_category" if config.get("exclude_category") == 0 else "without_category"
+        elts.append(cat)
+        return "_".join(elts)
 
     def select_nodes_to_expand(self):
         """ Accessible call to _select_nodes_to_expand"""
@@ -250,7 +279,7 @@ class GraphSearchFramework:
         return self.node_expander(args=args, dates=self.dates)
 
     def _update_nodes_expanded(self, iteration:int, nodes: list[str]):
-        
+
         self.nodes_expanded_per_iter = pd.concat(
             [self.nodes_expanded_per_iter,
              pd.DataFrame([[iteration, nodes]], columns=["iteration", "node_expanded"])],
@@ -339,10 +368,11 @@ class GraphSearchFramework:
                                            subgraph_outgoing, path_outgoing, info, iteration)
 
             curr_discarded += to_discard
-        
+
         self.discarded = pd.concat(
             [self.discarded,
-             pd.DataFrame([[iteration, list(set(curr_discarded))]], columns=["iteration", "node_discarded"])],
+             pd.DataFrame([[iteration, list(set(curr_discarded))]],
+                          columns=["iteration", "node_discarded"])],
             ignore_index=True
         )
 
@@ -415,13 +445,34 @@ class GraphSearchFramework:
                                              subgraph_nb_event_unique=unique)
 
 
+    def _udpate_metadata(self, metadata):
+        last_metrics = self.metrics_data[self.iterations]
+        metadata.update({
+            "end": str(datetime.now()),
+            "last_f1":  last_metrics["f1"],
+            "last_precision":  last_metrics["precision"],
+            "last_recall":  last_metrics["recall"],
+        })
+        return metadata
+    
+    def _update_best(self, metadata, iteration):
+        best_metrics = self.metrics_data[iteration]
+        metadata.update({
+            "best_f1": best_metrics['f1'],
+            "best_corresponding_precision": best_metrics['precision'],
+            "best_corresponding_recall": best_metrics['recall'],
+        })
+        return metadata
+
     def __call__(self):
+        metadata = {"start": str(datetime.now())}
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
         self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
         self.metrics_data = {}
         self.info = {}
+        best_fone = 0
 
         for i in range(1, self.iterations+1):
             print(f"Iteration {i} started at {datetime.now()}")
@@ -457,6 +508,9 @@ class GraphSearchFramework:
                 json.dump(self.info, openfile,
                             indent=4)
 
+            if self.metrics_data[i]["f1"] > best_fone:
+                metadata = self._update_best(metadata, i)
+                best_fone = self.metrics_data[i]["f1"]
 
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
@@ -466,7 +520,8 @@ class GraphSearchFramework:
             if self.to_expand:
 
                 self.expanded = pd.concat(
-                    [self.expanded, pd.DataFrame([[i, self.to_expand]], columns=["iteration", "path_expanded"])],
+                    [self.expanded, pd.DataFrame([[i, self.to_expand]],
+                    columns=["iteration", "path_expanded"])],
                     ignore_index=True
                 )
 
@@ -476,6 +531,11 @@ class GraphSearchFramework:
                 print("According to params, no further nodes to expand," \
                     + f"finishing process at {datetime.now()}\n=====")
                 break
+
+        metadata = self._udpate_metadata(metadata)
+        with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
+            json.dump(metadata, openfile, indent=4)
+
 
 
 if __name__ == '__main__':

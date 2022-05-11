@@ -82,7 +82,8 @@ class NodeExpansion:
                 list(triple_outgoing.object.unique())
 
         else:
-            to_discard = self.filtering(df_pd=type_date_df, dates=dates)
+            to_discard = self.filtering(ingoing=triple_ingoing, outgoing=triple_outgoing,
+                                        type_date=type_date_df, dates=dates)
         # print(to_discard)
 
         # Filter on types of nodes that should be retrieved

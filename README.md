@@ -104,6 +104,12 @@ If you want __pycache__ content or other removed, occasionnally run:
 sh clean.sh
 ```
 
+Create a `private.py` file in the settings folder and add the followings:
+* AGENT (of computer, for sparql interface)
+* TOKEN (for Triply)
+* FOLDER_PATH (of project)
+* WANDB_USER (for weights and biases)
+
 ## **Run one search**
 
 1. Get ground truth

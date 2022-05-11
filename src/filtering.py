@@ -63,43 +63,57 @@ class Filtering:
                              (date_df.object > dates[1]))].subject.unique())
 
     @staticmethod
-    def regex_helper(row, default_return_val):
+    def regex_helper(val, default_return_val):
         """ Finding regex column name in subject str uri """
         pattern = "\\d{4}"
-        matches = re.findall(pattern, row.subject)
+        matches = re.findall(pattern, val)
         if matches:
             return str(matches[0])
         return default_return_val
 
 
-    def get_to_discard_regex(self, df_pd: pd.core.frame.DataFrame, dates: list[str]):
+    def get_to_discard_regex(self, ingoing: pd.core.frame.DataFrame,
+                             outgoing: pd.core.frame.DataFrame, dates: list[str]):
         """ Filtering on string uri
         - temporal dimension: regex on the URL (and therefore name of the events,
             e.g. 1997_National_Championships > non relevant """
-        df_pd['regex_helper']= df_pd.apply(
-            lambda x: self.regex_helper(x, dates[0]), axis=1)
+        if ingoing.shape[0] > 0:
+            ingoing['regex_helper']= ingoing["subject"].apply(
+                lambda x: self.regex_helper(x, dates[0][:4]))
+            ingoing_discard = list(ingoing[(ingoing.regex_helper < dates[0][:4]) | \
+                                       (ingoing.regex_helper > dates[1][:4])].subject.unique())
+        else:
+            ingoing_discard = []
+        
+        if outgoing.shape[0] > 0:
+            outgoing['regex_helper']= outgoing["object"].apply(
+                lambda x: self.regex_helper(x, dates[0][:4]))
+            outgoing_discard = list(outgoing[(outgoing.regex_helper < dates[0][:4]) | \
+                                         (outgoing.regex_helper > dates[1][:4])].object.unique())
+        else:
+            outgoing_discard = []
 
-        return list(df_pd[(df_pd.regex_helper < dates[0][:4]) | \
-                          (df_pd.regex_helper > dates[1][:4])].subject.unique())
+        return ingoing_discard + outgoing_discard
 
     def get_to_discard_location(self, df_pd: pd.core.frame.DataFrame):
         """ Location filter: retrieving nodes that correspond to locations
         (would be too broad for the search, hence later discarded """
         return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
 
-    def __call__(self, df_pd: pd.core.frame.DataFrame, dates: list[str]):
+    def __call__(self, ingoing: pd.core.frame.DataFrame, outgoing: pd.core.frame.DataFrame,
+                 type_date: pd.core.frame.DataFrame, dates: list[str]):
         """
         """
-        date_df = df_pd[df_pd.predicate.isin(self.temporal)]
+        date_df = type_date[type_date.predicate.isin(self.temporal)]
         date_df.object = date_df.object.astype(str)
 
         to_discard = []
 
         if self.where:
-            to_discard += list(set(self.get_to_discard_location(df_pd=df_pd)))
+            to_discard += list(set(self.get_to_discard_location(df_pd=type_date)))
 
         if self.when:
             to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
-                              self.get_to_discard_regex(df_pd=df_pd, dates=dates)))
+                                   self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing, dates=dates)))
 
         return to_discard

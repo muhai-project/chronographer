@@ -5,7 +5,6 @@ import os
 import fnmatch
 from tqdm import tqdm
 
-import ray
 import pandas as pd
 from hdt import HDTDocument
 
@@ -28,7 +27,7 @@ class HDTInterface:
     """
 
     def __init__(self, dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
-                 folder_hdt: str = HDT_DBPEDIA, nested_dataset: bool = True):
+                 folder_hdt: str = HDT_DBPEDIA, nested_dataset: bool = True, filter_kb: bool = 1):
         if nested_dataset:
             dirs = [os.path.join(folder_hdt, file) for file in os.listdir(folder_hdt)]
             dirs = [elt for elt in dirs if not elt.split('/')[-1].startswith(".")]
@@ -45,6 +44,7 @@ class HDTInterface:
 
         self.start_date = dates[0]
         self.end_date = dates[1]
+        self.filter_kb = filter_kb
 
     def run_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
@@ -83,12 +83,14 @@ class HDTInterface:
         return ingoing, outgoing, self._filter_specific(
             self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
-    def _get_ingoing(self, node: str, predicate: list[str]):
+    def _get_ingoing(self, node: str, predicate: list[str], filter: bool = 1):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and o = node """
-        return self._filter(
-            triples=self.run_request(params=dict(object=str(node)),
-                                     filter_pred=predicate, filter_keep=False))
+        triples = self.run_request(params=dict(object=str(node)),
+                                 filter_pred=predicate, filter_keep=False)
+        if self.filter_kb:
+            return self._filter(triples=triples)
+        return triples
 
     @staticmethod
     def _filter_namespace(triples):
@@ -106,7 +108,7 @@ class HDTInterface:
 
         filter_f = lambda x: x.startswith("http://dbpedia.org/") or \
                             not any(x.startswith(elt) for elt in ["http", '"'])
-        
+
         triples = [elt for elt in triples if filter_f(elt[2])]
         triples = [elt for elt in triples if filter_f(elt[0])]
 
@@ -135,12 +137,14 @@ class HDTInterface:
         triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
         return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
 
-    def _get_outgoing(self, node: str, predicate: list[str]):
+    def _get_outgoing(self, node: str, predicate: list[str], filter: bool = 1):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
-        return self._filter(
-            triples=self.run_request(params=dict(subject=str(node)),
-                                           filter_pred=predicate, filter_keep=False))
+        triples = self.run_request(params=dict(subject=str(node)),
+                                   filter_pred=predicate, filter_keep=False)
+        if self.filter_kb:
+            return self._filter(triples=triples)
+        return triples
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
         temp_res = []
