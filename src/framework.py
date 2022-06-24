@@ -60,6 +60,7 @@ class GraphSearchFramework:
         self._check_config(config=config)
         self.iterations = config["iterations"]
         self.type_interface = config["type_interface"]
+        self.dataset_type = config["dataset_type"]
         self.type_ranking = config["type_ranking"]
         self.folder_name_suffix = \
             self.get_exp_name(config=config)
@@ -80,7 +81,7 @@ class GraphSearchFramework:
         if self.type_interface == "triply":
             self.interface = TriplInterface()
         else:  # type_interface == "hdt"
-            self.interface = HDTInterface(filter_kb=filter_kb)
+            self.interface = HDTInterface(filter_kb=filter_kb, folder_hdt=config["dataset_path"])
 
         self.subgraph = pd.DataFrame(columns=[
             "subject", "predicate", "object", "type_df", "iteration"])
@@ -210,6 +211,18 @@ class GraphSearchFramework:
             raise ValueError(self.config_error_messages['name_exp'])
         if not isinstance(config["name_exp"], str):
             raise TypeError(self.config_error_messages['name_exp'])
+
+        if "dataset_type" not in config:
+            raise ValueError(self.config_error_messages['dataset_type'])
+        if not isinstance(config["dataset_type"], str):
+            raise TypeError(self.config_error_messages['dataset_type'])
+
+        if "dataset_path" not in config:
+            raise ValueError(self.config_error_messages['dataset_path'])
+        if not isinstance(config["dataset_path"], str):
+            raise TypeError(self.config_error_messages['dataset_path'])
+
+
 
     @staticmethod
     def get_exp_name(config):
@@ -454,7 +467,7 @@ class GraphSearchFramework:
             "last_recall":  last_metrics["recall"],
         })
         return metadata
-    
+
     def _update_best(self, metadata, iteration):
         best_metrics = self.metrics_data[iteration]
         metadata.update({

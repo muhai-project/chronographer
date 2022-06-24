@@ -51,4 +51,7 @@ CONFIG_TYPE_ERROR_MESSAGES = {
 
     "name_exp": "`name_exp` should be in the config keys" + \
         "Format: str",
+
+    "dataset_type": "`dataset_type` should be either `dbpedia` or `wikidata`",
+    "dataset_path": "`dataset_path` should be of type string"
 }

@@ -11,7 +11,7 @@ from hdt import HDTDocument
 from settings import FOLDER_PATH
 
 HDT_DBPEDIA = \
-    os.path.join(FOLDER_PATH, "snapshot-2021-09")
+    os.path.join(FOLDER_PATH, "dbpedia-snapshot-2021-09")
 
 DEFAULT_PRED = \
     ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
