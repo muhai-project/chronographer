@@ -19,7 +19,6 @@ class NodeExpansion:
         self.rdf_type = rdf_type
         self._check_args()
 
-        self.type_pred = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         self.mapping = {uri: name for (name, uri) in rdf_type}
 
         self.filtering = Filtering(args=args_filtering)

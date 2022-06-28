@@ -1,0 +1,32 @@
+{
+    "rdf_type": {
+        "event": "http://www.wikidata.org/entity/Q13418847"
+    },
+    "predicate_filter": [
+		"http://www.wikidata.org/prop/direct/P910",  
+		"http://www.wikidata.org/prop/direct/P1343",
+		"http://www.wikidata.org/prop/direct/P5008",
+		"http://www.wikidata.org/prop/direct/P2184"
+	],
+    "start": "http://www.wikidata.org/entity/Q6534",
+    "start_date": "1789-07-14",
+    "end_date": "1799-11-09",
+    "iterations": 25,
+    "type_ranking": "pred_object_freq",
+    "type_interface": "hdt",
+    "gold_standard": "./data-test/gs_events/Q6534.csv",
+    "referents": "./data-test/referents/Q6534.json",
+    "type_metrics": ["precision", "recall", "f1"],
+    "ordering": {
+        "domain_range": 0
+    },
+    "filtering": {
+        "what": 1,
+        "where": 1,
+        "when": 1
+    },
+    "name_exp": "french_revolution",
+    "dataset_type": "wikidata",
+    "dataset_path": "wikidata-2021-03-05",
+    "nested_dataset": 0
+}

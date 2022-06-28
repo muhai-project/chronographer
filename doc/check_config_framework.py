@@ -6,7 +6,7 @@ CONFIG_TYPE_ERROR_MESSAGES = {
     "rdf_type": "`rdf_type` should be in the config keys" + \
         "Format: dict (k, v) (str, str)",
 
-    "predicate_filter": "`predicate_filter` should be in the config keys" + \
+    "predicate_filter": "`predicate_filter` should be in the config keys " + \
         "Format: list of strings, each str URI of predicate to discard",
 
     "start": "`start` should be in the config keys" + \

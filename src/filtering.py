@@ -24,24 +24,13 @@ class Filtering:
         self.where = args["where"] if "where" in args else 0
         self.when = args["when"] if "when" in args else 0
 
-        self.dates = [
-            "http://dbpedia.org/ontology/date"
-        ]
-        self.start_dates = [
-            "http://dbpedia.org/ontology/startDate",
-            "http://dbpedia.org/property/birthDate"
-        ]
-        self.end_dates = [
-            "http://dbpedia.org/ontology/endDate",
-            "http://dbpedia.org/property/deathDate"
-        ]
+        self.point_in_time = args["point_in_time"]
+        self.start_dates = args["start_dates"]
+        self.end_dates = args["end_dates"]
 
-        self.temporal = self.dates + self.start_dates + self.end_dates
+        self.temporal = self.point_in_time + self.start_dates + self.end_dates
 
-        self.places = [
-            "http://dbpedia.org/ontology/Place",
-            "http://dbpedia.org/ontology/Location"
-        ]
+        self.places = args["places"]
 
     @staticmethod
     def _check_args(args):
@@ -57,9 +46,9 @@ class Filtering:
                              (date_df.object < dates[0])) | \
                             ((date_df.predicate.isin(self.start_dates)) & \
                              (date_df.object > dates[1])) | \
-                            ((date_df.predicate.isin(self.dates)) & \
+                            ((date_df.predicate.isin(self.point_in_time)) & \
                              (date_df.object < dates[0])) | \
-                            ((date_df.predicate.isin(self.dates)) & \
+                            ((date_df.predicate.isin(self.point_in_time)) & \
                              (date_df.object > dates[1]))].subject.unique())
 
     @staticmethod
@@ -84,7 +73,7 @@ class Filtering:
                                        (ingoing.regex_helper > dates[1][:4])].subject.unique())
         else:
             ingoing_discard = []
-        
+
         if outgoing.shape[0] > 0:
             outgoing['regex_helper']= outgoing["object"].apply(
                 lambda x: self.regex_helper(x, dates[0][:4]))
@@ -114,6 +103,7 @@ class Filtering:
 
         if self.when:
             to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
-                                   self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing, dates=dates)))
+                                   self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing,
+                                                             dates=dates)))
 
         return to_discard

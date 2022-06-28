@@ -3,9 +3,16 @@ Unittest of file `filtering.py`, class Filtering
 python -m unittest -v test_filtering.py
 """
 
+import os
+import yaml
 import unittest
 import pandas as pd
 from src.filtering import Filtering
+from settings import FOLDER_PATH
+
+with open(os.path.join(FOLDER_PATH, "dataset-config", "dbpedia.yaml"),
+          encoding='utf-8') as file:
+    dbpedia_dataset_config = yaml.load(file, Loader=yaml.FullLoader)
 
 class TestFiltering(unittest.TestCase):
     """

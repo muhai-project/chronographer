@@ -9,28 +9,34 @@ from tqdm import tqdm
 import pandas as pd
 from src.triply_interface import TriplInterface
 
-def get_equivalent_url(df_path, save_path):
+def get_equivalent_url(df_path, save_path, dataset="dbpedia"):
     """
     df_path contains the ground truth, i.e. the events for a given topic
     The "linkDBpediaEn" column must contain the dbpedia corresponding pages
     """
     df_pd = pd.read_csv(df_path)
-    urls = df_pd.linkDBpediaEn.unique()
-    referents = {}
-    predicate = ["http://dbpedia.org/ontology/wikiPageRedirects"]
+    if dataset == "dbpedia":
+        urls = df_pd.linkDBpediaEn.unique()
+        referents = {}
+        predicate = ["http://dbpedia.org/ontology/wikiPageRedirects"]
 
-    interface = TriplInterface()
+        interface = TriplInterface()
 
-    for i in tqdm(range(len(urls))):
-        url = urls[i]
-        referents[url] = url
-        triples = interface.run_request(params=dict(object=url), filter_pred=predicate,
-                                        filter_keep=True)
-        for (ref, _, _) in triples:
-            referents[str(ref)] = url
+        for i in tqdm(range(len(urls))):
+            url = urls[i]
+            referents[url] = url
+            triples = interface.run_request(params=dict(object=url), filter_pred=predicate,
+                                            filter_keep=True)
+            for (ref, _, _) in triples:
+                referents[str(ref)] = url
 
-    json.dump(referents, open(save_path, "w", encoding='utf-8'),
-              indent=4)
+        json.dump(referents, open(save_path, "w", encoding='utf-8'),
+                indent=4)
+
+    else:
+        referents = {event: event for event in df_pd.linkDBpediaEn.unique()}
+        json.dump(referents, open(save_path, "w", encoding='utf-8'),
+                  indent=4)
 
 
 if __name__ == '__main__':
