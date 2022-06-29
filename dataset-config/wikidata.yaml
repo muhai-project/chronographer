@@ -1,3 +1,4 @@
+config_type: "wikidata"
 predicate_filter: [
   "http://www.wikidata.org/prop/direct/P910",  
   "http://www.wikidata.org/prop/direct/P1343",
@@ -27,3 +28,6 @@ sub_class_of: [
 owl_thing: "http://www.wikidata.org/prop/direct/Q35120"
 category: ""
 start_uri: "http://www.wikidata"
+start_stop_uri: [
+  "http://www.wikidata.org/entity/statement/"
+]

@@ -32,6 +32,8 @@ class Filtering:
 
         self.places = args["places"]
 
+        self.dataset_type = args["dataset_type"]
+
     @staticmethod
     def _check_args(args):
         for val in ["where", "when"]:
@@ -102,8 +104,10 @@ class Filtering:
             to_discard += list(set(self.get_to_discard_location(df_pd=type_date)))
 
         if self.when:
-            to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
-                                   self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing,
+            to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates)))
+
+        if self.when and self.dataset_type in ["dbpedia"]:
+            to_discard += list(set(self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing,
                                                              dates=dates)))
 
         return to_discard

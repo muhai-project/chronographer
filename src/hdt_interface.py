@@ -91,15 +91,6 @@ class HDTInterface:
         return ingoing, outgoing, self._filter_specific(
             self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
-    def _get_ingoing(self, node: str, predicate: list[str]):
-        """ Return all triples (s, p, o) s.t.
-        p not in predicate and o = node """
-        triples = self.run_request(params=dict(object=str(node)),
-                                 filter_pred=predicate, filter_keep=False)
-        if self.filter_kb:
-            return self._filter(triples=triples)
-        return triples
-
     def _filter_namespace(self, triples):
         # to_discard = [
         #     "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
@@ -136,13 +127,12 @@ class HDTInterface:
         else:
             return x_date
 
-    def _filter(self, triples):
+    def _filter_node(self, triples, filter_out):
         triples = self._filter_namespace(triples)
-        if self.dataset_config["category"]:
-            triples = [elt for elt in triples if \
-                not elt[0].startswith(self.dataset_config["category"])]
-            triples = [elt for elt in triples if \
-                not elt[2].startswith(self.dataset_config["category"])]
+        triples = [elt for elt in triples if \
+            not any(elt[0].startswith(pattern) for pattern in filter_out)]
+        triples = [elt for elt in triples if \
+            not any(elt[2].startswith(pattern) for pattern in filter_out)]
         return triples
 
     def _filter_specific(self, triples):
@@ -150,13 +140,26 @@ class HDTInterface:
         triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
         return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
 
-    def _get_outgoing(self, node: str, predicate: list[str], filter: bool = 1):
+    def _get_outgoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
-        triples = self.run_request(params=dict(subject=str(node)),
-                                   filter_pred=predicate, filter_keep=False)
-        if self.filter_kb:
-            return self._filter(triples=triples)
+        return self._helper_ingoing_outgoing(params=dict(subject=str(node)),
+                                             predicate=predicate, filter_keep=False)
+
+    def _get_ingoing(self, node: str, predicate: list[str]):
+        """ Return all triples (s, p, o) s.t.
+        p not in predicate and o = node """
+        return self._helper_ingoing_outgoing(params=dict(object=str(node)),
+                                             predicate=predicate, filter_keep=False)
+
+    def _helper_ingoing_outgoing(self, params, predicate, filter_keep):
+        triples = self.run_request(params=params,
+                                   filter_pred=predicate, filter_keep=filter_keep)
+        if self.filter_kb  and self.dataset_config['config_type'] == "dbpedia":
+            return self._filter_node(triples=triples, filter_out=[self.dataset_config["category"]])
+        if self.dataset_config['config_type'] == "wikidata":
+            return self._filter_node(triples=triples,
+                                     filter_out=self.dataset_config["start_stop_uri"])
         return triples
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):

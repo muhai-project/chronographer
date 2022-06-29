@@ -1,3 +1,4 @@
+config_type: "dbpedia"
 predicate_filter: [
   "http://dbpedia.org/ontology/wikiPageWikiLink",
   "http://dbpedia.org/ontology/wikiPageRedirects",

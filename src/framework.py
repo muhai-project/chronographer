@@ -77,8 +77,11 @@ class GraphSearchFramework:
             self.interface = TriplInterface()
         else:  # type_interface == "hdt"
             nested = config["nested_dataset"] if "nested_dataset" in config else 1
+            pred = self.dataset_config["point_in_time"] + self.dataset_config["start_dates"] + \
+                self.dataset_config["end_dates"] + [self.dataset_config["rdf_type"]]
             self.interface = HDTInterface(filter_kb=filter_kb, folder_hdt=config["dataset_path"],
-                                          dataset_config=self.dataset_config, nested_dataset=nested)
+                                          dataset_config=self.dataset_config, nested_dataset=nested,
+                                          default_pred=pred)
 
         self.subgraph = pd.DataFrame(columns=[
             "subject", "predicate", "object", "type_df", "iteration"])
@@ -115,7 +118,7 @@ class GraphSearchFramework:
 
         if "filtering" in config and "what" in config["filtering"] and \
             config["filtering"]["what"]:
-            self.predicate_filter += ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+            self.predicate_filter += [self.dataset_config["rdf_type"]]
 
 
         self.node_expander = NodeExpansion(rdf_type=self.rdf_type,
@@ -137,7 +140,8 @@ class GraphSearchFramework:
             "point_in_time": dataset_config["point_in_time"],
             "start_dates": dataset_config["start_dates"],
             "end_dates": dataset_config["end_dates"],
-            "places": dataset_config["places"]
+            "places": dataset_config["places"],
+            "dataset_type": dataset_config["config_type"],
         }
 
     def _check_config(self, config: dict):
