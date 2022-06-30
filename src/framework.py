@@ -78,7 +78,7 @@ class GraphSearchFramework:
         else:  # type_interface == "hdt"
             nested = config["nested_dataset"] if "nested_dataset" in config else 1
             pred = self.dataset_config["point_in_time"] + self.dataset_config["start_dates"] + \
-                self.dataset_config["end_dates"] + [self.dataset_config["rdf_type"]]
+                self.dataset_config["end_dates"] + [self.dataset_config["rdf_type"]] 
             self.interface = HDTInterface(filter_kb=filter_kb, folder_hdt=config["dataset_path"],
                                           dataset_config=self.dataset_config, nested_dataset=nested,
                                           default_pred=pred)

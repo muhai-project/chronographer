@@ -53,6 +53,7 @@ class HDTInterface:
         self.filter_kb = filter_kb
 
         self.dataset_config = dataset_config
+        self.dataset_type = dataset_config["config_type"]
 
     def run_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
