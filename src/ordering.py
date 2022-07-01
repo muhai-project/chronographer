@@ -189,6 +189,9 @@ if __name__ == '__main__':
         os.path.join(folder, "triply_ingoing_expected.csv")) \
             .fillna("")[["subject", "object", "predicate"]]
 
+    print(pending_ingoing_iter_1)
+    print(f"Init columns: {pending_ingoing_iter_1.columns}")
+
     ordering = Ordering(interface=HDTInterface())
     df_test, info_test = ordering(triple_df=pending_ingoing_iter_1,
                         type_node="ingoing", info={}, iteration=1)
@@ -197,3 +200,4 @@ if __name__ == '__main__':
         print(f"{row_test.predicate}\t {row_test.superclass}")
 
     print(info_test)
+    print(f"Final columns: {df_test.columns}")
