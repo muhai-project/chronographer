@@ -4,6 +4,7 @@
 import os
 import fnmatch
 from tqdm import tqdm
+import yaml
 
 import pandas as pd
 from hdt import HDTDocument
@@ -11,7 +12,7 @@ from hdt import HDTDocument
 from settings import FOLDER_PATH
 
 HDT_DBPEDIA = \
-    os.path.join(FOLDER_PATH, "snapshot-2021-09")
+    os.path.join(FOLDER_PATH, "dbpedia-snapshot-2021-09")
 
 DEFAULT_PRED = \
     ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
@@ -21,12 +22,17 @@ DEFAULT_PRED = \
      "http://dbpedia.org/property/birthDate",
      "http://dbpedia.org/property/deathDate"]
 
+with open(os.path.join(FOLDER_PATH, "dataset-config", "dbpedia.yaml"),
+          encoding='utf-8') as file:
+    dbpedia_dataset_config = yaml.load(file, Loader=yaml.FullLoader)
+
 class HDTInterface:
     """
     #TO DO: add documentation on this script
     """
 
-    def __init__(self, dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
+    def __init__(self, dataset_config: dict = dbpedia_dataset_config,
+                 dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
                  folder_hdt: str = HDT_DBPEDIA, nested_dataset: bool = True, filter_kb: bool = 1):
         if nested_dataset:
             dirs = [os.path.join(folder_hdt, file) for file in os.listdir(folder_hdt)]
@@ -45,6 +51,9 @@ class HDTInterface:
         self.start_date = dates[0]
         self.end_date = dates[1]
         self.filter_kb = filter_kb
+
+        self.dataset_config = dataset_config
+        self.dataset_type = dataset_config["config_type"]
 
     def run_request(self, params: dict[str, str], filter_pred: list,
                           filter_keep: bool):
@@ -67,12 +76,12 @@ class HDTInterface:
         Most ancient ancestor before owl:Thing """
         info = self.run_request(
             params=dict(subject=str(node)),
-            filter_pred=["http://www.w3.org/2000/01/rdf-schema#subClassOf"],
+            filter_pred=self.dataset_config["sub_class_of"],
             filter_keep=True)
 
         if not info:
             return node
-        if str(info[0][2]) == "http://www.w3.org/2002/07/owl#Thing":
+        if str(info[0][2]) == self.dataset_config["owl_thing"]:
             return node
         return self.get_superclass(str(info[0][2]))
 
@@ -83,17 +92,7 @@ class HDTInterface:
         return ingoing, outgoing, self._filter_specific(
             self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
-    def _get_ingoing(self, node: str, predicate: list[str], filter: bool = 1):
-        """ Return all triples (s, p, o) s.t.
-        p not in predicate and o = node """
-        triples = self.run_request(params=dict(object=str(node)),
-                                 filter_pred=predicate, filter_keep=False)
-        if self.filter_kb:
-            return self._filter(triples=triples)
-        return triples
-
-    @staticmethod
-    def _filter_namespace(triples):
+    def _filter_namespace(self, triples):
         # to_discard = [
         #     "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
         #     "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"',
@@ -106,7 +105,7 @@ class HDTInterface:
         # triples = [elt for elt in triples if \
         #     not any(elt[0].startswith(discard) for discard in to_discard)]
 
-        filter_f = lambda x: x.startswith("http://dbpedia.org/") or \
+        filter_f = lambda x: x.startswith(self.dataset_config["start_uri"]) or \
                             not any(x.startswith(elt) for elt in ["http", '"'])
 
         triples = [elt for elt in triples if filter_f(elt[2])]
@@ -118,32 +117,50 @@ class HDTInterface:
     @staticmethod
     def pre_process_date(x_date):
         """ Pre processing date (to be format comparable later) """
-        if "<http://www.w3.org/2001/XMLSchema#date>" in x_date:
+        xml_dates = [
+            "<http://www.w3.org/2001/XMLSchema#date>",
+            "<http://www.w3.org/2001/XMLSchema#dateTime>"
+        ]
+        if any(xml_date in x_date for xml_date in xml_dates):
             return x_date[1:11]
         elif "<http://www.w3.org/2001/XMLSchema#integer>" in x_date:
             return x_date[1:5]
         else:
             return x_date
 
-    def _filter(self, triples):
+    def _filter_node(self, triples, filter_out):
         triples = self._filter_namespace(triples)
         triples = [elt for elt in triples if \
-            not elt[0].startswith('http://dbpedia.org/resource/Category:')]
-        return [elt for elt in triples if \
-            not elt[2].startswith('http://dbpedia.org/resource/Category:')]
+            not any(elt[0].startswith(pattern) for pattern in filter_out)]
+        triples = [elt for elt in triples if \
+            not any(elt[2].startswith(pattern) for pattern in filter_out)]
+        return triples
 
     def _filter_specific(self, triples):
         invalid = ['"Unknown"@']
         triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
         return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
 
-    def _get_outgoing(self, node: str, predicate: list[str], filter: bool = 1):
+    def _get_outgoing(self, node: str, predicate: list[str]):
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
-        triples = self.run_request(params=dict(subject=str(node)),
-                                   filter_pred=predicate, filter_keep=False)
-        if self.filter_kb:
-            return self._filter(triples=triples)
+        return self._helper_ingoing_outgoing(params=dict(subject=str(node)),
+                                             predicate=predicate, filter_keep=False)
+
+    def _get_ingoing(self, node: str, predicate: list[str]):
+        """ Return all triples (s, p, o) s.t.
+        p not in predicate and o = node """
+        return self._helper_ingoing_outgoing(params=dict(object=str(node)),
+                                             predicate=predicate, filter_keep=False)
+
+    def _helper_ingoing_outgoing(self, params, predicate, filter_keep):
+        triples = self.run_request(params=params,
+                                   filter_pred=predicate, filter_keep=filter_keep)
+        if self.filter_kb  and self.dataset_config['config_type'] == "dbpedia":
+            return self._filter_node(triples=triples, filter_out=[self.dataset_config["category"]])
+        if self.dataset_config['config_type'] == "wikidata":
+            return self._filter_node(triples=triples,
+                                     filter_out=self.dataset_config["start_stop_uri"])
         return triples
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):

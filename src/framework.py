@@ -7,6 +7,7 @@ import time
 import multiprocessing as mp
 from datetime import datetime
 from collections import defaultdict
+import yaml
 from ray.util.multiprocessing import Pool
 
 import pandas as pd
@@ -21,18 +22,6 @@ from src.triply_interface import TriplInterface
 from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
     as config_error_messages
 
-
-CONFIG = {
-    # "rdf_type": [("event", "http://dbpedia.org/ontology/Event"),
-    #              ("person", "http://dbpedia.org/ontology/Person")],
-    "rdf_type": [("event", "http://dbpedia.org/ontology/Event")],
-    "predicate_filter": ["http://dbpedia.org/ontology/wikiPageWikiLink",
-                         "http://dbpedia.org/ontology/wikiPageRedirects"],
-    "start": "http://dbpedia.org/resource/Category:French_Revolution",
-    "iterations": 0,
-    "type_ranking": "entropy_pred_object_freq",
-    "type_interface": "triply",
-}
 
 class GraphSearchFramework:
     """
@@ -61,6 +50,13 @@ class GraphSearchFramework:
         self._check_config(config=config)
         self.iterations = config["iterations"]
         self.type_interface = config["type_interface"]
+
+        self.dataset_type = config["dataset_type"]
+        with open(
+            os.path.join(FOLDER_PATH, "dataset-config", f"{config['dataset_type']}.yaml"),
+            encoding='utf-8') as file:
+            self.dataset_config = yaml.load(file, Loader=yaml.FullLoader)
+
         self.type_ranking = config["type_ranking"]
         self.folder_name_suffix = \
             self.get_exp_name(config=config)
@@ -81,7 +77,12 @@ class GraphSearchFramework:
         if self.type_interface == "triply":
             self.interface = TriplInterface()
         else:  # type_interface == "hdt"
-            self.interface = HDTInterface(filter_kb=filter_kb)
+            nested = config["nested_dataset"] if "nested_dataset" in config else 1
+            pred = self.dataset_config["point_in_time"] + self.dataset_config["start_dates"] + \
+                self.dataset_config["end_dates"] + [self.dataset_config["rdf_type"]]
+            self.interface = HDTInterface(filter_kb=filter_kb, folder_hdt=config["dataset_path"],
+                                          dataset_config=self.dataset_config, nested_dataset=nested,
+                                          default_pred=pred)
 
         self.subgraph = pd.DataFrame(columns=[
             "subject", "predicate", "object", "type_df", "iteration"])
@@ -118,17 +119,31 @@ class GraphSearchFramework:
 
         if "filtering" in config and "what" in config["filtering"] and \
             config["filtering"]["what"]:
-            self.predicate_filter += ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+            self.predicate_filter += [self.dataset_config["rdf_type"]]
 
+
+        self.node_expander = NodeExpansion(rdf_type=self.rdf_type,
+                                           interface=self.interface,
+                                           args_filtering=self.get_config_filtering(
+                                            config=config, dataset_config=self.dataset_config))
+
+    @staticmethod
+    def get_config_filtering(config: dict, dataset_config: dict):
+        """ Create config for Filtering module in NodeExpansion """
         filtering_when = config["filtering"]["when"] if \
             "filtering" in config and "when" in config["filtering"] else 0
         filtering_where = config["filtering"]["where"] if \
             "filtering" in config and "where" in config["filtering"] else 0
 
-        self.node_expander = NodeExpansion(rdf_type=self.rdf_type,
-                                           interface=self.interface,
-                                           args_filtering={"when": filtering_when,
-                                                           "where": filtering_where})
+        return {
+            "when": filtering_when,
+            "where": filtering_where,
+            "point_in_time": dataset_config["point_in_time"],
+            "start_dates": dataset_config["start_dates"],
+            "end_dates": dataset_config["end_dates"],
+            "places": dataset_config["places"],
+            "dataset_type": dataset_config["config_type"],
+        }
 
     def _check_config(self, config: dict):
         if not isinstance(config, dict):
@@ -212,10 +227,21 @@ class GraphSearchFramework:
         if not isinstance(config["name_exp"], str):
             raise TypeError(self.config_error_messages['name_exp'])
 
-    @staticmethod
-    def get_exp_name(config):
+        if "dataset_type" not in config:
+            raise ValueError(self.config_error_messages['dataset_type'])
+        if config["dataset_type"] not in ["wikidata", "dbpedia"]:
+            raise TypeError(self.config_error_messages['dataset_type'])
+
+        if "dataset_path" not in config:
+            raise ValueError(self.config_error_messages['dataset_path'])
+        if not isinstance(config["dataset_path"], str):
+            raise TypeError(self.config_error_messages['dataset_path'])
+
+
+    def get_exp_name(self, config):
         """ Get experiment name, depending on parameters """
-        elts = [config['name_exp'], str(config["iterations"]), config["type_ranking"]]
+        elts = [config['dataset_type'], config['name_exp'],
+                str(config["iterations"]), config["type_ranking"]]
         domain_range = "domain_range" if \
             config.get('ordering') and \
                 config.get('ordering').get('domain_range') \
@@ -229,9 +255,11 @@ class GraphSearchFramework:
             when = "when" if \
                 config.get('filtering').get('when') else ""
             elts += [what, where, when]
-        wikilink = "wikilink_out" if "http://dbpedia.org/ontology/wikiPageWikiLink" \
-            in config["predicate_filter"] else "wikilink_in"
-        elts.append(wikilink)
+
+        if self.dataset_type == "dbpedia":  # wikilink for DBpedia only
+            wikilink = "wikilink" if "http://dbpedia.org/ontology/wikiPageWikiLink" \
+                in config["predicate_filter"] else ""
+            elts.append(wikilink)
         cat = "with_category" if config.get("exclude_category") == 0 else "without_category"
         elts.append(cat)
         return "_".join(elts)
@@ -444,7 +472,18 @@ class GraphSearchFramework:
                         .object.unique()]))
         self.subgraph_info[iteration] = dict(subgraph_nb_event=size,
                                              subgraph_nb_event_unique=unique)
-    
+
+
+    def _udpate_metadata(self, metadata):
+        last_metrics = self.metrics_data[self.iterations]
+        metadata.update({
+            "end": str(datetime.now()),
+            "last_f1":  last_metrics["f1"],
+            "last_precision":  last_metrics["precision"],
+            "last_recall":  last_metrics["recall"],
+        })
+        return metadata
+
     def _update_best(self, metadata, iteration):
         best_metrics = self.metrics_data[iteration]
         metadata.update({
