@@ -31,3 +31,11 @@ start_uri: "http://www.wikidata"
 start_stop_uri: [
   "http://www.wikidata.org/entity/statement/"
 ]
+property_constraint_direct: "http://www.wikidata.org/prop/direct/P2302"
+property_constraint_statement: "http://www.wikidata.org/prop/statement/P2302"
+property_constraint_prop: "http://www.wikidata.org/prop/P2302"
+domain: "http://www.wikidata.org/entity/Q21503250"
+range: "http://www.wikidata.org/entity/Q21510865"
+class_qualifier: "http://www.wikidata.org/prop/qualifier/P2308"
+prefix_constraint_direct: "http://www.wikidata.org/prop/direct/"
+prefix_entity: "http://www.wikidata.org/entity/"

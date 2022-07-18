@@ -114,7 +114,9 @@ class GraphSearchFramework:
 
         ordering_domain_range = config["ordering"]["domain_range"] if \
             "ordering" in config and "domain_range" in config["ordering"] else 0
-        self.ordering = Ordering(interface=self.interface, domain_range=ordering_domain_range)
+        self.ordering = Ordering(interface=self.interface,
+                                 domain_range=ordering_domain_range,
+                                 focus_for_search=[x[1] for x in config["rdf_type"]])
 
         if "filtering" in config and "what" in config["filtering"] and \
             config["filtering"]["what"]:
@@ -349,9 +351,8 @@ class GraphSearchFramework:
         """ Accessible call to _update_occurence """
         return self._update_occurence(ingoing, outgoing, occurence)
 
-    @staticmethod
-    def _get_nb(superclass, pred):
-        if superclass:
+    def _get_nb(self, superclass, pred):
+        if any(x in superclass for x in [y[1] for y in self.rdf_type]):
             return "1"
         if pred in []:
             return "2"

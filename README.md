@@ -112,6 +112,7 @@ Create a `private.py` file in the settings folder and add the followings:
 
 ## **Run one search**
 
+0. Get superclasses (c.f. src/extract_domain_range)
 1. Get ground truth
 2. Get URI mapping (to account for different versions in DBPedia)
 3. Set config file (node to start with, filters, start and end dates)

@@ -1,10 +1,11 @@
 """ Extracting directly information for domain/range on predicates """
 import os
 import json
-import yaml
-from collections import defaultdict
-from tqdm import tqdm
+import argparse
 from copy import deepcopy
+from collections import defaultdict
+import yaml
+from tqdm import tqdm
 
 from src.hdt_interface import HDTInterface
 from settings import FOLDER_PATH
@@ -92,7 +93,7 @@ def get_superclass_wikidata(interface, dataset_config):
 
     for triple in triples:
         class_to_sub_class[triple[0]].append(triple[2])
-    
+
     output = deepcopy(class_to_sub_class)
     for k, sup_cl in class_to_sub_class.items():
         for node in [x for x in sup_cl if x in class_to_sub_class]:
@@ -109,27 +110,27 @@ def extract_domain_range(config):
     if config["dataset_type"] == "dbpedia":
         triples = get_triples(interface=interface,
                               params=dict(predicate=dataset_config["domain"]))
-        domain_pred = {x[0]: x[2] for x in triples}
+        domain_pred = {x[0]: [x[2]] for x in triples}
 
         triples = get_triples(interface=interface,
                               params=dict(predicate=dataset_config["range"]))
-        range_pred = {x[0]: x[2] for x in triples}
+        range_pred = {x[0]: [x[2]] for x in triples}
 
         superclasses = {}
         nodes = list(
-            set([val for _, val in domain_pred.items()] + \
-                [val for _, val in range_pred.items()])
+            set([x for _, val in domain_pred.items() for x in val] + \
+                [x for _, val in range_pred.items() for x in val])
         )
         for i in tqdm(range(len(nodes))):
             elt = nodes[i]
-            superclasses[elt] = interface.get_superclass(node=elt)
+            superclasses[elt] = [interface.get_superclass(node=elt)]
 
         return domain_pred, range_pred, superclasses
 
     if config["dataset_type"] == "wikidata":
         domain_pred = get_type_wikidata(interface=interface,
             type_to_extract="domain", dataset_config=dataset_config)
-        
+
         range_pred = get_type_wikidata(interface=interface,
             type_to_extract="range", dataset_config=dataset_config)
 
@@ -141,6 +142,34 @@ def extract_domain_range(config):
 
 
 if __name__ == '__main__':
+    """
+    Command line examples (from repo directory)
+    python src/extract_domain_range.py -j configs-example/config-dbpedia.json
+    python src/extract_domain_range.py -j configs-example/config-wikidata.json
+    """
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-j", "--json", required=True,
+                    help="Config path for dataset (c.f. in folders `configs-example` for examples")
+    args_main = vars(ap.parse_args())
+
+    with open(args_main["json"], "r", encoding="utf-8") as openfile:
+        CONFIG = json.load(openfile)
+
+    DATASET_TYPE = CONFIG["dataset_type"]
+    DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(config=CONFIG)
+
+    SAVE_FOLDER = os.path.join(FOLDER_PATH, "domain-range-pred")
+    if not os.path.exists(SAVE_FOLDER):
+        os.makedirs(SAVE_FOLDER)
+
+    for data, save_name in [
+        (DOMAIN_PRED, f"{DATASET_TYPE}-domain.json"),
+        (RANGE_PRED, f"{DATASET_TYPE}-range.json"),
+        (SUPERCLASSES, f"{DATASET_TYPE}-superclasses.json")
+    ]:
+        with open(os.path.join(SAVE_FOLDER, save_name), 'w', encoding='utf-8') as openfile:
+            json.dump(data, openfile)
+
     # with open(os.path.join(FOLDER_PATH, "configs-example/config-dbpedia.json"),
     #           "r", encoding="utf-8") as openfile:
     #     CONFIG = json.load(openfile)
@@ -154,28 +183,23 @@ if __name__ == '__main__':
     #           "w", encoding="utf-8") as openfile:
     #     json.dump(RANGE_PRED, openfile)
 
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/dbpedia-domain.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(DOMAIN_PRED, openfile)
-
     # with open(os.path.join(FOLDER_PATH, "domain-range-pred/dbpedia-superclasses.json"),
     #           "w", encoding="utf-8") as openfile:
     #     json.dump(SUPERCLASSES, openfile)
 
-    with open(os.path.join(FOLDER_PATH, "configs-example/config-wikidata.json"),
-              "r", encoding="utf-8") as openfile:
-        CONFIG = json.load(openfile)
-    DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(config=CONFIG)
+    # with open(os.path.join(FOLDER_PATH, "configs-example/config-wikidata.json"),
+    #           "r", encoding="utf-8") as openfile:
+    #     CONFIG = json.load(openfile)
+    # DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(config=CONFIG)
 
-    with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-domain.json"),
-              "w", encoding="utf-8") as openfile:
-        json.dump(DOMAIN_PRED, openfile)
+    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-domain.json"),
+    #           "w", encoding="utf-8") as openfile:
+    #     json.dump(DOMAIN_PRED, openfile)
 
-    with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-range.json"),
-              "w", encoding="utf-8") as openfile:
-        json.dump(RANGE_PRED, openfile)
-    
-    with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-superclasses.json"),
-              "w", encoding="utf-8") as openfile:
-        json.dump(SUPERCLASSES, openfile)
+    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-range.json"),
+    #           "w", encoding="utf-8") as openfile:
+    #     json.dump(RANGE_PRED, openfile)
 
+    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-superclasses.json"),
+    #           "w", encoding="utf-8") as openfile:
+    #     json.dump(SUPERCLASSES, openfile)

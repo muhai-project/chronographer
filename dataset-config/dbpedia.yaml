@@ -42,3 +42,5 @@ sub_class_of: [
 owl_thing: "http://www.w3.org/2002/07/owl#Thing"
 category: "http://dbpedia.org/resource/Category:"
 start_uri: "http://dbpedia"
+domain: "http://www.w3.org/2000/01/rdf-schema#domain"
+range: "http://www.w3.org/2000/01/rdf-schema#range"

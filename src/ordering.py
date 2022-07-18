@@ -2,10 +2,13 @@
 Ordering class: preprocessing outgoing nodes retrieved
 (e.g. we only want to keep nodes with a URI, and not literals)
 """
-
+import os
+import json
 from tqdm import tqdm
-
 import pandas as pd
+from copy import deepcopy
+
+from settings import FOLDER_PATH
 
 
 class Ordering:
@@ -23,24 +26,34 @@ class Ordering:
     outgoing -> filter on range
 
     """
-    def __init__(self, interface, domain_range: int = 1, focus: str = "event"):
-        self.domain_pred = "http://www.w3.org/2000/01/rdf-schema#domain"
-        self.range_pred = "http://www.w3.org/2000/01/rdf-schema#range"
+    def __init__(self, interface, domain_range: int = 1, focus_for_search: str = "event"):
         self.interface = interface
 
-        self.superclasses = {}
-        self.domain = {}
-        self.range = {}
+        self.dataset_type = interface.dataset_config["config_type"]
+        self.prefix_entity = interface.dataset_config["prefix_entity"] \
+            if "prefix_entity" in interface.dataset_config else None
+        self.prefix_prop_direct = interface.dataset_config["prefix_constraint_direct"] \
+            if "prefix_constraint_direct" in interface.dataset_config else None
+
+        info_folder = os.path.join(FOLDER_PATH, "domain-range-pred")
+
+        with open(os.path.join(info_folder, f"{self.dataset_type}-superclasses.json"),
+                  "r", encoding="utf-8") as openfile:
+            self.superclasses = json.load(openfile)
+
+        with open(os.path.join(info_folder, f"{self.dataset_type}-domain.json"),
+                  "r", encoding="utf-8") as openfile:
+            self.domain = json.load(openfile)
+
+        with open(os.path.join(info_folder, f"{self.dataset_type}-range.json"),
+                  "r", encoding="utf-8") as openfile:
+            self.range = json.load(openfile)
 
         self.type_node_to_pred = {
             "ingoing": "domain", "outgoing": "range"
         }
 
-        self.focus_to_pred = {
-            "event": "http://dbpedia.org/ontology/Event"
-        }
-        self.focus_pred = self.focus_to_pred[focus]
-
+        self.focus_pred = focus_for_search
         self.domain_range = domain_range
 
     def __call__(self, triple_df: pd.core.frame.DataFrame,
@@ -69,15 +82,14 @@ class Ordering:
         if self.domain_range:  # retrieving info from domain_range
             # Fetching newly non encountered superclasses for
             # domain if ingoing, range if outgoing
-            self.add_superclass_to_class(df_pd=triple_df, type_node=type_node)
+            # self.add_superclass_to_class(df_pd=triple_df, type_node=type_node)
 
             # Adding superclass of domain/range predicate to the dataframe
             triple_df = self.add_superclass_to_df(triple_df=triple_df, type_node=type_node)
 
         else:  # adding empty superclass column
-            triple_df["superclass"] = ""
+            triple_df["superclass"] = [[] for _ in range(triple_df.shape[0])]
 
-        # if not self.d
 
         # 3. Updating info + Filtering out non relevant predicates
         return self.update_info_filter(triple_df=triple_df, type_node=type_node,
@@ -102,29 +114,50 @@ class Ordering:
 
         triple_df.to_csv(f"{type_node}.csv")
 
+        def filter_null(row):
+            return len(row.superclass) > 0
+
         info[iteration][f"{type_node}"] += triple_df.shape[0]
         info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}"] += \
-            triple_df[triple_df.superclass != ""].shape[0]
+            triple_df[triple_df.apply(filter_null, axis=1)].shape[0]
 
-        triple_df = triple_df[triple_df.superclass.isin(["", self.focus_pred])]
+        def filter_func(row):
+            return any(x in row.superclass for x in [""] + self.focus_pred)
+        triple_df_filter = deepcopy(triple_df[triple_df.apply(filter_func, axis=1)])
+        #triple_df = triple_df[triple_df.superclass.isin([""] + self.focus_pred)]
 
         info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}_relevant"] += \
-            triple_df[triple_df.superclass != ""].shape[0]
+            triple_df_filter[triple_df_filter.apply(filter_null, axis=1)].shape[0]
 
         return triple_df, info
 
 
     def add_superclass_to_df(self, triple_df, type_node):
         """ Adding col in df to add superclass of domain/range predicates"""
+
+        def helper_func(x, lookup):
+            res = []
+            x = str(x).replace(self.prefix_prop_direct, self.prefix_entity)
+            if x in lookup:
+                for elt in [var for var in lookup[x] if var in self.superclasses]:
+                    res += self.superclasses[elt]
+            return res
+
+        def get_superclass_func(lookup):
+            if self.prefix_entity and self.prefix_prop_direct:
+                return lambda x: helper_func(x, lookup)
+            
+            return lambda x: \
+                    [y for elt in lookup[x] for y in self.superclasses[elt]] if \
+                        str(x) in lookup else []
+
         if type_node == "ingoing":  # self.domain
             triple_df["superclass"] = triple_df["predicate"].apply(
-                lambda x: str(self.superclasses[self.domain[str(x)]]) if \
-                    str(x) in self.domain else ""
+                get_superclass_func(lookup=self.domain)
             )
         else:  # type_node == "outgoing" | self.range
             triple_df["superclass"] = triple_df["predicate"].apply(
-                lambda x: str(self.superclasses[self.range[str(x)]]) if \
-                    str(x) in self.range else ""
+                get_superclass_func(lookup=self.range)
             )
         return triple_df
 
@@ -135,17 +168,12 @@ class Ordering:
         return triple_df[triple_df.object.str.startswith('http://')] \
             [["subject", "predicate", "object"]]
 
-    # def remove_nodes(self, triple_df, type_node):
-    #     """ Filtering out certain nodes """
-    #     triple_df = triple_df.fillna("")
-    #     col = "subject" if type_node == "ingoing" else "object"
-    #     triple_df['filter'] = str(triple_df[col])
-    #     for node in self.discard_nodes:
-    #         triple_df = triple_df[~triple_df["filter"].str.startswith(node)]
-    #     return triple_df[["subject", "predicate", "object"]]
-
     def add_superclass_to_class(self, df_pd: pd.core.frame.DataFrame, type_node: str):
         """
+        UPDATE (2022.07.11): obsolete, not used anymore
+        Instead of searching domain/range/superclasses during the search,
+        This is run before starting the search
+
         Input params:
         - df_pd: columns should be subject, predicate, object
             either ingoing or outgoing edges
@@ -155,10 +183,13 @@ class Ordering:
 
         Adds superclasses
         """
+        domain_pred = "http://www.w3.org/2000/01/rdf-schema#domain"
+        range_pred = "http://www.w3.org/2000/01/rdf-schema#range"
+
         if type_node == 'ingoing':
-            filter_pred = [self.domain_pred]
+            filter_pred = [domain_pred]
         else:  # type_node == 'outgoing':
-            filter_pred = [self.range_pred]
+            filter_pred = [range_pred]
 
         preds = df_pd.predicate.unique()
         for i in tqdm(range(len(preds))):
@@ -169,10 +200,10 @@ class Ordering:
                 filter_keep=True)
 
             for row in output:
-                if str(row[1]) == self.domain_pred:
-                    self.domain[str(row[0])] = str(row[2])
+                if str(row[1]) == domain_pred:
+                    self.domain[str(row[0])] = [str(row[2])]
                 else:
-                    self.range[str(row[0])] = str(row[2])
+                    self.range[str(row[0])] = [str(row[2])]
 
                 if row[2] not in self.superclasses:
                     self.superclasses[str(row[2])] = \
