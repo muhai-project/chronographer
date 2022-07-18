@@ -3,6 +3,7 @@
 """
 import os
 import json
+import time
 import multiprocessing as mp
 from datetime import datetime
 from collections import defaultdict
@@ -490,11 +491,24 @@ class GraphSearchFramework:
             "best_f1": best_metrics['f1'],
             "best_corresponding_precision": best_metrics['precision'],
             "best_corresponding_recall": best_metrics['recall'],
+            "best_f1_it_nb": iteration
+        })
+        return metadata
+    
+    def _update_last(self, metadata, iteration):
+        last_metrics = self.metrics_data[iteration]
+        metadata.update({
+            "end": str(datetime.now()),
+            "last_f1":  last_metrics["f1"],
+            "last_precision":  last_metrics["precision"],
+            "last_recall":  last_metrics["recall"],
+            "last_it": iteration
         })
         return metadata
 
     def __call__(self):
-        metadata = {"start": str(datetime.now())}
+        start = datetime.now()
+        metadata = {"start": str(start)}
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
@@ -540,6 +554,9 @@ class GraphSearchFramework:
             if self.metrics_data[i]["f1"] > best_fone:
                 metadata = self._update_best(metadata, i)
                 best_fone = self.metrics_data[i]["f1"]
+            metadata = self._update_last(metadata, i)
+            with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
+                json.dump(metadata, openfile, indent=4)
 
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
@@ -561,7 +578,6 @@ class GraphSearchFramework:
                     + f"finishing process at {datetime.now()}\n=====")
                 break
 
-        metadata = self._udpate_metadata(metadata)
         with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
             json.dump(metadata, openfile, indent=4)
 
