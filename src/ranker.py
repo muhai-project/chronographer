@@ -47,7 +47,9 @@ class Ranker:
                 list({k: v for k, v in sorted(dico.items(),
                     key=lambda item: item[1], reverse=reverse)}.items())
 
-        return sorted_filtered_items[0][0]
+        if sorted_filtered_items:
+            return sorted_filtered_items[0][0]
+        return None
 
 
     @staticmethod

@@ -136,14 +136,18 @@ class GraphSearchFramework:
             "filtering" in config and "when" in config["filtering"] else 0
         filtering_where = config["filtering"]["where"] if \
             "filtering" in config and "where" in config["filtering"] else 0
+        filtering_who = config["filtering"]["who"] if \
+            "filtering" in config and "who" in config["filtering"] else 0
 
         return {
             "when": filtering_when,
             "where": filtering_where,
+            "who": filtering_who,
             "point_in_time": dataset_config["point_in_time"],
             "start_dates": dataset_config["start_dates"],
             "end_dates": dataset_config["end_dates"],
             "places": dataset_config["places"],
+            "people": dataset_config["person"],
             "dataset_type": dataset_config["config_type"],
         }
 
@@ -256,7 +260,9 @@ class GraphSearchFramework:
                 config.get('filtering').get('where') else ""
             when = "when" if \
                 config.get('filtering').get('when') else ""
-            elts += [what, where, when]
+            who = "who" if \
+                config.get('filtering').get('who') else ""
+            elts += [what, where, when, who]
 
         if self.dataset_type == "dbpedia":  # wikilink for DBpedia only
             wikilink = "wikilink" if "http://dbpedia.org/ontology/wikiPageWikiLink" \

@@ -29,7 +29,8 @@ owl_thing: "http://www.wikidata.org/prop/direct/Q35120"
 category: ""
 start_uri: "http://www.wikidata"
 start_stop_uri: [
-  "http://www.wikidata.org/entity/statement/"
+  "http://www.wikidata.org/entity/statement/",
+  "http://www.wikidata.org/reference/"
 ]
 property_constraint_direct: "http://www.wikidata.org/prop/direct/P2302"
 property_constraint_statement: "http://www.wikidata.org/prop/statement/P2302"
@@ -39,3 +40,6 @@ range: "http://www.wikidata.org/entity/Q21510865"
 class_qualifier: "http://www.wikidata.org/prop/qualifier/P2308"
 prefix_constraint_direct: "http://www.wikidata.org/prop/direct/"
 prefix_entity: "http://www.wikidata.org/entity/"
+person: [
+  "http://www.wikidata.org/entity/Q5"
+]

@@ -23,6 +23,7 @@ class Filtering:
         self._check_args(args=args)
         self.where = args["where"] if "where" in args else 0
         self.when = args["when"] if "when" in args else 0
+        self.who = args["who"] if "who" in args else 0
 
         self.point_in_time = args["point_in_time"]
         self.start_dates = args["start_dates"]
@@ -31,6 +32,7 @@ class Filtering:
         self.temporal = self.point_in_time + self.start_dates + self.end_dates
 
         self.places = args["places"]
+        self.people = args["people"]
 
         self.dataset_type = args["dataset_type"]
 
@@ -90,6 +92,13 @@ class Filtering:
         """ Location filter: retrieving nodes that correspond to locations
         (would be too broad for the search, hence later discarded """
         return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
+    
+    def get_to_discard_entity(self, df_pd: pd.core.frame.DataFrame, filter_type: list[str]):
+        """ Entity-based filter: retrieving nodes corresponding to any of the 
+        types in filter. Applicable for:
+        WHERE-filter: locations
+        WHO-filter: people """
+        return list(df_pd[df_pd.object.isin(filter_type)].subject.unique())
 
     def __call__(self, ingoing: pd.core.frame.DataFrame, outgoing: pd.core.frame.DataFrame,
                  type_date: pd.core.frame.DataFrame, dates: list[str]):
@@ -101,7 +110,10 @@ class Filtering:
         to_discard = []
 
         if self.where:
-            to_discard += list(set(self.get_to_discard_location(df_pd=type_date)))
+            to_discard += list(set(self.get_to_discard_entity(df_pd=type_date, filter_type=self.places)))
+        
+        if self.who:
+            to_discard += list(set(self.get_to_discard_entity(df_pd=type_date, filter_type=self.people)))
 
         if self.when:
             to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates)))

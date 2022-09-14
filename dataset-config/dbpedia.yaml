@@ -44,3 +44,6 @@ category: "http://dbpedia.org/resource/Category:"
 start_uri: "http://dbpedia"
 domain: "http://www.w3.org/2000/01/rdf-schema#domain"
 range: "http://www.w3.org/2000/01/rdf-schema#range"
+person: [
+  "http://dbpedia.org/ontology/Person"
+]

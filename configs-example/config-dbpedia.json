@@ -36,7 +36,8 @@
     "filtering": {
         "what": 1,
         "where": 1,
-        "when": 1
+        "when": 1,
+        "who": 1
     },
     "name_exp": "french_revolution",
     "dataset_type": "dbpedia",

@@ -140,7 +140,7 @@ class Ordering:
             x = str(x).replace(self.prefix_prop_direct, self.prefix_entity)
             if x in lookup:
                 for elt in [var for var in lookup[x] if var in self.superclasses]:
-                    res += self.superclasses[elt]
+                    res += self.superclasses[elt] + [elt]
             return res
 
         def get_superclass_func(lookup):
