@@ -58,7 +58,8 @@ class TestOrdering(unittest.TestCase):
 
     def test_add_superclass_to_df(self):
         """ Test add_superclass_to_df function """
-        ordering = Ordering(interface=INTERFACE)
+        ordering = Ordering(interface=INTERFACE,
+                            focus_for_search=["http://dbpedia.org/ontology/Event"])
 
         folder = os.path.join(FOLDER_PATH, "src/tests/data")
         ingoing = read_csv(

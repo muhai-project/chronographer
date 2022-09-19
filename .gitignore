@@ -19,5 +19,8 @@ eventkg/
 *.parquet
 *.nq
 data-test/*
-snapshot-2021-09/*
+dbpedia-snapshot-2021-09/*
 data-ind/*
+from-remote/*
+wikidata-2021-03-05/*
+yago-2020-02-24/*

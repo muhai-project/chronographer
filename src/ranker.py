@@ -22,9 +22,6 @@ class Ranker:
         self.low_thresold = low_thresold
         self.high_threshold = high_threshold
 
-        self.domain = "http://www.w3.org/2000/01/rdf-schema#domain"
-        self.range = "http://www.w3.org/2000/01/rdf-schema#range"
-
     # def _split(self, d):
     #     return
 
@@ -50,7 +47,9 @@ class Ranker:
                 list({k: v for k, v in sorted(dico.items(),
                     key=lambda item: item[1], reverse=reverse)}.items())
 
-        return sorted_filtered_items[0][0]
+        if sorted_filtered_items:
+            return sorted_filtered_items[0][0]
+        return None
 
 
     @staticmethod

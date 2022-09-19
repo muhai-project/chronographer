@@ -2,7 +2,12 @@
 Expanding one node by retrieving its ingoing and outgoing edges
 Filtering subgraph and pending nodes to be explored
 """
+import os
+import json
+from copy import deepcopy
+from collections import defaultdict
 from src.filtering import Filtering
+from settings import FOLDER_PATH
 
 class NodeExpansion:
     """
@@ -17,12 +22,19 @@ class NodeExpansion:
 
         self.interface = interface
         self.rdf_type = rdf_type
+        self.stop_classes = [elt[1] for elt in rdf_type]
         self._check_args()
 
-        self.type_pred = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         self.mapping = {uri: name for (name, uri) in rdf_type}
 
         self.filtering = Filtering(args=args_filtering)
+        self.superclasses = defaultdict(list)
+
+        self.dataset_type = interface.dataset_config["config_type"]
+        info_folder = os.path.join(FOLDER_PATH, "domain-range-pred")
+        with open(os.path.join(info_folder, f"{self.dataset_type}-superclasses.json"),
+                  "r", encoding="utf-8") as openfile:
+            self.superclasses = json.load(openfile)
 
     def _check_args(self):
         if not any(elt in repr(self.interface) for elt in \
@@ -48,32 +60,53 @@ class NodeExpansion:
     def _get_output_triples(self, node, predicate):
         return self.interface(node=node, predicate=predicate)
 
-    # def _get_info_from_type(self, type_df, path):
+    # def search_superclass(self, node: str):
+    #     """ Returns superclasses of a class """
+    #     triples = self.interface.run_request(
+    #         params=dict(subject=str(node)),
+    #         filter_pred=self.interface.dataset_config["sub_class_of"],
+    #         filter_keep=True
+    #     )
+    #     return [elt[2] for elt in triples]
 
-    #     type_df["type"] = type_df["object"].apply( \
-    #         lambda x: self.mapping[x] if x in self.mapping else "other")
+    # def superclass_search(self, superclasses: dict,
+    #                       nodes: str, stop_class: list):
+    #     """ Searches superclasses (class+n) until stop criterion """
+    #     pending = [elt for elt in nodes if elt not in superclasses]
+    #     while pending:
+    #         node = pending[0]
+    #         pending = pending[1:]
+    #         curr_sup = self.search_superclass(node)
+    #         superclasses[node] = curr_sup
 
-    #     # grouped = type_df.groupby(["subject", "predicate", "type"]).agg({"object": "count"})
-    #     grouped = type_df.groupby(["predicate", "type"]).agg({"object": "count"})
-    #     # for _ in range(3):
-    #     for _ in range(2):
-    #         grouped.reset_index(level=0, inplace=True)
-    #     grouped["path"] =  [','.join([elt for elt in path] + \
-    #         [str(grouped.predicate.values[i])]) for i in range(grouped.shape[0])]
-    #     info = grouped.pivot(index="path", columns="type", values="object").fillna(0).astype(int)
-    #     columns = info.columns
-        # info["tot"] = [sum([info[col].values[i] for col in columns]) \
-        #     for i in range(info.shape[0])]
-    #     info["iteration"] = self.iter
+    #         cand = [x for x in curr_sup if x not in stop_class]
+    #         cand = [x for x in curr_sup if x not in superclasses]
+    #         pending += cand
+    #     return superclasses
 
-    #     return info
+    # @staticmethod
+    # def rearrange_superclasses(superclasses):
+    #     """ Map node to oldest ancestor in terms of subclass """
+    #     output = deepcopy(superclasses)
+    #     for k, sup_cl in superclasses.items():
+    #         for node in [x for x in sup_cl if x in superclasses]:
+    #             output[k] += deepcopy(superclasses[node])
+    #     return {k: list(set(v)) for k, v in output.items()}
 
     def filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
         """ Direct call to _filter_sub_graph """
         return self._filter_sub_graph(type_date_df, triple_ingoing, triple_outgoing, dates)
 
+    # def update_superclasses(self, nodes):
+    #     """ Update superclasses with new expanded nodes """
+    #     self.superclasses = self.superclass_search(
+    #         superclasses=deepcopy(self.superclasses), nodes=nodes,
+    #         stop_class=self.stop_classes)
+    #     self.superclasses = self.rearrange_superclasses(deepcopy(self.superclasses))
+
     def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
         """ Filtering subgraph: nodes to be removed, nodes to be kept, other """
+
         # Edge case: type_date_df is empty
         # --> we assume that the ingoing/outgoing nodes are not relevant for the search
         if type_date_df.shape[0] == 0:
@@ -84,11 +117,20 @@ class NodeExpansion:
         else:
             to_discard = self.filtering(ingoing=triple_ingoing, outgoing=triple_outgoing,
                                         type_date=type_date_df, dates=dates)
-        # print(to_discard)
-
-        # Filter on types of nodes that should be retrieved
+            # print(to_discard)
+            nodes = [elt for elt in \
+                type_date_df[type_date_df.predicate == \
+                    self.interface.dataset_config["rdf_type"]].object.unique() \
+                if str(elt).startswith(self.interface.dataset_config["start_uri"])]
+            #self.update_superclasses(nodes=nodes)
+            filtered = [k for k, sup_class in self.superclasses.items() \
+                if any(elt in sup_class for elt in self.mapping.keys())] + \
+                    list(self.mapping.keys())
+            # Filter on types of nodes that should be retrieved
+            # to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
+            #     (type_date_df.object.isin(list(self.mapping.keys())))].subject.unique())
             to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
-                (type_date_df.object.isin(list(self.mapping.keys())))].subject.unique())
+                (type_date_df.object.isin(filtered))].subject.unique())
 
         # print(to_keep)
 
@@ -106,7 +148,7 @@ class NodeExpansion:
         # new_path = args["path"] + [args["node"]]
 
         # Querying knowledge base
-        ingoing, outgoing, types_and_date = self._get_output_triples(
+        ingoing, outgoing, types_date = self._get_output_triples(
             node=args["node"], predicate=args["predicate"])
         # type_df_modified = pd.merge(type_df[["subject", "object"]],
         #                             path_df[["subject", 'predicate']],
@@ -116,7 +158,7 @@ class NodeExpansion:
         # info = self._get_info_from_type(type_df=type_df_modified, path=new_path)
 
         # Filter subgraph to keep
-        return self._filter_sub_graph(type_date_df=types_and_date, triple_ingoing=ingoing,
+        return self._filter_sub_graph(type_date_df=types_date, triple_ingoing=ingoing,
                                       triple_outgoing=outgoing, dates=dates)
 
 

@@ -1,0 +1,45 @@
+config_type: "wikidata"
+predicate_filter: [
+  "http://www.wikidata.org/prop/direct/P910",  
+  "http://www.wikidata.org/prop/direct/P1343",
+  "http://www.wikidata.org/prop/direct/P5008",
+  "http://www.wikidata.org/prop/direct/P2184"
+]
+rdf_type: "http://www.wikidata.org/prop/direct/P31"
+point_in_time: [
+  "http://www.wikidata.org/prop/direct/P585"
+]
+start_dates: [
+  "http://www.wikidata.org/prop/direct/P580",
+  "http://www.wikidata.org/prop/direct/P569"
+]
+end_dates: [
+  "http://www.wikidata.org/prop/direct/P582",
+  "http://www.wikidata.org/prop/direct/P570"
+]
+places: [
+  "http://www.wikidata.org/prop/direct/P17",
+  "http://www.wikidata.org/prop/direct/P276",
+  "http://www.wikidata.org/prop/direct/Q6256"
+]
+sub_class_of: [
+  "http://www.wikidata.org/prop/direct/P279"
+]
+owl_thing: "http://www.wikidata.org/prop/direct/Q35120"
+category: ""
+start_uri: "http://www.wikidata"
+start_stop_uri: [
+  "http://www.wikidata.org/entity/statement/",
+  "http://www.wikidata.org/reference/"
+]
+property_constraint_direct: "http://www.wikidata.org/prop/direct/P2302"
+property_constraint_statement: "http://www.wikidata.org/prop/statement/P2302"
+property_constraint_prop: "http://www.wikidata.org/prop/P2302"
+domain: "http://www.wikidata.org/entity/Q21503250"
+range: "http://www.wikidata.org/entity/Q21510865"
+class_qualifier: "http://www.wikidata.org/prop/qualifier/P2308"
+prefix_constraint_direct: "http://www.wikidata.org/prop/direct/"
+prefix_entity: "http://www.wikidata.org/entity/"
+person: [
+  "http://www.wikidata.org/entity/Q5"
+]

@@ -23,25 +23,18 @@ class Filtering:
         self._check_args(args=args)
         self.where = args["where"] if "where" in args else 0
         self.when = args["when"] if "when" in args else 0
+        self.who = args["who"] if "who" in args else 0
 
-        self.dates = [
-            "http://dbpedia.org/ontology/date"
-        ]
-        self.start_dates = [
-            "http://dbpedia.org/ontology/startDate",
-            "http://dbpedia.org/property/birthDate"
-        ]
-        self.end_dates = [
-            "http://dbpedia.org/ontology/endDate",
-            "http://dbpedia.org/property/deathDate"
-        ]
+        self.point_in_time = args["point_in_time"]
+        self.start_dates = args["start_dates"]
+        self.end_dates = args["end_dates"]
 
-        self.temporal = self.dates + self.start_dates + self.end_dates
+        self.temporal = self.point_in_time + self.start_dates + self.end_dates
 
-        self.places = [
-            "http://dbpedia.org/ontology/Place",
-            "http://dbpedia.org/ontology/Location"
-        ]
+        self.places = args["places"]
+        self.people = args["people"]
+
+        self.dataset_type = args["dataset_type"]
 
     @staticmethod
     def _check_args(args):
@@ -57,9 +50,9 @@ class Filtering:
                              (date_df.object < dates[0])) | \
                             ((date_df.predicate.isin(self.start_dates)) & \
                              (date_df.object > dates[1])) | \
-                            ((date_df.predicate.isin(self.dates)) & \
+                            ((date_df.predicate.isin(self.point_in_time)) & \
                              (date_df.object < dates[0])) | \
-                            ((date_df.predicate.isin(self.dates)) & \
+                            ((date_df.predicate.isin(self.point_in_time)) & \
                              (date_df.object > dates[1]))].subject.unique())
 
     @staticmethod
@@ -84,7 +77,7 @@ class Filtering:
                                        (ingoing.regex_helper > dates[1][:4])].subject.unique())
         else:
             ingoing_discard = []
-        
+
         if outgoing.shape[0] > 0:
             outgoing['regex_helper']= outgoing["object"].apply(
                 lambda x: self.regex_helper(x, dates[0][:4]))
@@ -99,6 +92,13 @@ class Filtering:
         """ Location filter: retrieving nodes that correspond to locations
         (would be too broad for the search, hence later discarded """
         return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
+    
+    def get_to_discard_entity(self, df_pd: pd.core.frame.DataFrame, filter_type: list[str]):
+        """ Entity-based filter: retrieving nodes corresponding to any of the 
+        types in filter. Applicable for:
+        WHERE-filter: locations
+        WHO-filter: people """
+        return list(df_pd[df_pd.object.isin(filter_type)].subject.unique())
 
     def __call__(self, ingoing: pd.core.frame.DataFrame, outgoing: pd.core.frame.DataFrame,
                  type_date: pd.core.frame.DataFrame, dates: list[str]):
@@ -110,10 +110,16 @@ class Filtering:
         to_discard = []
 
         if self.where:
-            to_discard += list(set(self.get_to_discard_location(df_pd=type_date)))
+            to_discard += list(set(self.get_to_discard_entity(df_pd=type_date, filter_type=self.places)))
+        
+        if self.who:
+            to_discard += list(set(self.get_to_discard_entity(df_pd=type_date, filter_type=self.people)))
 
         if self.when:
-            to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates) + \
-                                   self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing, dates=dates)))
+            to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates)))
+
+        if self.when and self.dataset_type in ["dbpedia"]:
+            to_discard += list(set(self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing,
+                                                             dates=dates)))
 
         return to_discard
