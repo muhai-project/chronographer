@@ -1,4 +1,26 @@
 miscellaneous/
 **/.ipynb_checkpoints/**
 **/__pycache__/**
+**/htmlcovwe nee/**
+**/.coverage
 other/
+dist/
+build/
+data/
+configs/
+*.egg-info
+.vscode/
+iter-*/
+settings/private.py
+experiments/*
+wandb/
+dbpedia-archive/
+eventkg/
+*.parquet
+*.nq
+data-test/*
+dbpedia-snapshot-2021-09/*
+data-ind/*
+from-remote/*
+wikidata-2021-03-05/*
+yago-2020-02-24/*
