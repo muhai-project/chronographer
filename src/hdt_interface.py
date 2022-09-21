@@ -189,6 +189,7 @@ class HDTInterface:
 
     def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
         ingoing, outgoing, types = self._get_all_results(node=node, predicate=predicate)
+
         return self._get_df(ingoing, type_df="ingoing"), \
             self._get_df(outgoing, type_df="outgoing"), \
             self._get_df(types, type_df="spec. outgoing")

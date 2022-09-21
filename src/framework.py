@@ -235,7 +235,7 @@ class GraphSearchFramework:
 
         if "dataset_type" not in config:
             raise ValueError(self.config_error_messages['dataset_type'])
-        if config["dataset_type"] not in ["wikidata", "dbpedia"]:
+        if config["dataset_type"] not in ["wikidata", "dbpedia", "yago"]:
             raise TypeError(self.config_error_messages['dataset_type'])
 
         if "dataset_path" not in config:
