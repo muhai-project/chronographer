@@ -1,0 +1,38 @@
+config_type: "yago"
+predicate_filter: [
+  "http://www.w3.org/2000/01/rdf-schema#label",
+  "http://schema.org/sameAs",
+  "http://schema.org/alternateName",
+  "http://www.w3.org/2000/01/rdf-schema#comment",
+  "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+  "http://www.w3.org/ns/prov#wasDerivedFrom",
+  "http://schema.org/image",
+  "http://schema.org/about"
+]
+rdf_type: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+point_in_time: [
+]
+start_dates: [
+  "http://schema.org/birthDate",
+  "http://schema.org/foundingDate",
+  "http://schema.org/startDate"
+]
+end_dates: [
+  "http://schema.org/deathDate",
+  "http://schema.org/dissolutionDate",
+  "http://schema.org/endDate"
+]
+places: [
+  "http://schema.org/Place"
+]
+sub_class_of: [
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+]
+owl_thing: "http://schema.org/Thing"
+category: ""
+start_uri: "http://yago"
+domain: "http://www.w3.org/2000/01/rdf-schema#domain"
+range: "http://www.w3.org/2000/01/rdf-schema#range"
+person: [
+  "http://schema.org/Person"
+]
