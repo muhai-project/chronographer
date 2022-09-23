@@ -100,6 +100,36 @@ def get_superclass_wikidata(interface, dataset_config):
             output[k] += deepcopy(class_to_sub_class[node])
     return {k: list(set(v)) for k, v in output.items()}
 
+
+def pre_process_yago(value):
+    """
+    Domain and range values are templated in YAGO HDT
+    Not one triple per domain/range value, but all encoded in one triple
+
+    For domain
+    _:schema-<id>-rdfs-domain-owl-unionOf-schema-<domain_1>-...-schema-<domain_n>
+    ---
+    For range
+    _:schema-<id>-rdfs-range-owl-unionOf-<type>-<range_1>-...-<type>-<range_n>
+    type in ["xsd", "schema"]
+    """
+
+    if not value.startswith("_:"):
+        return [value]
+
+    short_to_prefix = {
+        "schema": "http://schema.org/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    }
+
+    list_constraints = value.split("owl-unionOf-")[1].split("-")
+    res = []
+    for i in range(len(list_constraints)//2):
+        res.append(f"{short_to_prefix[list_constraints[2*i]]}{list_constraints[2*i+1]}")
+
+    return res
+
+
 def extract_domain_range(config):
     """ Pre extracting info on constraints for predicates """
     filter_kb, dataset_config, nested, pred = get_params(config)
@@ -107,14 +137,20 @@ def extract_domain_range(config):
                              dataset_config=dataset_config, nested_dataset=nested,
                              default_pred=pred)
 
-    if config["dataset_type"] == "dbpedia":
+    if config["dataset_type"] in ["dbpedia", "yago"]:
         triples = get_triples(interface=interface,
                               params=dict(predicate=dataset_config["domain"]))
         domain_pred = {x[0]: [x[2]] for x in triples}
 
+        if config["dataset_type"] == "yago":
+            domain_pred = {key: pre_process_yago(value=val[0]) for key, val in domain_pred.items()}
+
         triples = get_triples(interface=interface,
                               params=dict(predicate=dataset_config["range"]))
         range_pred = {x[0]: [x[2]] for x in triples}
+
+        if config["dataset_type"] == "yago":
+            range_pred = {key: pre_process_yago(value=val[0]) for key, val in range_pred.items()}
 
         superclasses = {}
         nodes = list(
@@ -168,38 +204,4 @@ if __name__ == '__main__':
         (SUPERCLASSES, f"{DATASET_TYPE}-superclasses.json")
     ]:
         with open(os.path.join(SAVE_FOLDER, save_name), 'w', encoding='utf-8') as openfile:
-            json.dump(data, openfile)
-
-    # with open(os.path.join(FOLDER_PATH, "configs-example/config-dbpedia.json"),
-    #           "r", encoding="utf-8") as openfile:
-    #     CONFIG = json.load(openfile)
-    # DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(config=CONFIG)
-
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/dbpedia-domain.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(DOMAIN_PRED, openfile)
-
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/dbpedia-range.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(RANGE_PRED, openfile)
-
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/dbpedia-superclasses.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(SUPERCLASSES, openfile)
-
-    # with open(os.path.join(FOLDER_PATH, "configs-example/config-wikidata.json"),
-    #           "r", encoding="utf-8") as openfile:
-    #     CONFIG = json.load(openfile)
-    # DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(config=CONFIG)
-
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-domain.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(DOMAIN_PRED, openfile)
-
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-range.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(RANGE_PRED, openfile)
-
-    # with open(os.path.join(FOLDER_PATH, "domain-range-pred/wikidata-superclasses.json"),
-    #           "w", encoding="utf-8") as openfile:
-    #     json.dump(SUPERCLASSES, openfile)
+            json.dump(data, openfile, indent=4)

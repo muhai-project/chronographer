@@ -100,6 +100,7 @@ class GraphSearchFramework:
         self.nodes_expanded = []
         self.occurence = defaultdict(int)
         self.to_expand = None
+        self.score_expansion = None
         self.nodes_expanded_per_iter = pd.DataFrame(columns=["iteration", "node_expanded"])
         self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
         self.discarded = pd.DataFrame(columns=["iteration", "node_discarded"])
@@ -235,7 +236,7 @@ class GraphSearchFramework:
 
         if "dataset_type" not in config:
             raise ValueError(self.config_error_messages['dataset_type'])
-        if config["dataset_type"] not in ["wikidata", "dbpedia"]:
+        if config["dataset_type"] not in ["wikidata", "dbpedia", "yago"]:
             raise TypeError(self.config_error_messages['dataset_type'])
 
         if "dataset_path" not in config:
@@ -412,7 +413,7 @@ class GraphSearchFramework:
             ignore_index=True
         )
 
-        self.to_expand = self.ranker(occurences=self.occurence)
+        self.to_expand, self.score_expansion = self.ranker(occurences=self.occurence)
         if self.to_expand:
             self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
                 if k != self.to_expand})
@@ -518,7 +519,7 @@ class GraphSearchFramework:
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
-        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
+        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded", "score"])
         self.metrics_data = {}
         self.info = {}
         best_fone = 0
@@ -572,8 +573,8 @@ class GraphSearchFramework:
             if self.to_expand:
 
                 self.expanded = pd.concat(
-                    [self.expanded, pd.DataFrame([[i, self.to_expand]],
-                    columns=["iteration", "path_expanded"])],
+                    [self.expanded, pd.DataFrame([[i, self.to_expand, self.score_expansion]],
+                    columns=["iteration", "path_expanded", "score"])],
                     ignore_index=True
                 )
 

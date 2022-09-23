@@ -48,8 +48,8 @@ class Ranker:
                     key=lambda item: item[1], reverse=reverse)}.items())
 
         if sorted_filtered_items:
-            return sorted_filtered_items[0][0]
-        return None
+            return sorted_filtered_items[0][0], sorted_filtered_items[0][1]
+        return None, None
 
 
     @staticmethod
