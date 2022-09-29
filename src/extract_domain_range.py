@@ -10,30 +10,21 @@ from tqdm import tqdm
 from src.hdt_interface import HDTInterface
 from settings import FOLDER_PATH
 
-def get_params(config):
+def get_params(dataset_type):
     """ Return parameters for the HDT interface """
-    #filter_b
-    if "exclude_category" in config:
-        filter_kb = config["exclude_category"]
-    else:
-        filter_kb = 1
-
-    #folder_hdt: directly accessible
+    filter_kb = 1
 
     #dataset_config
     with open(
-        os.path.join(FOLDER_PATH, "dataset-config", f"{config['dataset_type']}.yaml"),
+        os.path.join(FOLDER_PATH, "dataset-config", f"{dataset_type}.yaml"),
                      encoding='utf-8') as file:
         dataset_config = yaml.load(file, Loader=yaml.FullLoader)
-
-    #nested
-    nested = config["nested_dataset"] if "nested_dataset" in config else 1
 
     #pred
     pred = dataset_config["point_in_time"] + dataset_config["start_dates"] + \
            dataset_config["end_dates"] + [dataset_config["rdf_type"]]
 
-    return filter_kb, dataset_config, nested, pred
+    return filter_kb, dataset_config, pred
 
 
 def get_triples(interface, params):
@@ -130,26 +121,26 @@ def pre_process_yago(value):
     return res
 
 
-def extract_domain_range(config):
+def extract_domain_range(dataset_type, nested, dataset_path):
     """ Pre extracting info on constraints for predicates """
-    filter_kb, dataset_config, nested, pred = get_params(config)
-    interface = HDTInterface(filter_kb=filter_kb, folder_hdt=config["dataset_path"],
+    filter_kb, dataset_config, pred = get_params(dataset_type)
+    interface = HDTInterface(filter_kb=filter_kb, folder_hdt=dataset_path,
                              dataset_config=dataset_config, nested_dataset=nested,
                              default_pred=pred)
 
-    if config["dataset_type"] in ["dbpedia", "yago"]:
+    if dataset_type in ["dbpedia", "yago"]:
         triples = get_triples(interface=interface,
                               params=dict(predicate=dataset_config["domain"]))
         domain_pred = {x[0]: [x[2]] for x in triples}
 
-        if config["dataset_type"] == "yago":
+        if dataset_type == "yago":
             domain_pred = {key: pre_process_yago(value=val[0]) for key, val in domain_pred.items()}
 
         triples = get_triples(interface=interface,
                               params=dict(predicate=dataset_config["range"]))
         range_pred = {x[0]: [x[2]] for x in triples}
 
-        if config["dataset_type"] == "yago":
+        if dataset_type == "yago":
             range_pred = {key: pre_process_yago(value=val[0]) for key, val in range_pred.items()}
 
         superclasses = {}
@@ -163,7 +154,7 @@ def extract_domain_range(config):
 
         return domain_pred, range_pred, superclasses
 
-    if config["dataset_type"] == "wikidata":
+    if dataset_type == "wikidata":
         domain_pred = get_type_wikidata(interface=interface,
             type_to_extract="domain", dataset_config=dataset_config)
 
@@ -177,22 +168,37 @@ def extract_domain_range(config):
     return None, None, None
 
 
+def check_args(args):
+    if args["dataset_type"] not in ["dbpedia", "wikidata", "yago"]:
+        raise ValueError("`dataset_type` should be either `dbpedia`, `wikidata` or `yago`")
+
+    if args["nested"] not in ["0", "1"]:
+        raise ValueError("`nested` should be boolean")
+
+    return
+
+
 if __name__ == '__main__':
-    """
-    Command line examples (from repo directory)
-    python src/extract_domain_range.py -j configs-example/config-dbpedia.json
-    python src/extract_domain_range.py -j configs-example/config-wikidata.json
+    """ Command line examples (from repo directory)
+    python src/extract_domain_range.py -dt dbpedia -n 1 -dp ./dbpedia-snapshot-2021-09/
+    python src/extract_domain_range.py -dt yago -dp ./yago-2020-02-24/ -n 1
+    python src/extract_domain_range.py -dt wikidata -dp ./wikidata-2021-03-05/ -n 0
     """
     ap = argparse.ArgumentParser()
-    ap.add_argument("-j", "--json", required=True,
-                    help="Config path for dataset (c.f. in folders `configs-example` for examples")
+    ap.add_argument('-dt', "--dataset_type", required=True,
+                    help="type of dataset to extract domain/range/superclasses info from" + \
+                        "must be `dbpedia`, `wikidata` or `yago`")
+    ap.add_argument('-n', "--nested", required=True,
+                    help="boolean, if the hdt dataset to extract info from is nested" + \
+                        "(hdt content chunked down in smaller files) or not")
+    ap.add_argument("-dp", "--dataset_path", required=True,
+                    help="folder path to dataset")
     args_main = vars(ap.parse_args())
 
-    with open(args_main["json"], "r", encoding="utf-8") as openfile:
-        CONFIG = json.load(openfile)
-
-    DATASET_TYPE = CONFIG["dataset_type"]
-    DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(config=CONFIG)
+    DATASET_TYPE = args_main["dataset_type"]
+    DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extract_domain_range(
+        dataset_type=DATASET_TYPE, nested=int(args_main["nested"]),
+        dataset_path=args_main["dataset_path"])
 
     SAVE_FOLDER = os.path.join(FOLDER_PATH, "domain-range-pred")
     if not os.path.exists(SAVE_FOLDER):

@@ -25,3 +25,9 @@ from-remote/*
 wikidata-2021-03-05/*
 yago-2020-02-24/*
 experiments-22/*
+
+domain-range-pred/dbpedia*.json
+domain-range-pred/wikidata*.json
+domain-range-pred/yago*.json
+
+.DS_Store
