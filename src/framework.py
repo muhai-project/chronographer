@@ -3,7 +3,6 @@
 """
 import os
 import json
-import time
 import multiprocessing as mp
 from datetime import datetime
 from collections import defaultdict

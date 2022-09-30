@@ -1,5 +1,51 @@
 [WIP]
 
+---
+### set up virtual environment
+
+Using [Poetry](https://python-poetry.org) for dependencies
+Set up your virtual environment, interface coded with Python 3.10.6
+
+To [install dependencies only](https://python-poetry.org/docs/basic-usage/#installing-dependencies-only)
+```bash
+poetry install --no-root
+```
+
+Alternatively, you can use the [full path to the `poetry` binary](https://python-poetry.org/docs/#installation)
+> * `~/Library/"Application Support"/pypoetry/venv/bin/poetry` on MacOS.
+> * `~/.local/share/pypoetry/venv/bin/poetry` on Linux/Unix.
+> * `%APPDATA%\pypoetry\venv\Scripts\poetry` on Windows.
+> * `$POETRY_HOME/venv/bin/poetry` if `$POETRY_HOME` is set.
+
+additionnally run
+conda install grpcio
+
+to set up dependencies in this project
+```bash
+python setup.py install
+```
+
+
+if on apple silicon machines, maybe run
+pip uninstall grpcio
+conda install grpcio
+
+### Download datasets
+
+HDT versions
+Can be downloaded [here](https://www.rdfhdt.org/datasets/)
+
+nested: hdt file decomposed in smaller files
+not nested: only one hdt file (takes longer to open)
+
+in content change: VARIABLES_DATASET
+
+running search can be slow
+displaying graphs can be slow
+
+---
+
+
 # **Graph Search Framework**
 
 ## **Data**
