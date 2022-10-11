@@ -1,29 +1,32 @@
+# -*- coding: utf-8 -*-
 """
-#TO DO: add documentation on this script
+Ranking paths depending on the chosen metric, and returning the highest scored one
 """
 from math import log
 
 class Ranker:
     """
-    #TO DO: add documentation on this script
+    Main class for ranking
     """
-    def __init__(self, type_ranking: str ="entropy_predicate",
+    def __init__(self, type_ranking: str ="entropy_pred_freq",
                  low_thresold: int = 1, high_threshold: int = 200):
         """
+        - `type_ranking`: type of ranking below, see below for options
+        - `low_threshold`: minimal sample size for path
+        - `high_threshold`: maximum sample size for path
+
         Type of ranking strategies implemented:
-            - pred_freq:
-            - entropy_pred_freq:
-            - inverse_pred_freq:
-            - pred_object_freq:
-            - entropy_pred_object_freq:
-            - inverse_pred_object_freq:
+            - `pred_freq`:
+            - `entropy_pred_freq`:
+            - `inverse_pred_freq`:
+            - `pred_object_freq`:
+            - `entropy_pred_object_freq`:
+            - `inverse_pred_object_freq`:
         """
         self.type = type_ranking
         self.low_thresold = low_thresold
         self.high_threshold = high_threshold
 
-    # def _split(self, d):
-    #     return
 
     @staticmethod
     def filter_dict(dico):
@@ -80,10 +83,14 @@ class Ranker:
 
 
 if __name__ == '__main__':
-    ranker = Ranker(type_ranking="entropy_predicate")
+    import os
+    import json
+    from settings import FOLDER_PATH
 
-    import pandas as pd
-    args = dict(df=pd.read_csv("pending.csv"),
-                path=["http://dbpedia.org/resource/Category:French_Revolution"])
-    output = ranker(args)
+    ranker = Ranker(type_ranking="entropy_pred_freq")
+    with open(os.path.join(
+        FOLDER_PATH, "sample-data",
+        "French_Revolution_occurences.json"), 'r', encoding='utf-8') as openfile:
+        OCCURRENCES = json.load(openfile)
+    output = ranker(occurences=OCCURRENCES)
     print(output)

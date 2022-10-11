@@ -1,25 +1,46 @@
+# -*- coding: utf-8 -*-
 """
 Expanding one node by retrieving its ingoing and outgoing edges
 Filtering subgraph and pending nodes to be explored
 """
 import os
 import json
-from copy import deepcopy
 from collections import defaultdict
-from src.filtering import Filtering
+
 from settings import FOLDER_PATH
+from src.filtering import Filtering
+from src.hdt_interface import HDTInterface
 
 class NodeExpansion:
     """
-    #TO DO: add documentation on this script
-    interface: either a src.sparql_interface.SPARQLInterface class,
-    or a src.triply_interface.TriplInterface,
-    or a src.hdt_interface.HDTInterface
+    NodeExpansion class:
+    1 - Get ingoing, outgoing and specific outgoing nodes of a set of nodes
+    2 - Apply filtering depending on the input narrative filters
+    3 - Return non-discarded ingoing and outgoing nodes
     """
 
     def __init__(self, rdf_type: list[tuple], args_filtering: dict,
                  interface):
-
+        """
+        - `rdf_type`: list of tuples (<type_uri>, <URI>),
+        e.g. ["event", "http://dbpedia.org/ontology/Event"]
+        - `args_filtering`: parameters to apply the filters, should have the following structure:
+        {
+            "when": boolean,
+            "where": boolean,
+            "who": boolean,
+            "point_in_time": list[<uri-corr.-to-point-in-time>],
+            "start_dates": list[<uri-corr.-to-start-date>],
+            "end_dates": list[<uri-corr.-to-end-date>],
+            "places": list[<uri-corr.-to-place>],
+            "people": list[<uri-corr.-to-ppl>],
+            "dataset_type": str,
+        }
+        - `interface`: permits to interact with the KG.
+        Three implemented: HDTInterface, TriplInterface, SPARQLInterface
+        BUT in practice, experiments with HDTInterface only
+        --> TriplInterface and SPARQLInterface obsolete
+        """
         self.interface = interface
         self.rdf_type = rdf_type
         self.stop_classes = [elt[1] for elt in rdf_type]
@@ -37,13 +58,7 @@ class NodeExpansion:
             self.superclasses = json.load(openfile)
 
     def _check_args(self):
-        if not any(elt in repr(self.interface) for elt in \
-            ["src.sparql_interface.SPARQLInterface",
-             "src.triply_interface.TriplInterface",
-             "src.hdt_interface.HDTInterface",
-             'MagicMock']):
-            raise ValueError('Wrong type of `interface` passed as arguments')
-
+        """ Checking params when instantiating the class """
         if (not isinstance(self.rdf_type, list)) or not self.rdf_type:
             raise ValueError('`rdf_type` param should be a non-empty list of tuples')
         if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
@@ -58,51 +73,12 @@ class NodeExpansion:
         return self._get_output_triples(node, predicate)
 
     def _get_output_triples(self, node, predicate):
+        """ Getting ingoing, outgoing and specific outgoing nodes """
         return self.interface(node=node, predicate=predicate)
-
-    # def search_superclass(self, node: str):
-    #     """ Returns superclasses of a class """
-    #     triples = self.interface.run_request(
-    #         params=dict(subject=str(node)),
-    #         filter_pred=self.interface.dataset_config["sub_class_of"],
-    #         filter_keep=True
-    #     )
-    #     return [elt[2] for elt in triples]
-
-    # def superclass_search(self, superclasses: dict,
-    #                       nodes: str, stop_class: list):
-    #     """ Searches superclasses (class+n) until stop criterion """
-    #     pending = [elt for elt in nodes if elt not in superclasses]
-    #     while pending:
-    #         node = pending[0]
-    #         pending = pending[1:]
-    #         curr_sup = self.search_superclass(node)
-    #         superclasses[node] = curr_sup
-
-    #         cand = [x for x in curr_sup if x not in stop_class]
-    #         cand = [x for x in curr_sup if x not in superclasses]
-    #         pending += cand
-    #     return superclasses
-
-    # @staticmethod
-    # def rearrange_superclasses(superclasses):
-    #     """ Map node to oldest ancestor in terms of subclass """
-    #     output = deepcopy(superclasses)
-    #     for k, sup_cl in superclasses.items():
-    #         for node in [x for x in sup_cl if x in superclasses]:
-    #             output[k] += deepcopy(superclasses[node])
-    #     return {k: list(set(v)) for k, v in output.items()}
 
     def filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
         """ Direct call to _filter_sub_graph """
         return self._filter_sub_graph(type_date_df, triple_ingoing, triple_outgoing, dates)
-
-    # def update_superclasses(self, nodes):
-    #     """ Update superclasses with new expanded nodes """
-    #     self.superclasses = self.superclass_search(
-    #         superclasses=deepcopy(self.superclasses), nodes=nodes,
-    #         stop_class=self.stop_classes)
-    #     self.superclasses = self.rearrange_superclasses(deepcopy(self.superclasses))
 
     def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
         """ Filtering subgraph: nodes to be removed, nodes to be kept, other """
@@ -117,22 +93,12 @@ class NodeExpansion:
         else:
             to_discard = self.filtering(ingoing=triple_ingoing, outgoing=triple_outgoing,
                                         type_date=type_date_df, dates=dates)
-            # print(to_discard)
-            nodes = [elt for elt in \
-                type_date_df[type_date_df.predicate == \
-                    self.interface.dataset_config["rdf_type"]].object.unique() \
-                if str(elt).startswith(self.interface.dataset_config["start_uri"])]
-            #self.update_superclasses(nodes=nodes)
             filtered = [k for k, sup_class in self.superclasses.items() \
                 if any(elt in sup_class for elt in self.mapping.keys())] + \
                     list(self.mapping.keys())
             # Filter on types of nodes that should be retrieved
-            # to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
-            #     (type_date_df.object.isin(list(self.mapping.keys())))].subject.unique())
             to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
                 (type_date_df.object.isin(filtered))].subject.unique())
-
-        # print(to_keep)
 
         return triple_ingoing[triple_ingoing.subject.isin(to_keep)], \
             triple_ingoing[~triple_ingoing.subject.isin(to_discard)], \
@@ -140,48 +106,20 @@ class NodeExpansion:
             triple_outgoing[~triple_outgoing.object.isin(to_discard)], \
             to_discard
 
-
-
     def __call__(self, args, dates):
-
-        # Updating path
-        # new_path = args["path"] + [args["node"]]
 
         # Querying knowledge base
         ingoing, outgoing, types_date = self._get_output_triples(
             node=args["node"], predicate=args["predicate"])
-        # type_df_modified = pd.merge(type_df[["subject", "object"]],
-        #                             path_df[["subject", 'predicate']],
-        #                             how="left", on="subject")[["subject", "predicate", "object"]]
-
-        # Interesting new paths
-        # info = self._get_info_from_type(type_df=type_df_modified, path=new_path)
 
         # Filter subgraph to keep
         return self._filter_sub_graph(type_date_df=types_date, triple_ingoing=ingoing,
                                       triple_outgoing=outgoing, dates=dates)
 
 
-
-
 if __name__ == '__main__':
-    import argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--interface", required=True,
-                    help="Type of interface to use, either `triply` or `hdt`")
-    interface_type = vars(ap.parse_args())["interface"]
-
-    if interface_type == 'triply':
-        from src.triply_interface import TriplInterface
-        interface_main = TriplInterface()
-
-    elif interface_type == 'hdt':
-        from src.hdt_interface import HDTInterface
-        interface_main = HDTInterface()
-
-    else:
-        raise ValueError('-i parameter should be either `triply` or `hdt`')
-
+    import yaml
+    interface_main = HDTInterface()
 
     NODE = "http://dbpedia.org/resource/Antoine_Morlot"
     PREDICATE = ["http://dbpedia.org/ontology/wikiPageWikiLink",
@@ -200,8 +138,23 @@ if __name__ == '__main__':
                     "http://www.w3.org/ns/prov#wasDerivedFrom"]
     RDF_TYPE = [("event", "http://dbpedia.org/ontology/Event")]
 
+    with open(os.path.join(FOLDER_PATH, "dataset-config", "dbpedia.yaml"), 'rb') as openfile_main:
+        DATASET_CONFIG = yaml.load(openfile_main, Loader=yaml.FullLoader)
+
+    ARGS_FILTERING = {
+        "when": 1,
+        "where": 1,
+        "who": 0,
+        "point_in_time": DATASET_CONFIG["point_in_time"],
+        "start_dates": DATASET_CONFIG["start_dates"],
+        "end_dates": DATASET_CONFIG["end_dates"],
+        "places": DATASET_CONFIG["places"],
+        "people": DATASET_CONFIG["person"],
+        "dataset_type": DATASET_CONFIG["config_type"],
+    }
+
     node_expander = NodeExpansion(interface=interface_main,
-                                  rdf_type=RDF_TYPE, args_filtering={"where": 1, "when": 1})
+                                  rdf_type=RDF_TYPE, args_filtering=ARGS_FILTERING)
     subgraph_ingoing_test, path_ingoing_test, subgraph_outgoing_test, \
         path_outgoing_test, to_discard_test = \
             node_expander(args={"path": [], "node": NODE, "predicate": PREDICATE},

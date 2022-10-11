@@ -1,26 +1,17 @@
+# -*- coding: utf-8 -*-
 """ Helpers related to graph search framework """
 import os
 import pickle
 from datetime import datetime
 import streamlit as st
 import pandas as pd
-from .graph_vis import build_complete_network
+
 from src.framework import GraphSearchFramework
-
-def get_folder_name():
-    """ Get folder in data to display results """
-    return "dbpedia_French_Revolution_pred_object_domain_range_what_when_where_who"
-
-
-def get_source_code(html_path):
-    """ Return graph visualisation HTML """
-    html_file = open(html_path, 'r', encoding='utf-8')
-    source_code = html_file.read()
-    return source_code
+from .graph_vis import build_complete_network
 
 
 def check_variables_for_search():
-    """ Checking that variables are okay for search """
+    """ Checking that variables are suited for search """
     dataset = st.session_state.dataset
     var_dataset = st.session_state.variables_dataset[dataset]
     logs = st.session_state.logs_variables_search
@@ -60,7 +51,8 @@ def get_common_base_config():
         "start_date": st.session_state.start_date,
         "end_date": st.session_state.end_date,
         "iterations": st.session_state.iterations,
-        "gold_standard": os.path.join(var_dataset["data_files_path"], "gs_events", f"{event_id}.csv"),
+        "gold_standard": os.path.join(
+            var_dataset["data_files_path"], "gs_events", f"{event_id}.csv"),
         "referents": os.path.join(var_dataset["data_files_path"], "referents", f"{event_id}.json"),
         "name_exp": event_id,
         "dataset_path": var_dataset["dataset_path"],
@@ -69,8 +61,9 @@ def get_common_base_config():
 
 
 def get_specific_config(id_set):
-    """ Retrieving narrative filter for set of params {id_set} (1 or 2)"""
-    helper = lambda x: 1 if x else 0
+    """ Retrieving narrative filter config for set of params {id_set} (1 or 2)"""
+    def helper(input_var):
+        return 1 if input_var else 0
     ranking_to_val = {"predicate": "pred_object_freq", "entropy": "entropy_pred_object_freq"}
     return {
         "type_ranking": ranking_to_val[st.session_state[f"ranking_{id_set}"]],
@@ -95,18 +88,22 @@ def get_graph_search_info(id_set, base_config):
     var_dataset = st.session_state.variables_dataset[dataset]
     event_id = st.session_state.start_node.replace(var_dataset["start_uri"], "")
 
-    helper = lambda k, v: k if v else ""
-    folder_name = f"./data/{dataset.lower()}_{event_id}_{spec_config['type_ranking'].replace('_freq', '')}" + \
-        f"_{helper('domain_range', spec_config['ordering']['domain_range'])}" + \
-            f"_{helper('what', spec_config['filtering']['what'])}" + \
-                f"_{helper('when', spec_config['filtering']['when'])}" + \
-                    f"_{helper('where', spec_config['filtering']['where'])}" + \
-                        f"_{helper('who', spec_config['filtering']['who'])}" 
+    def helper(k, val):
+        return k if val else ""
+
+    folder_name = \
+        "./data/" + dataset.lower() + "_" + event_id + "_" + \
+            spec_config['type_ranking'].replace('_freq', '') + \
+                "_" + helper('domain_range', spec_config['ordering']['domain_range']) + \
+                    "_" + helper('what', spec_config['filtering']['what']) + \
+                        "_" + helper('when', spec_config['filtering']['when']) + \
+                            "_" + helper('where', spec_config['filtering']['where']) + \
+                                "_" + helper('who', spec_config['filtering']['who'])
     return spec_config, folder_name
 
 
 def run_search_save_info(config, save_folder):
-    """ Running search and saving info to later display results """
+    """ Running search and saving info (graph+stats) to later display results """
     config["rdf_type"] = list(config["rdf_type"].items())
     framework = GraphSearchFramework(config=config)
     framework()
@@ -117,8 +114,8 @@ def run_search_save_info(config, save_folder):
         "nodes_expanded_per_iter": framework.nodes_expanded_per_iter
     }
 
-    framework_file = open(f"{save_folder}/framework.pkl", "wb")
-    pickle.dump(to_pickle, framework_file)
+    with open(f"{save_folder}/framework.pkl", "wb") as openfile:
+        pickle.dump(to_pickle, openfile)
 
     curr_subgraph = framework.subgraph
     curr_nodes_expanded = framework.nodes_expanded_per_iter

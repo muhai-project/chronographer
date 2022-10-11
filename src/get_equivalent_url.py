@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 URI might change from one version of a dataset to another
 (e.g. DBPedia 2016-10 --> DBPedia 2021-09)

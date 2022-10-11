@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 """
-#TO DO: add documentation on this script
+Interface to query a KG - format compressed HDT
 """
 import os
 import fnmatch
@@ -28,12 +29,19 @@ with open(os.path.join(FOLDER_PATH, "dataset-config", "dbpedia.yaml"),
 
 class HDTInterface:
     """
-    #TO DO: add documentation on this script
+    Format of dataset = HDT, where you can do "simple" queries only, but much faster
     """
-
     def __init__(self, dataset_config: dict = dbpedia_dataset_config,
                  dates: list[str] = [None, None], default_pred: list[str] = DEFAULT_PRED,
                  folder_hdt: str = HDT_DBPEDIA, nested_dataset: bool = True, filter_kb: bool = 1):
+        """
+        - `dataset_config`: dict, dataset config, example in `dataset-config` folder
+        - `dates`: list of two strings, start and end dates of the event
+        - `default_pred`: list of strings, predicates for rdf:type and dates
+        - `folder_hdt`: string, path to the HDT dataset
+        - `nested_dataset`: boolean, whether the dataset is chunked down in folders
+        - `filter_kb`: boolean, whether to exclude some types of predicates or not
+        """
         if nested_dataset:
             dirs = [os.path.join(folder_hdt, file) for file in os.listdir(folder_hdt)]
             dirs = [elt for elt in dirs if not elt.split('/')[-1].startswith(".")]
@@ -86,33 +94,23 @@ class HDTInterface:
         return self.get_superclass(str(info[0][2]))
 
     def _get_all_results(self, node: str, predicate: list[str]):
-
+        """ ingoing, outgoing, specific outgoing """
         ingoing = self._get_ingoing(node, predicate)
         outgoing = self._get_outgoing(node, predicate)
         return ingoing, outgoing, self._filter_specific(
             self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
     def _filter_namespace(self, triples):
-        # to_discard = [
-        #     "http://en.wikipedia.org/", "https", "http://citation.dbpedia.org/",
-        #     "http://books.google.com/", "http://en.wikisource", "http://www.sparknotes.com", '"',
-        #     "http://whc.unesco.org", "http://www", "http://dinlarthelwa",
-        #     "http://afm", "http://news.bbc.co.uk", "http://hsbc.wimbledon.com"
-        # ]
+        """ Filters nodes that start with a regexed value """
 
-        # triples = [elt for elt in triples if \
-        #     not any(elt[2].startswith(discard) for discard in to_discard)]
-        # triples = [elt for elt in triples if \
-        #     not any(elt[0].startswith(discard) for discard in to_discard)]
-
-        filter_f = lambda x: x.startswith(self.dataset_config["start_uri"]) or \
-                            not any(x.startswith(elt) for elt in ["http", '"'])
+        def filter_f(x_val):
+            return x_val.startswith(self.dataset_config["start_uri"]) or \
+                not any(x_val.startswith(elt) for elt in ["http", '"'])
 
         triples = [elt for elt in triples if filter_f(elt[2])]
         triples = [elt for elt in triples if filter_f(elt[0])]
 
         return triples
-
 
     @staticmethod
     def pre_process_date(x_date):
@@ -129,6 +127,7 @@ class HDTInterface:
             return x_date
 
     def _filter_node(self, triples, filter_out):
+        """ Filtering nodes based on starting patterns/regexs"""
         triples = self._filter_namespace(triples)
         triples = [elt for elt in triples if \
             not any(elt[0].startswith(pattern) for pattern in filter_out)]
@@ -137,6 +136,7 @@ class HDTInterface:
         return triples
 
     def _filter_specific(self, triples):
+        """ Filtering objects of triples based on value """
         invalid = ['"Unknown"@']
         triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
         return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
@@ -154,6 +154,7 @@ class HDTInterface:
                                              predicate=predicate, filter_keep=False)
 
     def _helper_ingoing_outgoing(self, params, predicate, filter_keep):
+        """ Filtering 1-hop neighbours depending on dataset """
         triples = self.run_request(params=params,
                                    filter_pred=predicate, filter_keep=filter_keep)
         if self.filter_kb  and self.dataset_config['config_type'] == "dbpedia":
@@ -164,6 +165,7 @@ class HDTInterface:
         return triples
 
     def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
+        """ Returning specific outgoing nodes, e.g. rdf:type and dates """
         temp_res = []
 
         for i in tqdm(range(len(ingoing))):
@@ -182,6 +184,7 @@ class HDTInterface:
 
     @staticmethod
     def _get_df(list_triples: list[tuple], type_df: str) -> pd.core.frame.DataFrame:
+        """ Transform into df """
         return pd.DataFrame({"subject": [str(row[0]) for row in list_triples],
                              "predicate": [str(row[1]) for row in list_triples],
                              "object": [str(row[2]) for row in list_triples],

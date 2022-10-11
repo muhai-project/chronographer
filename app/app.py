@@ -1,15 +1,16 @@
+# -*- coding: utf-8 -*-
 """ Main streamlit app """
 import os
-import pickle
 import streamlit as st
 import streamlit.components.v1 as components
 
-from utils.graph_search import get_source_code, check_variables_for_search, \
+from utils.graph_search import check_variables_for_search, \
     get_common_base_config, get_graph_search_info, \
         run_search_save_info
 from utils.streamlit_helpers import on_click_refresh_filters, init_var, \
-    on_click_refresh_common_params, write_params, write_nodes_expanded, write_path_expanded
-from utils.read_data import read_pickled_data_graph_search
+    on_click_refresh_common_params, write_params, write_nodes_expanded, write_path_expanded, \
+        write_metrics
+from utils.read_data import read_pickled_data_graph_search, get_source_code
 
 from variables import VARIABLES_DATASET
 from content import LOGS_VARIABLES_SEARCH, BASE_CONFIG, EVENT_INPUT, \
@@ -77,9 +78,11 @@ with st.container():
         with col1_filters_1:
             st.markdown(FILTERS_INPUT['set_filters_1'])
             with st.form("filters_1"):
-                ranking_1 = st.selectbox(label=FILTERS_INPUT["ranking"], options=["predicate", "entropy"],
+                ranking_1 = st.selectbox(label=FILTERS_INPUT["ranking"],
+                                         options=["predicate", "entropy"],
                                          key="ranking_1")
-                domain_range_1 = st.checkbox(FILTERS_INPUT["domain_range"], key="domain_range_1", value=True)
+                domain_range_1 = st.checkbox(FILTERS_INPUT["domain_range"],
+                                             key="domain_range_1", value=True)
                 who_1 = st.checkbox(FILTERS_INPUT["who_filter"], key="who_1", value=True)
                 what_1 = st.checkbox(FILTERS_INPUT["what_filter"], key="what_1", value=True)
                 where_1 = st.checkbox(FILTERS_INPUT["where_filter"], key="where_1", value=True)
@@ -186,13 +189,13 @@ with st.container():
 
         ## Metrics + Vis
         with col1_vis_graph:
-            st.write(data_1["metrics"][iteration])
-            write_params("2")
+            write_metrics(data=data_1["metrics"][iteration])
+            write_params("1")
             source_code = get_source_code(html_path=f"{folder_1}/subgraph-{iteration}.html")
             components.html(source_code, width=750, height=750)
 
         with col2_vis_graph:
-            st.write(data_2["metrics"][iteration])
+            write_metrics(data=data_2["metrics"][iteration])
             write_params("2")
             source_code = get_source_code(html_path=f"{folder_2}/subgraph-{iteration}.html")
             components.html(source_code, width=750, height=750)
@@ -210,8 +213,9 @@ with st.container():
                     st.write("N/A since first or last iteration")
 
             with st.expander(RES_ITERATION["node_expanded"].format(iteration)):
-                nodes_expanded = data_2["nodes_expanded_per_iter"][data_2["nodes_expanded_per_iter"] \
-                    .index == iteration].node_expanded.values[0]
+                nodes_expanded = data_2["nodes_expanded_per_iter"] \
+                    [data_2["nodes_expanded_per_iter"].index == iteration] \
+                        .node_expanded.values[0]
                 write_nodes_expanded(nodes=nodes_expanded)
 
             with st.expander(RES_ITERATION["path_chosen"].format("for", iteration+1)):
@@ -229,8 +233,9 @@ with st.container():
                     st.write("N/A since first or last iteration")
 
             with st.expander(RES_ITERATION["node_expanded"].format(iteration)):
-                nodes_expanded = data_2["nodes_expanded_per_iter"][data_2["nodes_expanded_per_iter"] \
-                    .index == iteration].node_expanded.values[0]
+                nodes_expanded = data_2["nodes_expanded_per_iter"] \
+                    [data_2["nodes_expanded_per_iter"].index == iteration] \
+                        .node_expanded.values[0]
                 write_nodes_expanded(nodes=nodes_expanded)
 
             with st.expander(RES_ITERATION["path_chosen"].format("for", iteration+1)):

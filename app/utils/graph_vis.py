@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Visualisation helpers for graph """
 
 from pyvis.network import Network
@@ -7,12 +8,23 @@ def pre_process(node):
     return node.split("/")[-1].replace('_', ' ')
 
 
+def get_single_color(row, col_of_interest, gs_nodes, max_iter):
+    """ Colors of row[col_of_interest] in the graph """
+    if row.type_df == 'ingoing' and row[col_of_interest] in gs_nodes:
+        return 'green'
+    if row.type_df == 'ingoing' and row[col_of_interest] not in gs_nodes:
+        return 'orange'
+    if row.iteration == max_iter:
+        return 'blue'
+    return 'yellow'
+
+
 def get_node_color(subgraph, ground_truth, nodes_expanded):
     """ Color of nodes in graph, different options:
     - green: true positive
-    - red: false positive
+    - orange: false positive
     - blue: newly expanded nodes
-    - grey: other """
+    - yellow: other """
     correct_ingoing = set(subgraph[subgraph.type_df == 'ingoing'].subject.values) \
         .intersection(ground_truth)
     correct_outgoing = set(subgraph[subgraph.type_df == 'outgoing'].object.values) \
@@ -25,29 +37,17 @@ def get_node_color(subgraph, ground_truth, nodes_expanded):
     for _, row in subgraph.iterrows():
         if row.subject not in nodes:
             nodes.append(row.subject)
-            if row.type_df == 'ingoing' and row.subject in correct_ingoing:
-                colors.append('green')
-            elif row.type_df == 'ingoing' and row.subject not in correct_ingoing:
-                colors.append('red')
-            elif row.iteration == max_iter:
-                colors.append('blue')
-            else:
-                colors.append('grey')
+            colors.append(get_single_color(row=row, col_of_interest="subject",
+                                           gs_nodes=correct_ingoing, max_iter=max_iter))
 
         if row.object not in nodes:
             nodes.append(row.object)
-            if row.type_df == 'outgoing' and row.object in correct_outgoing:
-                colors.append('green')
-            elif row.type_df == 'outgoing' and row.object not in correct_outgoing:
-                colors.append('red')
-            elif row.iteration == max_iter:
-                colors.append('blue')
-            else:
-                colors.append('grey')
+            colors.append(get_single_color(row=row, col_of_interest="object",
+                                           gs_nodes=correct_outgoing, max_iter=max_iter))
 
     for _, row in nodes_expanded.iterrows():
         iteration = row.iteration
-        color = 'blue' if iteration == max_iter else 'grey'
+        color = 'blue' if iteration == max_iter else 'yellow'
         for node in [x for x in row.node_expanded if x not in nodes]:
             colors.append(color)
             nodes.append(node)
@@ -72,6 +72,7 @@ def extract_triples(path_expanded, nodes):
 
 
 def build_complete_network(subgraph, nodes_expanded, path_expanded, save_file, ground_truth):
+    """ Build html network after one iteration """
     nt_subgraph = Network("680px", "680px",
                            notebook=False, directed=True)
     nodes_color = get_node_color(subgraph=subgraph, ground_truth=ground_truth,

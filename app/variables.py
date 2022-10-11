@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Variables to change for the interface to run
 (access to dataset info: dataset path and ground truth/referents directions)"""
 

@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 """
-#TO DO: add documentation on this script
+Main class for the informed graph traversal
 """
 import os
 import json
@@ -24,20 +25,12 @@ from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
 
 class GraphSearchFramework:
     """
-    #TO DO: add documentation on this script
+    Main class to run the search from a config
     """
     def __init__(self, config: dict):
         """
-        Type of ranking strategies implemented:
-            - pred_freq:
-            - entropy_pred_freq:
-            - inverse_pred_freq:
-            - pred_object_freq:
-            - entropy_pred_object_freq:
-            - inverse_pred_object_freq:
-            - not implemented: subject_freq:
-            - not implemented: inverse_subject_freq:
-            - not implemented: inverse_pred_object_split_freq:
+        - `config`: config for the search,
+        examples in `configs-example` folder
         """
         self.possible_type_interface = ["triply", "hdt"]
         self.possible_type_ranking = [

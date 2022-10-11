@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Mainly opening files + some pre-processing """
 import pickle
 
@@ -8,3 +9,9 @@ def read_pickled_data_graph_search(folder):
                      ("nodes_expanded_per_iter", "iteration")]:
         data[key].set_index(col, inplace=True)
     return data
+
+def get_source_code(html_path):
+    """ Return graph visualisation HTML """
+    with open(html_path, 'r', encoding='utf-8') as html_file:
+        source_code = html_file.read()
+    return source_code

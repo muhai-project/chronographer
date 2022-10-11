@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Storing type error messages when checking config for frameworks
 """
@@ -21,7 +22,7 @@ CONFIG_TYPE_ERROR_MESSAGES = {
         "`pred_object_freq`, `inverse_pred_object_freq`, `entropy_pred_object_freq`",
 
     "type_interface": "`type_interface` should be in the config keys" + \
-        "Format: must be str `triply` or`hdt` ",
+        "Format: must be str `hdt` ",
 
     "gold_standard": "`gold_standard` should be in the config keys" + \
         "Format: relative path of .csv file containing gold standard events",
@@ -44,9 +45,8 @@ CONFIG_TYPE_ERROR_MESSAGES = {
     },
 
     "filtering": {
-        "what": "Filtering parameter for what should be 1 or 0 (default 0)",
-        "where": "Filtering parameter for where should be 1 or 0 (default 0)",
-        "when": "Filtering parameter for when should be 1 or 0 (default 0)",
+        w_filter: "Filtering parameter for what should be 1 or 0 (default 0)" \
+            for w_filter in ["what", "where", "when"]
     },
 
     "name_exp": "`name_exp` should be in the config keys" + \

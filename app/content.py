@@ -1,4 +1,5 @@
-""" Dynamic content for the text content """
+# -*- coding: utf-8 -*-
+""" Dynamic content for the front-end text content """
 
 
 LOGS_VARIABLES_SEARCH = {
@@ -60,7 +61,7 @@ BASE_CONFIG = {
             "http://www.w3.org/2000/01/rdf-schema#label"
         ],
         "type_interface": "hdt",
-        "type_metrics": ["precision", "recall", "f1"], 
+        "type_metrics": ["precision", "recall", "f1"],
         "dataset_type": "dbpedia",
     }
 }
