@@ -35,3 +35,6 @@ domain-range-pred/
 !domain-range-pred/.gitkeep
 
 .DS_Store
+
+ingoing.csv
+outgoing.csv

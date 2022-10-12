@@ -35,7 +35,7 @@ with st.container():
         with st.form("common_params_form"):
             dataset = st.selectbox(
                 EVENT_INPUT['select_dataset'],
-                ('DBpedia', 'Wikidata'), key="dataset")
+                tuple(VARIABLES_DATASET.keys()), key="dataset")
 
             start_node = st.text_input(
                 EVENT_INPUT['select_start_node'],
