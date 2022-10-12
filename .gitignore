@@ -27,9 +27,11 @@ experiments-22/*
 pre-process-data/*
 results-img/*
 sample-data/metrics.html
+app/data/*
+!app/data/.gitkeep
+data-all/
 
-domain-range-pred/dbpedia*.json
-domain-range-pred/wikidata*.json
-domain-range-pred/yago*.json
+domain-range-pred/
+!domain-range-pred/.gitkeep
 
 .DS_Store
