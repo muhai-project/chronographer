@@ -32,7 +32,8 @@ class Ordering:
         BUT in practice, experiments with HDTInterface only
         --> TriplInterface and SPARQLInterface obsolete
         - `domain_range`: boolean, whether this parameter is activated or not
-        - `focus_for_search`: type of info searched in graph. (in practice not really used)
+        - `focus_for_search`: type of classes searched during the traversal,
+        e.g. `http://dbpedia.org/ontology/Event`
         """
         self.interface = interface
 
@@ -132,10 +133,10 @@ class Ordering:
 
         def filter_func(row):
             return any(x in row.superclass for x in [""] + self.focus_pred)
-        triple_df_filter = deepcopy(triple_df[triple_df.apply(filter_func, axis=1)])
+        triple_df_filter = deepcopy(triple_df[triple_df.apply(filter_null, axis=1)])
 
         info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}_relevant"] += \
-            triple_df_filter[triple_df_filter.apply(filter_null, axis=1)].shape[0]
+            triple_df_filter[triple_df_filter.apply(filter_func, axis=1)].shape[0]
 
         return triple_df, info
 

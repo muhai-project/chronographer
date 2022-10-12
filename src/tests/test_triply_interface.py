@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Unittest of file `triply_interface.py`, class TriplInterface
 python -m unittest -v test_triply_interface.py

@@ -493,7 +493,7 @@ class GraphSearchFramework:
             "best_f1_it_nb": iteration
         })
         return metadata
-    
+
     def _update_last(self, metadata, iteration):
         last_metrics = self.metrics_data[iteration]
         metadata.update({
@@ -594,11 +594,11 @@ if __name__ == '__main__':
     config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
 
     framework = GraphSearchFramework(config=config_loaded)
-    start = datetime.now()
-    print(f"Process started at {start}")
+    START = datetime.now()
+    print(f"Process started at {START}")
     framework()
-    end = datetime.now()
-    print(f"Process ended at {end}, took {end-start}")
+    END = datetime.now()
+    print(f"Process ended at {END}, took {END-START}")
     # print(framework.ordering.superclasses)
     # print(framework.ordering.domain)
     # print(framework.ordering.range)

@@ -6,7 +6,6 @@ miscellaneous/
 other/
 dist/
 build/
-data/
 configs/
 *.egg-info
 .vscode/

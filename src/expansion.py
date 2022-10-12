@@ -24,7 +24,8 @@ class NodeExpansion:
         """
         - `rdf_type`: list of tuples (<type_uri>, <URI>),
         e.g. ["event", "http://dbpedia.org/ontology/Event"]
-        - `args_filtering`: parameters to apply the filters, should have the following structure:
+        - `args_filtering`: parameters to apply the filters,
+        should have the following structure: (corr. = corresponding)
         {
             "when": boolean,
             "where": boolean,

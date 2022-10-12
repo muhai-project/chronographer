@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Unittest of file `framework.py`, class GraphSearchFramework
 python -m unittest -v test_framework.py
@@ -11,19 +12,14 @@ Different types of ranking strategies:
 - inverse_pred_object_freq:
 """
 
-import re
 import os
-import time
 import unittest
-from collections import defaultdict
 
 import pandas as pd
-from rdflib.term import URIRef
 from settings import FOLDER_PATH
 from src.framework import GraphSearchFramework
 
-
-def get_occ_pred(type_ranking, ingoing, outgoing): 
+def get_occ_pred(type_ranking, ingoing, outgoing):
     """ Get expected occurences """
     if "object" not in type_ranking:
         occ = ingoing.groupby("predicate") \
@@ -45,71 +41,86 @@ def get_occ_pred(type_ranking, ingoing, outgoing):
 class TestGraphSearchFramework(unittest.TestCase):
     """ Test class for GraphSearchFramework class """
 
-    def test_update_occurence_iter_1(self):
-        """ Test update_occurence """
+    # def test_update_occurence_iter_1(self):
+    #     """ Test update_occurence """
+        # config = {
+        #     "rdf_type": [("event", "http://dbpedia.org/ontology/Event"),],
+        #     "predicate_filter": [],
+        #     "start": "http://dbpedia.org/resource/Category:French_Revolution",
+        #     "iterations": 1,
+        #     "start_date": "1765-01-01",
+        #     "end_date": "1783-12-31",
+        #     "type_interface": "hdt",
+        #     "type_metrics": ["precision", "recall", "f1"],
+        #     "gold_standard": os.path.join(
+        #         FOLDER_PATH, "sample-data", "French_Revolution_gs_events.csv"),
+        #     "referents": os.path.join(
+        #         FOLDER_PATH, "sample-data", "French_Revolution_referents.json"),
+        #     "name_exp": "French_Revolution",
+        #     "dataset_type": "dbpedia",
+        #     "dataset_path": os.path.join(
+        #         FOLDER_PATH, "dbpedia-snapshot-2021-09"),
+        # }
+
+    #     folder = os.path.join(FOLDER_PATH, "src/tests/data")
+    #     pending_ingoing_iter_1 = pd.read_csv(
+    #         os.path.join(folder, "hdt_ingoing_superclass_expected.csv")).fillna("")
+    #     pending_outgoing_iter_1 = pd.read_csv(
+    #         os.path.join(folder, "hdt_outgoing_superclass_expected.csv")).fillna("")
+
+    #     for type_ranking in ['pred_freq', 'entropy_pred_freq', 'inverse_pred_freq',
+    #         'pred_object_freq', 'entropy_pred_object_freq', 'inverse_pred_object_freq']:
+
+    #         time.sleep(1)
+    #         framework = GraphSearchFramework(config=dict(**config,
+    #                                                      **dict(type_ranking=type_ranking)))
+    #         print(f"TYPE RANKING TESTED: {framework.type_ranking}")
+
+    #         occurences_output = framework.update_occurence(ingoing=pending_ingoing_iter_1,
+    #                                                        outgoing=pending_outgoing_iter_1,
+    #                                                        occurence=defaultdict(int))
+
+    #         def f_process(x_input):
+    #             return x_input[2:].replace("outgoing-", "").replace("ingoing-", "")
+
+    #         occurences_output = {f_process(k): v \
+    #             for k, v in occurences_output.items()}
+
+    #         occurences_expected_pred = get_occ_pred(type_ranking,
+    #                                                 pending_ingoing_iter_1,
+    #                                                 pending_outgoing_iter_1)
+
+    #         self.assertTrue(occurences_expected_pred == occurences_output)
+
+    def test_select_nodes_to_expand_iter_1(self):
+        """ Test selecting next nodes to expand """
         config = {
-            "rdf_type": [("event", URIRef("http://dbpedia.org/ontology/Event")),],
+            "rdf_type": [("event", "http://dbpedia.org/ontology/Event"),],
             "predicate_filter": [],
             "start": "http://dbpedia.org/resource/Category:French_Revolution",
             "iterations": 1,
             "start_date": "1765-01-01",
             "end_date": "1783-12-31",
-            "type_interface": "triply",
+            "type_interface": "hdt",
             "type_metrics": ["precision", "recall", "f1"],
-            "gold_standard": os.path.join(FOLDER_PATH, "data/gs_events/events_french_revolution.csv"),
-            "referents": os.path.join(FOLDER_PATH, "data/referents/referents_french_revolution.json")
-        }
-
-        folder = os.path.join(FOLDER_PATH, "src/tests/data")
-        pending_ingoing_iter_1 = pd.read_csv(
-            os.path.join(folder, "triply_ingoing_superclass_filtered_expected.csv")).fillna("")
-        pending_outgoing_iter_1 = pd.read_csv(
-            os.path.join(folder, "triply_outgoing_superclass_filtered_expected.csv")).fillna("")
-
-        for type_ranking in ['pred_freq', 'entropy_pred_freq', 'inverse_pred_freq',
-            'pred_object_freq', 'entropy_pred_object_freq', 'inverse_pred_object_freq']:
-
-            time.sleep(1)
-            framework = GraphSearchFramework(config=dict(**config,
-                                                         **dict(type_ranking=type_ranking)))
-            print(f"TYPE RANKING TESTED: {framework.type_ranking}")
-
-            occurences_output = framework.update_occurence(ingoing=pending_ingoing_iter_1,
-                                                           outgoing=pending_outgoing_iter_1,
-                                                           occurence=defaultdict(int))
-            f_process = lambda x: re.sub(r"(1|2|3)(-ingoing|-outgoing|)-", "", x)
-            occurences_output = {f_process(k): v \
-                for k, v in occurences_output.items()}
-
-            occurences_expected_pred = get_occ_pred(type_ranking,
-                                                    pending_ingoing_iter_1,
-                                                    pending_outgoing_iter_1)
-
-            self.assertTrue(occurences_expected_pred == occurences_output)
-
-    def test_select_nodes_to_expand_iter_1(self):
-        """ Test selecting next nodes to expand """
-        config = {
-            "rdf_type": [("event", URIRef("http://dbpedia.org/ontology/Event")),],
-            "predicate_filter": ["http://dbpedia.org/ontology/wikiPageWikiLink",
-                                "http://dbpedia.org/ontology/wikiPageRedirects"],
-            "start": "http://dbpedia.org/resource/French_Revolution",
-            "iterations": 1,
-            "start_date": "1765-01-01",
-            "end_date": "1783-12-31",
-            "type_ranking": "entropy_pred_object_freq",
-            "type_interface": "triply",
-            "type_metrics": ["precision", "recall", "f1"],
-            "gold_standard": os.path.join(FOLDER_PATH, "data/gs_events/events_french_revolution.csv"),
-            "referents": os.path.join(FOLDER_PATH, "data/referents/referents_french_revolution.json")
+            "gold_standard": os.path.join(
+                FOLDER_PATH, "sample-data", "French_Revolution_gs_events.csv"),
+            "referents": os.path.join(
+                FOLDER_PATH, "sample-data", "French_Revolution_referents.json"),
+            "name_exp": "French_Revolution",
+            "dataset_type": "dbpedia",
+            "dataset_path": os.path.join(
+                FOLDER_PATH, "dbpedia-snapshot-2021-09"),
         }
 
         to_expand_all = {
             'pred_freq': 'http://dbpedia.org/ontology/isPartOfMilitaryConflict',
             "pred_object_freq": 'ingoing-http://dbpedia.org/ontology/isPartOfMilitaryConflict;' + \
                 'http://dbpedia.org/resource/French_Revolution',
-            'entropy_pred_freq': 'http://dbpedia.org/ontology/isPartOfMilitaryConflict',
-            'entropy_pred_object_freq': 'ingoing-http://dbpedia.org/ontology/isPartOfMilitaryConflict;' + \
+            'entropy_pred_freq':
+                'http://dbpedia.org/ontology/isPartOfMilitaryConflict',
+            'entropy_pred_object_freq':
+                'ingoing-http://dbpedia.org/ontology/isPartOfMilitaryConflict;' + \
                 'http://dbpedia.org/resource/French_Revolution',
             'inverse_pred_freq': 'http://dbpedia.org/property/events',
             'inverse_pred_object_freq': 'ingoing-http://dbpedia.org/property/events;' + \
@@ -118,10 +129,10 @@ class TestGraphSearchFramework(unittest.TestCase):
 
         folder = os.path.join(FOLDER_PATH, "src/tests/data")
         pending_ingoing_iter_1 = pd.read_csv(
-            os.path.join(folder, "triply_ingoing_superclass_filtered_expected.csv")) \
+            os.path.join(folder, "hdt_ingoing_superclass_expected.csv")) \
                 .fillna("")[["subject", "object", "predicate"]]
         pending_outgoing_iter_1 = pd.read_csv(
-            os.path.join(folder, "triply_outgoing_superclass_filtered_expected.csv")) \
+            os.path.join(folder, "hdt_outgoing_superclass_expected.csv")) \
                 .fillna("")[["subject", "object", "predicate"]]
 
         military_conflicts = {'http://dbpedia.org/resource/Battle_of_Kaiserslautern',
@@ -137,7 +148,7 @@ class TestGraphSearchFramework(unittest.TestCase):
                               'http://dbpedia.org/resource/Storming_of_the_Bastille',
                               'http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III',
                               'http://dbpedia.org/resource/Demonstration_of_20_June_1792'}
-        
+
         events = {'http://dbpedia.org/resource/Bastille',
                   'http://dbpedia.org/resource/Square_du_Temple'}
 

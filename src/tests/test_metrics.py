@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Unittest of file `metrics.py`, class Metrics
 python -m unittest -v test_metrics.py
@@ -16,7 +17,7 @@ class TestMetrics(unittest.TestCase):
         """ Test get_precision """
         metrics = Metrics(
             referent_path=os.path.join(
-                FOLDER_PATH, 'data/referents/referents_french_revolution.json'))
+                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
         args = {"true_pos": 90, "false_pos": 30}
         self.assertEqual(metrics.get_precision(**args), 0.75)
 
@@ -30,7 +31,7 @@ class TestMetrics(unittest.TestCase):
         """ Test get_recall """
         metrics = Metrics(
             referent_path=os.path.join(
-                FOLDER_PATH, 'data/referents/referents_french_revolution.json'))
+                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
 
         args = {"true_pos": 90, "false_neg": 10}
         self.assertEqual(metrics.get_recall(**args), 0.9)
@@ -42,7 +43,7 @@ class TestMetrics(unittest.TestCase):
         """ Test get_f1 """
         metrics = Metrics(
             referent_path=os.path.join(
-                FOLDER_PATH, 'data/referents/referents_french_revolution.json'))
+                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
 
         args = {"true_pos": 90, "false_neg": 0, "false_pos": 0}
         self.assertEqual(metrics.get_f1(**args), 1)
@@ -54,7 +55,7 @@ class TestMetrics(unittest.TestCase):
         """ Test get_numbers """
         metrics = Metrics(
             referent_path=os.path.join(
-                FOLDER_PATH, 'data/referents/referents_french_revolution.json'))
+                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
 
         found = [1, 2, 3, 5, 7, 10]
         gold_standard = [3, 4, 7, 8, 9, 10]
