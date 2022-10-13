@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Unittest of file `framework.py`, class GraphSearchFramework
 python -m unittest -v test_ranker.py

@@ -1,9 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-#TO DO: add documentation on this script
+Main class for the informed graph traversal
 """
 import os
 import json
-import time
 import multiprocessing as mp
 from datetime import datetime
 from collections import defaultdict
@@ -25,20 +25,12 @@ from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
 
 class GraphSearchFramework:
     """
-    #TO DO: add documentation on this script
+    Main class to run the search from a config
     """
     def __init__(self, config: dict):
         """
-        Type of ranking strategies implemented:
-            - pred_freq:
-            - entropy_pred_freq:
-            - inverse_pred_freq:
-            - pred_object_freq:
-            - entropy_pred_object_freq:
-            - inverse_pred_object_freq:
-            - not implemented: subject_freq:
-            - not implemented: inverse_subject_freq:
-            - not implemented: inverse_pred_object_split_freq:
+        - `config`: config for the search,
+        examples in `configs-example` folder
         """
         self.possible_type_interface = ["triply", "hdt"]
         self.possible_type_ranking = [
@@ -501,7 +493,7 @@ class GraphSearchFramework:
             "best_f1_it_nb": iteration
         })
         return metadata
-    
+
     def _update_last(self, metadata, iteration):
         last_metrics = self.metrics_data[iteration]
         metadata.update({
@@ -602,11 +594,11 @@ if __name__ == '__main__':
     config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
 
     framework = GraphSearchFramework(config=config_loaded)
-    start = datetime.now()
-    print(f"Process started at {start}")
+    START = datetime.now()
+    print(f"Process started at {START}")
     framework()
-    end = datetime.now()
-    print(f"Process ended at {end}, took {end-start}")
+    END = datetime.now()
+    print(f"Process ended at {END}, took {END-START}")
     # print(framework.ordering.superclasses)
     # print(framework.ordering.domain)
     # print(framework.ordering.range)

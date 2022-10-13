@@ -6,7 +6,6 @@ miscellaneous/
 other/
 dist/
 build/
-data/
 configs/
 *.egg-info
 .vscode/
@@ -25,9 +24,17 @@ from-remote/*
 wikidata-2021-03-05/*
 yago-2020-02-24/*
 experiments-22/*
+pre-process-data/*
+results-img/*
+sample-data/metrics.html
+app/data/*
+!app/data/.gitkeep
+data-all/
 
-domain-range-pred/dbpedia*.json
-domain-range-pred/wikidata*.json
-domain-range-pred/yago*.json
+domain-range-pred/
+!domain-range-pred/.gitkeep
 
 .DS_Store
+
+ingoing.csv
+outgoing.csv

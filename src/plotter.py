@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Plotting simple line charts from results """
 import pandas as pd
 import plotly.express as px
@@ -37,13 +38,14 @@ class Plotter:
 
 
 if __name__ == '__main__':
-    SAVE_FOLDER="/Users/ines/Projects/graph_search_framework"
     import os
     import json
     from settings import FOLDER_PATH
     INFO=json.load(open(
         os.path.join(FOLDER_PATH,
-                     "data/2022-03-01-14:56:59-iter-30-triply-entropy_pred_object_freq/metrics.json"),
+                     "sample-data/French_Revolution_metrics.json"),
         "r", encoding="utf-8"))
+    SAVE_FOLDER = os.path.join(FOLDER_PATH, "sample-data")
     plotter=Plotter()
-    plotter(INFO, SAVE_FOLDER)
+    plotter(info=INFO, save_folder=SAVE_FOLDER)
+    print(f"Folder saved in {SAVE_FOLDER} under name `metrics.html`")

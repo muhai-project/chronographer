@@ -1,0 +1,44 @@
+{
+    "rdf_type": [
+        [
+            "event",
+            "http://schema.org/Event"
+        ]
+    ],
+    "predicate_filter": [
+        "http://www.w3.org/2000/01/rdf-schema#label",
+        "http://schema.org/sameAs",
+        "http://schema.org/alternateName",
+        "http://www.w3.org/2000/01/rdf-schema#comment",
+        "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+        "http://www.w3.org/ns/prov#wasDerivedFrom",
+        "http://schema.org/image",
+        "http://schema.org/about",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    ],
+    "start": "http://yago-knowledge.org/resource/Battle_of_the_Frontiers",
+    "start_date": "1914-08-07",
+    "end_date": "1919-09-13",
+    "iterations": 5,
+    "type_ranking": "pred_object_freq",
+    "type_interface": "hdt",
+    "gold_standard": "./data-test/yago/gs_events/Battle_of_the_Frontiers.csv",
+    "referents": "./data-test/yago/referents/Battle_of_the_Frontiers.json",
+    "type_metrics": [
+        "precision",
+        "recall",
+        "f1"
+    ],
+    "ordering": {
+        "domain_range": 1
+    },
+    "filtering": {
+        "what": 1,
+        "where": 1,
+        "when": 1,
+        "who": 1
+    },
+    "name_exp": "Battle_of_the_Frontiers",
+    "dataset_type": "yago",
+    "dataset_path": "yago-2020-02-24"
+}

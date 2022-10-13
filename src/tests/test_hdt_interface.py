@@ -4,16 +4,24 @@ python -m unittest -v test_hdt_interface.py
 """
 
 import os
+import json
 import unittest
 import pandas as pd
 from settings import FOLDER_PATH
 from src.hdt_interface import HDTInterface
 
+with open(os.path.join(
+    FOLDER_PATH, "sample-data", "French_Revolution_referents.json"),
+    encoding="utf-8") as openfile:
+    REFERENTS = json.load(openfile)
+
 def reorder_df(df_pd):
     """ Reordering df rows and columns for comparison """
-    return df_pd[['subject', 'object', 'predicate', 'type_df']] \
+    df_pd = df_pd[['subject', 'object', 'predicate', 'type_df']] \
                 .sort_values(by=['subject', 'object', 'predicate', 'type_df']) \
                     .reset_index(drop=True)
+    return df_pd
+
 
 class TestHDTInterface(unittest.TestCase):
     """
@@ -44,7 +52,8 @@ class TestHDTInterface(unittest.TestCase):
                     "http://www.w3.org/2000/01/rdf-schema#label"]
         interface = HDTInterface()
         ingoing, outgoing, types = interface(node=node, predicate=predicate)
-        ingoing, outgoing, types = reorder_df(ingoing), reorder_df(outgoing), reorder_df(types)
+        ingoing, outgoing, types = \
+            reorder_df(ingoing), reorder_df(outgoing), reorder_df(types)
 
         folder = os.path.join(FOLDER_PATH, "src/tests/data/")
         ingoing_expected = reorder_df(pd.read_csv(f"{folder}hdt_ingoing_expected.csv"))
@@ -54,6 +63,5 @@ class TestHDTInterface(unittest.TestCase):
         for (df1, df2) in [(ingoing, ingoing_expected), (outgoing, outgoing_expected),
                            (types, types_expected)]:
             merged = df1.merge(df2, how='left', on=["subject", "object", "predicate", "type_df"])
-
             self.assertTrue(merged.shape == df1.shape)
             self.assertTrue(merged.shape == df2.shape)

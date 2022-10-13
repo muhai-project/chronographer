@@ -1,11 +1,12 @@
+# -*- coding: utf-8 -*-
 """
 Unittest of file `filtering.py`, class Filtering
 python -m unittest -v test_filtering.py
 """
 
 import os
-import yaml
 import unittest
+import yaml
 import pandas as pd
 from src.filtering import Filtering
 from settings import FOLDER_PATH
@@ -14,6 +15,27 @@ with open(os.path.join(FOLDER_PATH, "dataset-config", "dbpedia.yaml"),
           encoding='utf-8') as file:
     dbpedia_dataset_config = yaml.load(file, Loader=yaml.FullLoader)
 
+def get_args_filtering():
+    """ Getting param filtering dict for instantiating NodeExpansion class """
+    with open(
+        os.path.join(FOLDER_PATH, "dataset-config/dbpedia.yaml"),
+        encoding='utf-8') as openfile:
+        dataset_config = yaml.load(openfile, Loader=yaml.FullLoader)
+
+    return {
+        "when": 1,
+        "where": 1,
+        "who": 0,
+        "point_in_time": dataset_config["point_in_time"],
+        "start_dates": dataset_config["start_dates"],
+        "end_dates": dataset_config["end_dates"],
+        "places": dataset_config["places"],
+        "people": dataset_config["person"],
+        "dataset_type": dataset_config["config_type"],
+    }
+
+ARGS_FILTERING = get_args_filtering()
+
 class TestFiltering(unittest.TestCase):
     """
     Test class for Filtering class
@@ -21,7 +43,7 @@ class TestFiltering(unittest.TestCase):
     def test_get_to_discard_date(self):
         """ Test get_to_discard_date """
         dates = ["1789-01-01", "1804-12-31"]
-        filtering = Filtering(args=dict(where=1, when=1))
+        filtering = Filtering(args=ARGS_FILTERING)
 
         df_pd = pd.DataFrame({
             "predicate": \
@@ -56,9 +78,9 @@ class TestFiltering(unittest.TestCase):
     def test_get_to_discard_regex(self):
         """ Test get_to_discard_regex """
         dates = ["1789-01-01", "1804-12-31"]
-        filtering = Filtering(args=dict(where=1, when=1))
+        filtering = Filtering(args=ARGS_FILTERING)
 
-        df_pd = pd.DataFrame({
+        ingoing_dates = pd.DataFrame({
             "subject": [
                 "1999_legendary",
                 "1795_legendary",
@@ -67,14 +89,25 @@ class TestFiltering(unittest.TestCase):
             ]
         })
 
-        discarded = set(["1999_legendary", "1851_legendary"])
-        to_discard = filtering.get_to_discard_regex(df_pd=df_pd, dates=dates)
+        outgoing_dates = pd.DataFrame({
+            "object": [
+                "1998_legendary",
+                "1794_legendary",
+                "1850_legendary",
+                "legendary",
+            ]
+        })
+
+        discarded = set([
+            "1999_legendary", "1851_legendary", "1998_legendary", "1850_legendary"])
+        to_discard = filtering.get_to_discard_regex(
+            ingoing=ingoing_dates, outgoing=outgoing_dates, dates=dates)
         self.assertTrue(discarded == set(to_discard))
 
 
     def test_get_to_discard_location(self):
         """ Test get_to_discard_location """
-        filtering = Filtering(args=dict(where=1, when=1))
+        filtering = Filtering(args=ARGS_FILTERING)
 
         df_pd = pd.DataFrame({
             "subject": [

@@ -1,13 +1,12 @@
+# -*- coding: utf-8 -*-
 """
-Ordering class: preprocessing outgoing nodes retrieved
-(e.g. we only want to keep nodes with a URI, and not literals)
+Ordering class: ordering with domain and range
 """
 import os
 import json
-from tqdm import tqdm
-import pandas as pd
 from copy import deepcopy
-
+import pandas as pd
+from tqdm import tqdm
 from settings import FOLDER_PATH
 
 
@@ -27,6 +26,15 @@ class Ordering:
 
     """
     def __init__(self, interface, domain_range: int = 1, focus_for_search: str = "event"):
+        """
+        - `interface`: permits to interact with the KG.
+        Three implemented: HDTInterface, TriplInterface, SPARQLInterface
+        BUT in practice, experiments with HDTInterface only
+        --> TriplInterface and SPARQLInterface obsolete
+        - `domain_range`: boolean, whether this parameter is activated or not
+        - `focus_for_search`: type of classes searched during the traversal,
+        e.g. `http://dbpedia.org/ontology/Event`
+        """
         self.interface = interface
 
         self.dataset_type = interface.dataset_config["config_type"]
@@ -37,23 +45,25 @@ class Ordering:
 
         info_folder = os.path.join(FOLDER_PATH, "domain-range-pred")
 
+        self.info = {}
+
         with open(os.path.join(info_folder, f"{self.dataset_type}-superclasses.json"),
                   "r", encoding="utf-8") as openfile:
-            self.superclasses = json.load(openfile)
+            self.info["superclasses"] = json.load(openfile)
 
         with open(os.path.join(info_folder, f"{self.dataset_type}-domain.json"),
                   "r", encoding="utf-8") as openfile:
-            self.domain = json.load(openfile)
+            self.info["domain"] = json.load(openfile)
 
         with open(os.path.join(info_folder, f"{self.dataset_type}-range.json"),
                   "r", encoding="utf-8") as openfile:
-            self.range = json.load(openfile)
+            self.info["range"] = json.load(openfile)
 
         self.type_node_to_pred = {
             "ingoing": "domain", "outgoing": "range"
         }
 
-        self.focus_pred = focus_for_search
+        self.focus_pred = [focus_for_search]
         self.domain_range = domain_range
 
     def __call__(self, triple_df: pd.core.frame.DataFrame,
@@ -123,11 +133,10 @@ class Ordering:
 
         def filter_func(row):
             return any(x in row.superclass for x in [""] + self.focus_pred)
-        triple_df_filter = deepcopy(triple_df[triple_df.apply(filter_func, axis=1)])
-        #triple_df = triple_df[triple_df.superclass.isin([""] + self.focus_pred)]
+        triple_df_filter = deepcopy(triple_df[triple_df.apply(filter_null, axis=1)])
 
         info[iteration][f"{type_node}_{self.type_node_to_pred[type_node]}_relevant"] += \
-            triple_df_filter[triple_df_filter.apply(filter_null, axis=1)].shape[0]
+            triple_df_filter[triple_df_filter.apply(filter_func, axis=1)].shape[0]
 
         return triple_df, info
 
@@ -135,29 +144,29 @@ class Ordering:
     def add_superclass_to_df(self, triple_df, type_node):
         """ Adding col in df to add superclass of domain/range predicates"""
 
-        def helper_func(x, lookup):
+        def helper_func(x_input, lookup):
             res = []
-            x = str(x).replace(self.prefix_prop_direct, self.prefix_entity)
-            if x in lookup:
-                for elt in [var for var in lookup[x] if var in self.superclasses]:
-                    res += self.superclasses[elt] + [elt]
+            x_input = str(x_input).replace(self.prefix_prop_direct, self.prefix_entity)
+            if x_input in lookup:
+                for elt in [var for var in lookup[x_input] if var in self.info["superclasses"]]:
+                    res += self.info["superclasses"][elt] + [elt]
             return res
 
         def get_superclass_func(lookup):
             if self.prefix_entity and self.prefix_prop_direct:
                 return lambda x: helper_func(x, lookup)
-            
+
             return lambda x: \
-                    [y for elt in lookup[x] for y in self.superclasses[elt]] if \
+                    [y for elt in lookup[x] for y in self.info["superclasses"][elt]] if \
                         str(x) in lookup else []
 
-        if type_node == "ingoing":  # self.domain
+        if type_node == "ingoing":  # self.info["domain"]
             triple_df["superclass"] = triple_df["predicate"].apply(
-                get_superclass_func(lookup=self.domain)
+                get_superclass_func(lookup=self.info["domain"])
             )
-        else:  # type_node == "outgoing" | self.range
+        else:  # type_node == "outgoing" | self.info["range"]
             triple_df["superclass"] = triple_df["predicate"].apply(
-                get_superclass_func(lookup=self.range)
+                get_superclass_func(lookup=self.info["range"])
             )
         return triple_df
 
@@ -201,18 +210,16 @@ class Ordering:
 
             for row in output:
                 if str(row[1]) == domain_pred:
-                    self.domain[str(row[0])] = [str(row[2])]
+                    self.info["domain"][str(row[0])] = [str(row[2])]
                 else:
-                    self.range[str(row[0])] = [str(row[2])]
+                    self.info["range"][str(row[0])] = [str(row[2])]
 
-                if row[2] not in self.superclasses:
-                    self.superclasses[str(row[2])] = \
+                if row[2] not in self.info["superclasses"]:
+                    self.info["superclasses"][str(row[2])] = \
                         self.interface.get_superclass(node=str(row[2]))
 
 
 if __name__ == '__main__':
-    import os
-    from settings import FOLDER_PATH
     from src.hdt_interface import HDTInterface
 
     folder = os.path.join(FOLDER_PATH, "src/tests/data")

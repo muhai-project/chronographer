@@ -1,11 +1,12 @@
+# -*- coding: utf-8 -*-
 """
-#TO DO: add documentation on this script
+Metrics for assessing the quality of the output
 """
 import json
 
 class Metrics:
     """
-    #TO DO: add documentation on this script
+    Quantitative metrics: precision, recall, f1
     """
 
     def __init__(self, referent_path):
@@ -54,7 +55,8 @@ class Metrics:
 
     def __call__(self, found: list, gold_standard: list,
                  type_metrics: list):
-        f_change = lambda url: self.referents[url] if url in self.referents else url
+        def f_change(url):
+            return self.referents[url] if url in self.referents else url
         found = [f_change(url) for url in found]
 
         if any(metric not in self.metrics_to_calc for metric in type_metrics):
@@ -69,25 +71,22 @@ class Metrics:
 
 if __name__ == '__main__':
     import os
-    import argparse
     import pandas as pd
-    from os import listdir
     from settings import FOLDER_PATH
-    metrics = Metrics(referent_path=os.path.join(FOLDER_PATH, "referents.json"))
+    metrics = Metrics(referent_path=os.path.join(FOLDER_PATH, "sample-data", "French_Revolution_referents.json"))
 
-    df_gs = pd.read_csv(os.path.join(FOLDER_PATH, "test.csv"))
+    df_gs = pd.read_csv(os.path.join(FOLDER_PATH, "sample-data", "French_Revolution_gs_events.csv"))
     event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
-    print(len(event_gs))
+    print("Event: French Revolution")
+    print(f"# of sub-events: {len(event_gs)}")
     TYPE_METRICS=['precision', 'recall', 'f1']
 
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-f", "--folder", required=True,
-                    help="Folder with subgraph and pending nodes at each iteration")
-    FOLDER = vars(ap.parse_args())["folder"]
-
-    for iteration in range(len(listdir(FOLDER))//3 - 1):
-        events_found = list(set(\
-            [e for e in pd.read_csv(f"{FOLDER}/{iteration+1}-subgraph.csv") \
-                .subject.values if isinstance(e, str)]))
-        res = metrics(found=events_found, gold_standard=event_gs, type_metrics=TYPE_METRICS)
-        print(res)
+    subgraph = pd.read_csv(os.path.join(
+        FOLDER_PATH, "sample-data", "French_Revolution_subgraph.csv"))
+    events_found = \
+                [str(e) for e in subgraph[subgraph.type_df == "ingoing"] \
+                    .subject.unique()] + \
+                    [str(e) for e in subgraph[subgraph.type_df == "outgoing"] \
+                        .object.unique()]
+    res = metrics(found=events_found, gold_standard=event_gs, type_metrics=TYPE_METRICS)
+    print(res)

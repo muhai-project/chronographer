@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Filtering class: Filtering out certain types of nodes
 - Given a specific narrative dimension (who/where/when)
@@ -18,19 +19,19 @@ class Filtering:
     """
     def __init__(self, args):
         """
-        - args dict: keys = narrative dimensions, value = boolean
+        - `args`: dict, keys = narrative dimensions, value = boolean
         """
         self._check_args(args=args)
         self.where = args["where"] if "where" in args else 0
         self.when = args["when"] if "when" in args else 0
         self.who = args["who"] if "who" in args else 0
 
-        self.point_in_time = args["point_in_time"]
-        self.start_dates = args["start_dates"]
-        self.end_dates = args["end_dates"]
-
-        self.temporal = self.point_in_time + self.start_dates + self.end_dates
-
+        self.time = {
+            "point_in_time": args["point_in_time"],
+            "start_dates": args["start_dates"],
+            "end_dates": args["end_dates"],
+            "temporal": args["point_in_time"] + args["start_dates"] + args["end_dates"]
+        }
         self.places = args["places"]
         self.people = args["people"]
 
@@ -38,6 +39,7 @@ class Filtering:
 
     @staticmethod
     def _check_args(args):
+        """ Check arguments when instantiating """
         for val in ["where", "when"]:
             if val in args and args[val] not in [0, 1]:
                 raise ValueError(f"`{val}` value from args should be 0 or 1 (int)")
@@ -46,13 +48,13 @@ class Filtering:
         """ Filtering on temporal dimension
         - checking date/start date/end date """
 
-        return list(date_df[((date_df.predicate.isin(self.end_dates)) & \
+        return list(date_df[((date_df.predicate.isin(self.time["end_dates"])) & \
                              (date_df.object < dates[0])) | \
-                            ((date_df.predicate.isin(self.start_dates)) & \
+                            ((date_df.predicate.isin(self.time["start_dates"])) & \
                              (date_df.object > dates[1])) | \
-                            ((date_df.predicate.isin(self.point_in_time)) & \
+                            ((date_df.predicate.isin(self.time["point_in_time"])) & \
                              (date_df.object < dates[0])) | \
-                            ((date_df.predicate.isin(self.point_in_time)) & \
+                            ((date_df.predicate.isin(self.time["point_in_time"])) & \
                              (date_df.object > dates[1]))].subject.unique())
 
     @staticmethod
@@ -92,9 +94,9 @@ class Filtering:
         """ Location filter: retrieving nodes that correspond to locations
         (would be too broad for the search, hence later discarded """
         return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
-    
+
     def get_to_discard_entity(self, df_pd: pd.core.frame.DataFrame, filter_type: list[str]):
-        """ Entity-based filter: retrieving nodes corresponding to any of the 
+        """ Entity-based filter: retrieving nodes corresponding to any of the
         types in filter. Applicable for:
         WHERE-filter: locations
         WHO-filter: people """
@@ -103,17 +105,20 @@ class Filtering:
     def __call__(self, ingoing: pd.core.frame.DataFrame, outgoing: pd.core.frame.DataFrame,
                  type_date: pd.core.frame.DataFrame, dates: list[str]):
         """
+        Extracting list of nodes to discard from search space
         """
-        date_df = type_date[type_date.predicate.isin(self.temporal)]
+        date_df = type_date[type_date.predicate.isin(self.time["temporal"])]
         date_df.object = date_df.object.astype(str)
 
         to_discard = []
 
         if self.where:
-            to_discard += list(set(self.get_to_discard_entity(df_pd=type_date, filter_type=self.places)))
-        
+            to_discard += list(set(self.get_to_discard_entity(
+                df_pd=type_date, filter_type=self.places)))
+
         if self.who:
-            to_discard += list(set(self.get_to_discard_entity(df_pd=type_date, filter_type=self.people)))
+            to_discard += list(set(self.get_to_discard_entity(
+                df_pd=type_date, filter_type=self.people)))
 
         if self.when:
             to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates)))

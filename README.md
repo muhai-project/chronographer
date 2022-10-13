@@ -1,160 +1,180 @@
-[WIP]
+# **Informed Graph Traversal**
 
-# **Graph Search Framework**
+This is the code for the paper submitted to The Web Conference: "Building narratives through informed graph traversal".
 
-## **Data**
-
-### **Knowledge Bases for search**
-It is possible to use two types of data sources to query DBPedia:
-* Triply and [DBpedia 2021-09](https://triplydb.com/DBpedia-association/snapshot-2021-09)
-    * Calls to this interface were made through API calls
-    * The link is <https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000> 
-
-* HDT and [DBPedia 2016-10](https://www.kaggle.com/bsteenwi/dbpedia)
-    * The two files from the dataset were first downloaded: `dbpedia2016-10.hdt` and `dbpedia2016-10.hdt.index.v1-1`.
-    * They were added in a `dbpedia-archive` folder in the root directory of this project. The code now runs with such a structure.
-    * The dataset is queried using [pyHDT](https://github.com/Callidon/pyHDT)
-
-### **Knowledge Base for ground truth**
-
-#### **SPARQL endpoint**
-The ground truth events used for calculating the metrics were taken from the [EventKG dataset](https://eventkg.l3s.uni-hannover.de)
-
-The [EventKG SPARQL Query Endpoint](http://eventkginterface.l3s.uni-hannover.de/sparql) was used to query the dataset and to retrieve a csv output with the following columns: `startTime`, `callret-1` and `linkDBpediaEn`.
-
-The SPARQL example below show an example query for retrieving all events that are part of World War II.
-
-```
-SELECT ?startTime SAMPLE(STR(?description)) (?sa AS ?linkDBpediaEn)
-WHERE {
- ?event owl:sameAs dbr:World_War_II .
- ?event sem:hasSubEvent* ?subEvent .
- ?subEvent sem:hasBeginTimeStamp ?startTime .
-
- OPTIONAL {
-  GRAPH eventKG-g:wikipedia_en { ?subEvent dcterms:description ?description . } .
-  FILTER(LANGMATCHES(LANG(?description), "en")) .
- }
-
- OPTIONAL { GRAPH eventKG-g:dbpedia_en { ?subEvent owl:sameAs ?sa . } . } .
-
- FILTER(BOUND(?sa) || BOUND(?description)) .
-}   
-GROUP BY ?startTime ?subEvent ?sa
-ORDER BY ASC(?startTime)
-```
-
-#### **Downloading dataset**
-
-To ensure that EventKG was always queryable, another option was to download it locally and query it using GraphDB. 
-
-A bit of preprocessing was done for two main reasons:
-1. Some parsing errors were preventing the graph from being loaded locally
-2. Not all the graph was necessary for this experiment
-
-The notebook `eventkg-filtering.ipynb` selects a subgraph of EventKG and discards content that is not correctly parsed by GraphDB.
-
-EventKG (v3.0) was downloaded from [the website](https://eventkg.l3s.uni-hannover.de/data.html) and all files were put in an `eventkg` folder in this repository directory.
-
-Dask and pandas were used to load and process the data. The preprocessed files were then saved back to an `.nq` format.
-
-Loading into GraphDB + querying from there
-
-```
-PREFIX dbr: <http://dbpedia.org/resource/> 
-PREFIX sem: <http://semanticweb.cs.vu.nl/2009/11/sem/>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-SELECT DISTINCT(?subEventKG as ?linkDBpediaEn)
-WHERE {
-    
- ?event owl:sameAs dbr:Cold_War .
- ?event sem:hasSubEvent* ?subEvent .
- ?subEvent owl:sameAs ?subEventKG .
-    
- ?event sem:hasBeginTimeStamp ?startTimeEvent .
- ?event sem:hasEndTimeStamp ?endTimeEvent .
-
- ?subEvent sem:hasBeginTimeStamp ?startTimeSubEvent .
- ?subEvent sem:hasEndTimeStamp ?endTimeSubEvent .
-    
- FILTER( strStarts( str(?subEventKG), "http://dbpedia" ) ) .
- FILTER (?endTimeSubEvent >= ?startTimeEvent) .
- FILTER (?startTimeSubEvent <= ?endTimeEvent) .
-}
-```
-
-Then downloading as csv and moving to folder `./data/gs_events/`
-
-### **URI mapping**
-
-cf. `./src/get_equivalent_url.py`
-
-## **Installation**
-
-Python 3.9.7 was used, and a conda virtual environment.
-
-To have the virtual environment running:
+First clone the repo
 ```bash
-pip install -r requirements.txt
-python setup.py install
+git clone <link-ommitted-for-submission>
 ```
 
-If you want __pycache__ content or other removed, occasionnally run:
+<!-- <details>
+<summary>Set Up Virtual Environment</summary>
+</details> -->
+---
+## 1. Set Up Virtual Environment
+
+We used Poetry and conda for virtual environment and dependency management.
+
+Interface and traversal implemented with **Python 3.10.6**.
+
+First set up your virtual environment and then download [Poetry](https://python-poetry.org) for dependencies.
+
+To [install dependencies only](https://python-poetry.org/docs/basic-usage/#installing-dependencies-only)
+```bash
+poetry install --no-root
 ```
-sh clean.sh
+
+Alternatively, you can use the [full path to the `poetry` binary](https://python-poetry.org/docs/#installation)
+> * `~/Library/"Application Support"/pypoetry/venv/bin/poetry` on MacOS.
+> * `~/.local/share/pypoetry/venv/bin/poetry` on Linux/Unix.
+> * `%APPDATA%\pypoetry\venv\Scripts\poetry` on Windows.
+> * `$POETRY_HOME/venv/bin/poetry` if `$POETRY_HOME` is set.
+
+If you work on an Apple Silicon Machine + conda, you might later be prompted to download again `grpcio`, you can do it using:
+```bash
+pip uninstall grpcio
+conda install grpcio
 ```
 
 Create a `private.py` file in the settings folder and add the followings:
-* AGENT (of computer, for sparql interface)
-* TOKEN (for Triply)
-* FOLDER_PATH (of project)
-* WANDB_USER (for weights and biases)
+* AGENT (of computer, for sparql interface) [optional]
+* TOKEN (for Triply) [optional]
+* FOLDER_PATH (of git repository on your machine)
 
-## **Run one search**
+Then run the following for setting up the packages
+```bash
+python setup.py install
+```
+---
 
-0. Get superclasses (c.f. src/extract_domain_range)
-1. Get ground truth
-2. Get URI mapping (to account for different versions in DBPedia)
-3. Set config file (node to start with, filters, start and end dates)
-4. Run experiments
-5. Visualise results (wandb recommended)
+## 2. Download data for the graph traversal
 
-## **Experiments**
+The main data format we used are the HDT compressed versions of the datasets.
 
-French Revolution
-start node: http://dbpedia.org/resource/French_Revolution
-start date: 1789-01-01
-end date: 1804-12-31
+Some pointers for downloading the datasets:
+* Some datasets can be downloaded [here](https://www.rdfhdt.org/datasets/).
+* DBpedia-2016-10 can also be downloaded [here](https://www.kaggle.com/bsteenwi/dbpedia).
 
-WWII
-start node: http://dbpedia.org/resource/World_War_II
-start date: 1939-01-01
-end date: 1945-12-31
+It's faster to download direct the `.hdt` file and the `.hdt.index` files.
 
-Russian Revolution
-start node: http://dbpedia.org/resource/Russian_Revolution
-start date: 1917-01-01
-end date: 1923-12-31
+**Within our experiments**, we used the followings: 
+* [Triply DB](https://triply.cc)'s HDT version of DBpedia (snapshot 2021-09)
+* [Wikidata](https://www.rdfhdt.org/datasets/) (2021-03-05)
+* [YAGO4](https://yago-knowledge.org/downloads/yago-4) downloaded from the website. We later used [hdt-cpp](https://github.com/rdfhdt/hdt-cpp) to convert it to HDT format.
 
-American Revolution
-start node: http://dbpedia.org/resource/American_Revolution
-start date: 1765-01-01
-end date: 1783-12-31
+We put the datasets in the root directory of the repository, under the names `dbpedia-snapshot-2021-09`, `wikidata-2021-03-05` and `yago-2020-02-24` respectively. We query the HDT datasets using [pyHDT](https://github.com/Callidon/pyHDT).
 
-## **Weights and biases**
+We occasionnaly worked with Triply DB's data:
+* [DBpedia 2021-09](https://triplydb.com/DBpedia-association/snapshot-2021-09). We used API calls using <https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000>.
 
-It is also possible to run scripts using the [Weights and biases platform](https://wandb.ai/site) and its Python module, wandb.
+---
 
-To use these scripts, first create a wandb account, then follow the [quickstart](https://docs.wandb.ai/quickstart).
+## 3. Run the search
 
-* To run one wandb script, refer to `./run_experiment_wandb.py`
-* To run a wandb sweep (~grid search for hyperparameters), run the following:
-    ```bash
-    wandb sweep graph_search_sweep.yaml
-    ```
-    An agent ID will then be created, and the next command to run will be displayed in the terminal.
+We include some sample data in the `sample-data` folder. 
 
-## **Tests**
+Before running the search, you need to extrac domain, range and superclasses information from the dataset you downloaded. See file `src/extract_domain_range.py` for further information and command lines to run that file, depending on your dataset.
+
+You can run one search using this sample data **from the root directory**, by running:
+```bash
+python src/framework.py -j sample-data/French_Revolution_config.json
+```
+
+The results will be saved in the `experiments` folder in the root directory, in a folder starting by `<date>-<dataset_type>-<name_exp>`.
+
+You can change the content of this configuration file. Some changes can be immediate, some others will require some additional data download (c.f. Section 4 to add further data for the search).
+
+<details>
+<summary>Click here to know more about the config file</summary>
+
+##
+
+Parameters that don't require additional data to be downloaded:
+* `rdf_type`: the type of nodes you want to retrieve. Keys should be a string, and values the string URI of that node type. In our experiments, we are mainly interested about events.
+* `predicate_filter`: list of predicates that are not taken into account for the search
+* `start`: node to start the search from
+* `start_date`: starting date of that `start` node
+* `end_date`: ending date of that `start` node
+* `iterations`: number of iterations for the search. The higher the number, the longer it will take to run.
+* `type_ranking`: the type of ranking to use for paths.
+* `type_interface`: type of interface used, in practice `hdt` only.
+* `type_metrics`: the metrics that are computed, should be a sub-list of `["precision", "recall", "f1"]`
+* `ordering` and `domain_range`: boolean, to activate or not this parameter
+* `filtering`: same than above
+* `name_exp`: name of your experiment, for the saving folder
+* `dataset_type`: type of dataset, depending on the one you have
+* `dataset_path`: path the the dataset folder 
+* `nested_dataset`: boolean, whether your dataset is nested (decomposed in smaller chunks) or not
+
+Parameters that require additional data to be downloaded - c.f. section 4 for further details:
+* `gold_standard`: .csv path to the gold standard events
+* `referents`: .json path to the URI referents
+</details>
+
+---
+
+## 4. Download data for ground truth comparison
+
+If you have downloaded DBpedia, Wikidata or YAGO, it is possible to run the search with any of the events that is both in [EventKG](https://eventkg.l3s.uni-hannover.de) and in your dataset. We used [EventKG 3.1.](https://zenodo.org/record/4720078#.Y0bn-S8Rr0o) in our experiments.
+
+We propose 3 notebooks in the `notebooks` folder to extract additional data to run the search. You will also need to download [GraphDB](./https://graphdb.ontotext.com) to set up a local SPARQL endpoint.
+
+### - Preprocessing EventKG and loading it into GraphDB
+Corresponding notebook: `eventkg-filtering.ipynb`
+
+* **Pre-requisites.** Download EventKG & GraphDB (links in paragraphs above).
+* **Main motivation.** Problems when parsing EventKG data to GraphDB + working with a smaller subset of EventKG.
+* **How.**: Using dask and pandas to read the data and only select the parts we were interested for our queries + some preprocessing
+* **Main usage.** Load the newly saved data into GraphDB to set up a local SPARQL endpoint.
+
+Before running one of the two notebooks below, you need to make sure that the data was downloaded into a GraphDB repositories and that the endpoint is active.
+
+### - Extracting info for one events in a dataset
+Corresponding notebook: `eventkg-info-one-event.ipynb`
+
+* **Pre-requisites** Data loaded into GraphDB and SPARQL endpoint active. If you additionnally want to run the search at the end of the notebook, you need to have the dataset for search downloaded as well.
+* **Main motivation.** Running the search with more events than the one in `sample-data`.
+* **How**: SPARQL queries to extract ground truth events, referents, start and end dates for an event and to generate a config file to run a search.
+* **Main usage.** Config file for the graph search.
+
+### - Extracting info for all events in a dataset
+Corresponding notebook: `eventkg-retrieving-events.ipynb`
+
+* **Prerequisites.** Data loaded into GraphDB and SPARQL endpoint active. If you additionnally want to run the search at the end of the notebook, you need to have the dataset for search downloaded as well.
+* **Main motivation.** Running the search with all events in a dataset.
+* **How.** SPARQL queries.
+* **Main purpose** Config files for the graph search.
+
+---
+
+## 5. Run the interface
+
+We also implemented an interface to compare the impact of the filters and parameters on the search - `ordering` and `filtering` from the config description in Section 3. of the README. By comparing two sets of parameters, you will also run the search in the backend.
+
+To run a search, you might need to extract some additional information (c.f. Section 4. of the README).
+
+In the terminal command, go to the app folder.
+```bash
+cd app
+```
+
+First open the `variables.py` file in that folder. You can add information on the dataset(s) you are using. As specified in that file, you need to enter details about `dataset_path`, `data_files_path` (folder where are stored ground truth, referents and config files), `start_uri` and `nested_dataset`.
+
+Then run the following to run the interface:
+```bash
+streamlit run app.py
+```
+
+Depending on the parameter and event that you choose, running the search can be slow. Likewise, displaying the HTML graphs can be slow.
+
+---
+
+## 6. Other
+
+If you want __pycache__ content or other removed, you can run:
+```
+sh clean.sh
+```
 
 Python unittests were created to test out different components of the graph search framework. To run them all, run in terminal (from root directory of the repository):
 
@@ -164,19 +184,4 @@ coverage html
 open -a Safari htmlcov/index.html
 ```
 
-## **Citations**
 
-For retrieving data, we made use of the following resources:
-
-```
-@inproceedings{gottschalk2019eventkg,
-   title={{EventKG - the Hub of Event Knowledge on the Web - and Biographical Timeline Generation}},
-   author={Gottschalk, Simon and Demidova, Elena},
-   year={2019},
-   publisher={IOS Press},
-   volume={10},
-   number={6},
-   pages={1039--1070},
-   journal={Semantic Web Journal (SWJ)}
-}
-```
