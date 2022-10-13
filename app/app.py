@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Main streamlit app """
 import os
+from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -35,7 +36,7 @@ with st.container():
         with st.form("common_params_form"):
             dataset = st.selectbox(
                 EVENT_INPUT['select_dataset'],
-                tuple(VARIABLES_DATASET.keys()), key="dataset")
+                tuple(sorted(tuple(VARIABLES_DATASET.keys()))), key="dataset")
 
             start_node = st.text_input(
                 EVENT_INPUT['select_start_node'],
@@ -134,13 +135,16 @@ with st.container():
             run_search = st.button(GRAPH_SEARCH['btn_run_search'])
             if run_search:
                 with st.spinner("Running the search"):
-                    for config, folder in [(config_1, folder_1), (config_2, folder_2)]:
+                    for config, folder, nb in [(config_1, folder_1, "1"), (config_2, folder_2, "2")]:
+                        start_time = datetime.now()
                         if (not os.path.exists(folder)) or \
                             (f"subgraph-{st.session_state['iterations']}.html" \
                                 not in os.listdir(folder)):
                             if not os.path.exists(folder):
                                 os.makedirs(folder)
                             run_search_save_info(config, folder)
+                        end_time = datetime.now()
+                        init_var([(f"time_exp_{nb}", end_time - start_time)])
                     st.session_state.experiments_run = True
 
 
@@ -163,11 +167,13 @@ with st.container():
         # Overall results
         with col1_table_res:
             st.write(RES_COMPARISON['filter_1'])
+            st.write(RES_COMPARISON["time_exp"].format(st.session_state["time_exp_1"]))
             write_params("1")
             st.dataframe(data_1["path_expanded"])
 
         with col2_table_res:
             st.write(RES_COMPARISON['filter_2'])
+            st.write(RES_COMPARISON["time_exp"].format(st.session_state["time_exp_2"]))
             write_params("2")
             st.dataframe(data_2["path_expanded"])
 

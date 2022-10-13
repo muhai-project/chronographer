@@ -106,7 +106,8 @@ GRAPH_SEARCH = {
 RES_COMPARISON = {
     'headline': "### Comparing the two set of parameters",
     'filter_1': "#### Set of filters - 1",
-    'filter_2': "#### Set of filters - 2"
+    'filter_2': "#### Set of filters - 2",
+    'time_exp': "Took {} to run."
 }
 
 RES_ITERATION = {
