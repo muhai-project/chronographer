@@ -3,21 +3,61 @@
 Metrics for assessing the quality of the output
 """
 import json
+import pandas as pd
+
+from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
+    as config_error_messages
 
 class Metrics:
     """
     Quantitative metrics: precision, recall, f1
     """
 
-    def __init__(self, referent_path):
+    def __init__(self, config_metrics):
+        """ config_metrics should have the following keys:
+        cf. doc/check_config_framework.py for indications
+        - `referents`:
+        - `type_metrics`
+        - `gold_standard`:
+        """
+        self.config_error_messages = config_error_messages
+        self.possible_type_metrics = ["precision", "recall", "f1"]
+        self._check_config(config=config_metrics)
+
         self.metrics_to_calc = {
             'precision': self.get_precision,
             'recall': self.get_recall,
             'f1': self.get_f1,
         }
 
-        with open(referent_path, "r", encoding='utf-8') as openfile:
+        self.type_metrics = config_metrics["type_metrics"]
+        df_gs = pd.read_csv(config_metrics['gold_standard'])
+        self.event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
+
+        with open(config_metrics["referents"], "r", encoding='utf-8') as openfile:
             self.referents = json.load(openfile)
+
+    def _check_config(self, config):
+        if "gold_standard" not in config:
+            raise ValueError(self.config_error_messages['gold_standard'])
+        try:
+            pd.read_csv(config["gold_standard"])['linkDBpediaEn']
+        except Exception as type_error:
+            raise TypeError(self.config_error_messages['gold_standard']) from type_error
+
+        if "referents" not in config:
+            raise ValueError(self.config_error_messages['referents'])
+        try:
+            with open(config["referents"], "r", encoding='utf-8') as openfile:
+                json.load(openfile)
+        except Exception as type_error:
+            raise TypeError(self.config_error_messages['referents']) from type_error
+
+        if "type_metrics" not in config:
+            raise ValueError(self.config_error_messages['type_metrics'])
+        if not isinstance(config['type_metrics'], list) or \
+            any(elt not in self.possible_type_metrics for elt in config['type_metrics']):
+            raise TypeError(self.config_error_messages['type_metrics'])
 
     @staticmethod
     def get_numbers(found, gold_standard):
@@ -53,6 +93,26 @@ class Metrics:
         return args["true_pos"] / (args["true_pos"] + \
             0.5 * (args["false_pos"] + args["false_neg"]))
 
+    def update_metrics_data(self, metrics_data, iteration, found):
+        """ Compute metrics for one iteration """
+        metrics_data[iteration] = self.get_metrics(found=found)
+        return metrics_data
+
+    def get_metrics(self, found: list):
+        """ Calculate all metrics from found nodes (compared to ground truth) """
+        def f_change(url):
+            return self.referents[url] if url in self.referents else url
+        found = [f_change(url) for url in found]
+
+        if any(metric not in self.metrics_to_calc for metric in self.type_metrics):
+            raise ValueError(f"Current metrics implemented: {list(self.metrics_to_calc.keys())}" \
+                + "\tOne of the metrics in parameter not implemented")
+
+        args= self.get_numbers(found=found, gold_standard=self.event_gs)
+        _metrics = {metric: f(**args) \
+            for metric, f in self.metrics_to_calc.items()}
+        return _metrics
+
     def __call__(self, found: list, gold_standard: list,
                  type_metrics: list):
         def f_change(url):
@@ -71,15 +131,17 @@ class Metrics:
 
 if __name__ == '__main__':
     import os
-    import pandas as pd
     from settings import FOLDER_PATH
-    metrics = Metrics(referent_path=os.path.join(FOLDER_PATH, "sample-data", "French_Revolution_referents.json"))
 
-    df_gs = pd.read_csv(os.path.join(FOLDER_PATH, "sample-data", "French_Revolution_gs_events.csv"))
-    event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
+    CONFIG_METRICS = {
+        "referents": os.path.join(FOLDER_PATH, "sample-data", "French_Revolution_referents.json"),
+        "type_metrics": ['precision', 'recall', 'f1'],
+        "gold_standard": os.path.join(FOLDER_PATH, "sample-data", "French_Revolution_gs_events.csv")
+    }
+    metrics = Metrics(config_metrics=CONFIG_METRICS)
+
     print("Event: French Revolution")
-    print(f"# of sub-events: {len(event_gs)}")
-    TYPE_METRICS=['precision', 'recall', 'f1']
+    print(f"# of sub-events: {len(metrics.event_gs)}")
 
     subgraph = pd.read_csv(os.path.join(
         FOLDER_PATH, "sample-data", "French_Revolution_subgraph.csv"))
@@ -88,5 +150,5 @@ if __name__ == '__main__':
                     .subject.unique()] + \
                     [str(e) for e in subgraph[subgraph.type_df == "outgoing"] \
                         .object.unique()]
-    res = metrics(found=events_found, gold_standard=event_gs, type_metrics=TYPE_METRICS)
+    res = metrics.get_metrics(found=events_found)
     print(res)

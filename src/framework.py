@@ -27,16 +27,24 @@ class GraphSearchFramework:
     """
     Main class to run the search from a config
     """
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, mode: str = "metrics_driven"):
         """
         - `config`: config for the search,
         examples in `configs-example` folder
+        - `mode`: type of search to run
+            If == metrics_driven": config should contain `gold_standard`, `referents`
+            and `type_metrics`
+            Else: not implemented now
         """
+        possible_modes = ["metrics_driven"]
+        if mode not in possible_modes:
+            raise ValueError(f"`mode` should be one of the followings: {possible_modes}")
+        self.mode = mode
+
         self.possible_type_interface = ["triply", "hdt"]
         self.possible_type_ranking = [
             "pred_freq", "inverse_pred_freq", "entropy_pred_freq",
             "pred_object_freq", "inverse_pred_object_freq", "entropy_pred_object_freq"]
-        self.possible_type_metrics = ["precision", "recall", "f1"]
         self.config_error_messages = config_error_messages
 
         self._check_config(config=config)
@@ -97,11 +105,16 @@ class GraphSearchFramework:
         self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
         self.discarded = pd.DataFrame(columns=["iteration", "node_discarded"])
 
-        self.metrics = Metrics(config["referents"])
-        self.type_metrics = config["type_metrics"]
-        df_gs = pd.read_csv(config['gold_standard'])
-        self.event_gs = list(df_gs[df_gs['linkDBpediaEn']!=''].linkDBpediaEn.unique())
-        self.metrics_data = {}
+        # METRICS
+        # Metrics part, only if mode == "metrics_driven"
+        # Will compute metrics at each iteration (standard are: precision, recall, f1)
+        config_metrics = {
+            "referents": config["referents"], "type_metrics": config["type_metrics"],
+            "gold_standard": config['gold_standard']
+        }
+        if self.mode == "metrics_driven":
+            self.metrics = Metrics(config_metrics=config_metrics)
+            self.metrics_data = {}
 
         self.plotter = Plotter()
 
@@ -181,27 +194,6 @@ class GraphSearchFramework:
             raise ValueError(self.config_error_messages['type_interface'])
         if config["type_interface"] not in self.possible_type_interface:
             raise TypeError(self.config_error_messages['type_interface'])
-
-        if "gold_standard" not in config:
-            raise ValueError(self.config_error_messages['gold_standard'])
-        try:
-            pd.read_csv(config["gold_standard"])['linkDBpediaEn']
-        except Exception as type_error:
-            raise TypeError(self.config_error_messages['gold_standard']) from type_error
-
-        if "referents" not in config:
-            raise ValueError(self.config_error_messages['referents'])
-        try:
-            with open(config["referents"], "r", encoding='utf-8') as openfile:
-                json.load(openfile)
-        except Exception as type_error:
-            raise TypeError(self.config_error_messages['referents']) from type_error
-
-        if "type_metrics" not in config:
-            raise ValueError(self.config_error_messages['type_metrics'])
-        if not isinstance(config['type_metrics'], list) or \
-            any(elt not in self.possible_type_metrics for elt in config['type_metrics']):
-            raise TypeError(self.config_error_messages['type_metrics'])
 
         for date in ["start_date", "end_date"]:
             if date not in config:
@@ -457,12 +449,6 @@ class GraphSearchFramework:
         os.makedirs(save_folder)
         return save_folder
 
-    def update_metrics(self, iteration, found):
-        """ Update metrics after one iteration """
-        self.metrics_data[iteration] = \
-            self.metrics(found=found, gold_standard=self.event_gs,
-                         type_metrics=self.type_metrics)
-
     def add_subgraph_info(self, iteration):
         """ Tracking # of events + unique events found """
         size = self.subgraph.shape[0]
@@ -472,38 +458,6 @@ class GraphSearchFramework:
                         .object.unique()]))
         self.subgraph_info[iteration] = dict(subgraph_nb_event=size,
                                              subgraph_nb_event_unique=unique)
-
-
-    def _udpate_metadata(self, metadata):
-        last_metrics = self.metrics_data[self.iterations]
-        metadata.update({
-            "end": str(datetime.now()),
-            "last_f1":  last_metrics["f1"],
-            "last_precision":  last_metrics["precision"],
-            "last_recall":  last_metrics["recall"],
-        })
-        return metadata
-
-    def _update_best(self, metadata, iteration):
-        best_metrics = self.metrics_data[iteration]
-        metadata.update({
-            "best_f1": best_metrics['f1'],
-            "best_corresponding_precision": best_metrics['precision'],
-            "best_corresponding_recall": best_metrics['recall'],
-            "best_f1_it_nb": iteration
-        })
-        return metadata
-
-    def _update_last(self, metadata, iteration):
-        last_metrics = self.metrics_data[iteration]
-        metadata.update({
-            "end": str(datetime.now()),
-            "last_f1":  last_metrics["f1"],
-            "last_precision":  last_metrics["precision"],
-            "last_recall":  last_metrics["recall"],
-            "last_it": iteration
-        })
-        return metadata
 
     def __call__(self):
         start = datetime.now()
@@ -535,25 +489,45 @@ class GraphSearchFramework:
                             indent=4)
             self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
+            with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
+                json.dump(self.info, openfile,
+                            indent=4)
 
             events_found = \
                 [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
                     .subject.unique()] + \
                     [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
                         .object.unique()]
-            self.update_metrics(iteration=i, found=events_found)
 
-            with open(f"{self.save_folder}/metrics.json", "w", encoding='utf-8') as openfile:
-                json.dump(self.metrics_data, openfile,
-                            indent=4)
-            with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
-                json.dump(self.info, openfile,
-                            indent=4)
+            if self.mode == "metrics_driven":
+                self.metrics_data = self.metrics.update_metrics_data(
+                    metrics_data=self.metrics_data, iteration=i, found=events_found)
 
-            if self.metrics_data[i]["f1"] > best_fone:
-                metadata = self._update_best(metadata, i)
-                best_fone = self.metrics_data[i]["f1"]
-            metadata = self._update_last(metadata, i)
+                with open(f"{self.save_folder}/metrics.json", "w", encoding='utf-8') as openfile:
+                    json.dump(self.metrics_data, openfile, indent=4)
+
+                current_metrics = self.metrics_data[i]
+
+                if current_metrics["f1"] > best_fone:
+                    metadata.update({
+                        "best_f1": current_metrics['f1'],
+                        "best_corresponding_precision": current_metrics['precision'],
+                        "best_corresponding_recall": current_metrics['recall'],
+                        "best_f1_it_nb": i
+                    })
+                    best_fone = current_metrics["f1"]
+
+                metadata.update({
+                    "last_f1":  current_metrics["f1"],
+                    "last_precision":  current_metrics["precision"],
+                    "last_recall":  current_metrics["recall"],
+                    "last_it": i
+                })
+
+            # METRICS
+            metadata.update({"end": str(datetime.now())})
+
+
             with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
                 json.dump(metadata, openfile, indent=4)
 

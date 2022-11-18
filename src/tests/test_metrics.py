@@ -8,6 +8,14 @@ import unittest
 from src.metrics import Metrics
 from settings import FOLDER_PATH
 
+config_metrics = {
+        "referents": os.path.join(
+            FOLDER_PATH, "sample-data", "French_Revolution_referents.json"),
+        "type_metrics": ['precision', 'recall', 'f1'],
+        "gold_standard": os.path.join(
+            FOLDER_PATH, "sample-data", "French_Revolution_gs_events.csv")
+    }
+
 class TestMetrics(unittest.TestCase):
     """
     Test class for Metrics class
@@ -15,9 +23,7 @@ class TestMetrics(unittest.TestCase):
 
     def test_get_precision(self):
         """ Test get_precision """
-        metrics = Metrics(
-            referent_path=os.path.join(
-                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
+        metrics = Metrics(config_metrics=config_metrics)
         args = {"true_pos": 90, "false_pos": 30}
         self.assertEqual(metrics.get_precision(**args), 0.75)
 
@@ -29,9 +35,7 @@ class TestMetrics(unittest.TestCase):
 
     def test_get_recall(self):
         """ Test get_recall """
-        metrics = Metrics(
-            referent_path=os.path.join(
-                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
+        metrics = Metrics(config_metrics=config_metrics)
 
         args = {"true_pos": 90, "false_neg": 10}
         self.assertEqual(metrics.get_recall(**args), 0.9)
@@ -41,9 +45,7 @@ class TestMetrics(unittest.TestCase):
 
     def test_get_f1(self):
         """ Test get_f1 """
-        metrics = Metrics(
-            referent_path=os.path.join(
-                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
+        metrics = Metrics(config_metrics=config_metrics)
 
         args = {"true_pos": 90, "false_neg": 0, "false_pos": 0}
         self.assertEqual(metrics.get_f1(**args), 1)
@@ -53,9 +55,7 @@ class TestMetrics(unittest.TestCase):
 
     def test_get_numbers(self):
         """ Test get_numbers """
-        metrics = Metrics(
-            referent_path=os.path.join(
-                FOLDER_PATH, 'sample-data', "French_Revolution_referents.json"))
+        metrics = Metrics(config_metrics=config_metrics)
 
         found = [1, 2, 3, 5, 7, 10]
         gold_standard = [3, 4, 7, 8, 9, 10]

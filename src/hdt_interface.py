@@ -48,6 +48,7 @@ class HDTInterface:
             dirs = [os.path.join(old_dir, new_dir, "hdt") \
                 for old_dir in dirs for new_dir in os.listdir(old_dir)]
             dirs = [elt for elt in dirs if not elt.split('/')[-2].startswith(".")]
+            dirs = [elt for elt in dirs if os.path.exists(elt)]
             self.docs = [HDTDocument(file) for file in dirs]
         else:
             files = [os.path.join(folder_hdt, file) for file in os.listdir(folder_hdt) \

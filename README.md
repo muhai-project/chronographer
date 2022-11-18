@@ -1,3 +1,8 @@
+[current modifications]
+
+Adding different modes for the graph search
+metrics_driven only vs. exploration and not computing metrics
+
 # **Informed Graph Traversal**
 
 This is the code for the paper submitted to The Web Conference: "Building narratives through informed graph traversal".
