@@ -28,7 +28,7 @@ class GraphSearchFramework:
     """
     Main class to run the search from a config
     """
-    def __init__(self, config: dict, mode: str = "metrics_driven", node_selection: str = "all"):
+    def __init__(self, config: dict, mode: str = "search_type_node_metrics", node_selection: str = "random"):
         """
         - `config`: config for the search,
         examples in `configs-example` folder
@@ -36,8 +36,44 @@ class GraphSearchFramework:
             If == metrics_driven": config should contain `gold_standard`, `referents`
             and `type_metrics`
             Else: not implemented now
+        -------
+
+        WIP
+
+        Differents usages:
+        1 - searching types of nodes with metrics
+        2 - searching types of nodes without metrics
+        3 - Searching for one node
+        4 - Simple exploration
+
+        rdf_type: 1, 2
+
+        gold_standard: 1
+        referents: 1
+        type_metrics: 1
+
+        predicate_filter: optional, default []
+        name_exp: optional, default taken from start node
+
+
+        for below on filtering, check in dataset_config
+        ordering/domain_range: optional, default 0
+        filtering_what: optional, default 0
+        filtering_where: optional, default 0
+        filtering_when: optional, default 0
+        filtering_who: optional, default 0
+        start_date: only if filtering_when
+        end_date: only if filtering_when
+
+        start: all
+        iterations: all
+        type_ranking: all
+        type_interface: all
+        dataset_type: all
+        dataset_path: all
         """
-        possible_modes = ["metrics_driven", "exploration"]
+        possible_modes = ["search_type_node_metrics", "search_type_node_no_metrics",
+                          "search_specific_node", "simple_search"]
         if mode not in possible_modes:
             raise ValueError(f"`mode` should be one of the followings: {possible_modes}")
         self.mode = mode
@@ -70,8 +106,8 @@ class GraphSearchFramework:
         self.save_folder = self._add_save_info()
 
         self.config = config
-        self.rdf_type = config["rdf_type"]
-        self.predicate_filter = config["predicate_filter"]
+        self.rdf_type = config["rdf_type"] if "rdf_type" in config else []
+        self.predicate_filter = config["predicate_filter"] if "predicate_filter" in config else []
         self.start = config["start"]
 
         # TEMPORAL FILTER
@@ -79,8 +115,6 @@ class GraphSearchFramework:
             self.dates = [config["start_date"], config["end_date"]]
         else:
             self.dates = None
-
-        self.name_exp = config["name_exp"]
 
         if "exclude_category" in config:
             filter_kb = config["exclude_category"]
@@ -119,7 +153,7 @@ class GraphSearchFramework:
         # METRICS
         # Metrics part, only if mode == "metrics_driven"
         # Will compute metrics at each iteration (standard are: precision, recall, f1)
-        if self.mode == "metrics_driven":
+        if self.mode == "search_type_node_metrics":
             config_metrics = {
                 "referents": config["referents"], "type_metrics": config["type_metrics"],
                 "gold_standard": config['gold_standard']
@@ -134,7 +168,7 @@ class GraphSearchFramework:
             "ordering" in config and "domain_range" in config["ordering"] else 0
         self.ordering = Ordering(interface=self.interface,
                                  domain_range=ordering_domain_range,
-                                 focus_for_search=[x[1] for x in config["rdf_type"]])
+                                 focus_for_search=[x[1] for x in self.rdf_type])
 
         if "filtering" in config and "what" in config["filtering"] and \
             config["filtering"]["what"]:
@@ -179,22 +213,17 @@ class GraphSearchFramework:
         }
 
     def _check_config(self, config: dict):
+        """
+
+        gold_standard: 1
+        referents: 1
+        type_metrics: 1
+
+        """
+        # MANDATORY FOR ALL MODES
+        # `config`
         if not isinstance(config, dict):
             raise TypeError("`config` param type should be dict`")
-
-        if "rdf_type" not in config:
-            raise ValueError(self.config_error_messages['rdf_type'])
-        if not isinstance(config["rdf_type"], list) or \
-            any(not isinstance(elt, tuple) for elt in config["rdf_type"]) or \
-            any(not isinstance(k, str) \
-            or not isinstance(v, str) for k, v in config['rdf_type']):
-            raise TypeError(self.config_error_messages['rdf_type'])
-
-        if "predicate_filter" not in config:
-            raise ValueError(self.config_error_messages['predicate_filter'])
-        if not isinstance(config["predicate_filter"], list) or \
-            any(not isinstance(elt, str) for elt in config["predicate_filter"]):
-            raise TypeError(self.config_error_messages['predicate_filter'])
 
         if "start" not in config:
             raise ValueError(self.config_error_messages['start'])
@@ -216,28 +245,6 @@ class GraphSearchFramework:
         if config["type_interface"] not in self.possible_type_interface:
             raise TypeError(self.config_error_messages['type_interface'])
 
-        for date in ["start_date", "end_date"]:
-            if date in config:
-                try:
-                    datetime(int(config[date][:4]), int(config[date][5:7]), int(config[date][8:10]))
-                except Exception as type_error:
-                    raise TypeError(self.config_error_messages[date]) from type_error
-
-        for k_p, v_p in [
-            ("ordering", "domain_range"), ("filtering", "what"),
-            ("filtering", "when"), ("filtering", "where")
-        ]:
-
-            if k_p in config and \
-                isinstance(config[k_p], dict) and v_p in config[k_p]:
-                if config[k_p][v_p] not in [0, 1]:
-                    raise TypeError(self.config_error_messages[k_p][v_p])
-
-        if "name_exp" not in config:
-            raise ValueError(self.config_error_messages['name_exp'])
-        if not isinstance(config["name_exp"], str):
-            raise TypeError(self.config_error_messages['name_exp'])
-
         if "dataset_type" not in config:
             raise ValueError(self.config_error_messages['dataset_type'])
         if config["dataset_type"] not in ["wikidata", "dbpedia", "yago"]:
@@ -247,11 +254,66 @@ class GraphSearchFramework:
             raise ValueError(self.config_error_messages['dataset_path'])
         if not isinstance(config["dataset_path"], str):
             raise TypeError(self.config_error_messages['dataset_path'])
+        
+        # OPTIONAL FOR ALL
+        # `predicate_filter`
+        if "predicate_filter" in config:
+            if not isinstance(config["predicate_filter"], list) or \
+                any(not isinstance(elt, str) for elt in config["predicate_filter"]):
+                raise TypeError(self.config_error_messages['predicate_filter'])
+        
+        # `ordering` (`domain_range`), `filtering` (`what`, `where`, `when`, `who`)
+        for k_p, v_p in [
+            ("ordering", "domain_range"), ("filtering", "what"),
+            ("filtering", "when"), ("filtering", "where")
+        ]:
+
+            if k_p in config and \
+                isinstance(config[k_p], dict) and v_p in config[k_p]:
+                if config[k_p][v_p] not in [0, 1]:
+                    raise TypeError(self.config_error_messages[k_p][v_p])
+        
+        # `start_date`, `end_date` (for filtering params, checked just above)
+        if "filtering" in config and config["filtering"].get("when"):
+            for date in ["start_date", "end_date"]:
+                if date not in config:
+                    raise TypeError(self.config_error_messages[date])
+                try:
+                    datetime(int(config[date][:4]), int(config[date][5:7]), int(config[date][8:10]))
+                except Exception as type_error:
+                    raise TypeError(self.config_error_messages[date]) from type_error
+
+        # `name_exp`
+        if "name_exp" in config:
+            if not isinstance(config["name_exp"], str):
+                raise TypeError(self.config_error_messages['name_exp'])
+
+
+        # MANDATORY FOR MODE 1: search type + metrics
+        # `rdf_type` (for search type and if ordering domain range)
+        if (self.mode in ['targe_type_node_metrics', 'search_type_node_no_metrics']) or \
+            ("ordering" in config and config["ordering"].get("domain_range")):
+            if "rdf_type" not in config:
+                raise ValueError(self.config_error_messages['rdf_type'])
+            if not isinstance(config["rdf_type"], list) or \
+                any(not isinstance(elt, tuple) for elt in config["rdf_type"]) or \
+                any(not isinstance(k, str) \
+                or not isinstance(v, str) for k, v in config['rdf_type']):
+                raise TypeError(self.config_error_messages['rdf_type'])
+
+        # MANDATORY FOR MODE 2: search type + no metrics
+
+        # MANDATORY FOR MODE 3: search specific node
+
+        # MANDATORY FOR MODE 4: simple exploration
+
+        # MANDATORY ON CONDITIONS
 
 
     def get_exp_name(self, config):
         """ Get experiment name, depending on parameters """
-        elts = [config['dataset_type'], config['name_exp'],
+        exp = config["name_exp"] if "name_exp" in config else config["start"].split("/")[-1].lower()
+        elts = [config['dataset_type'], exp,
                 str(config["iterations"]), config["type_ranking"]]
         domain_range = "domain_range" if \
             config.get('ordering') and \
@@ -507,7 +569,8 @@ class GraphSearchFramework:
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
 
             self.add_subgraph_info(iteration=i)
-            self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
+            if self.rdf_type:
+                self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
 
             self.pending_nodes_ingoing.to_csv(
                 f"{self.save_folder}/{i}-pending_nodes_ingoing.csv")
@@ -531,7 +594,7 @@ class GraphSearchFramework:
                         .object.unique()]
 
             # METRICS
-            if self.mode == "metrics_driven":
+            if self.mode == "search_type_node_metrics":
                 self.metrics_data = self.metrics.update_metrics_data(
                     metrics_data=self.metrics_data, iteration=i, found=events_found)
 
@@ -592,13 +655,14 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument("-j", "--json", required=True,
                     help="Path to json file containing configuration file")
-    ap.add_argument("-m", "--mode", default="metrics_driven",
-                    help="mode for the search: either `metrics_driven` or `exploration`")
+    ap.add_argument("-m", "--mode", default="search_type_node_metrics",
+                    help="mode for the search")
     args_main = vars(ap.parse_args())
 
     with open(args_main["json"], "r", encoding="utf-8") as openfile_main:
         config_loaded = json.load(openfile_main)
-    config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
+    if "rdf_type" in config_loaded:
+        config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
 
     framework = GraphSearchFramework(config=config_loaded, mode=args_main["mode"])
     START = datetime.now()

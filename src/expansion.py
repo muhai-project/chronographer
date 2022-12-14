@@ -44,7 +44,6 @@ class NodeExpansion:
         """
         self.interface = interface
         self.rdf_type = rdf_type
-        self.stop_classes = [elt[1] for elt in rdf_type]
         self._check_args()
 
         self.mapping = {uri: name for (name, uri) in rdf_type}
@@ -60,14 +59,15 @@ class NodeExpansion:
 
     def _check_args(self):
         """ Checking params when instantiating the class """
-        if (not isinstance(self.rdf_type, list)) or not self.rdf_type:
-            raise ValueError('`rdf_type` param should be a non-empty list of tuples')
-        if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
-            raise ValueError('`rdf_type` param should be a list of tuples')
-        if any(not ((isinstance(a, str)) and isinstance(b, str)) \
-            for (a, b) in self.rdf_type):
-            raise ValueError("Type of two-element tuples should be" \
-                    + "(str, str)")
+        if self.rdf_type:
+            if (not isinstance(self.rdf_type, list)):
+                raise ValueError('`rdf_type` param should be a non-empty list of tuples')
+            if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
+                raise ValueError('`rdf_type` param should be a list of tuples')
+            if any(not ((isinstance(a, str)) and isinstance(b, str)) \
+                for (a, b) in self.rdf_type):
+                raise ValueError("Type of two-element tuples should be" \
+                        + "(str, str)")
 
     def get_output_triples(self, node, predicate):
         """ Direct call to _get_output_triples """
@@ -94,9 +94,13 @@ class NodeExpansion:
         else:
             to_discard = self.filtering(ingoing=triple_ingoing, outgoing=triple_outgoing,
                                         type_date=type_date_df, dates=dates)
-            filtered = [k for k, sup_class in self.superclasses.items() \
-                if any(elt in sup_class for elt in self.mapping.keys())] + \
-                    list(self.mapping.keys())
+
+            if self.mapping:
+                filtered = [k for k, sup_class in self.superclasses.items() \
+                    if any(elt in sup_class for elt in self.mapping.keys())] + \
+                        list(self.mapping.keys())
+            else:
+                filtered = []
             # Filter on types of nodes that should be retrieved
             to_keep = list(type_date_df[(~type_date_df.subject.isin(to_discard)) & \
                 (type_date_df.object.isin(filtered))].subject.unique())
