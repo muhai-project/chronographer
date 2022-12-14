@@ -17,6 +17,7 @@ from src.metrics import Metrics
 from src.plotter import Plotter
 from src.ordering import Ordering
 from src.expansion import NodeExpansion
+from src.selecting_node import NodeSelection
 from src.hdt_interface import HDTInterface
 from src.triply_interface import TriplInterface
 from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
@@ -27,7 +28,7 @@ class GraphSearchFramework:
     """
     Main class to run the search from a config
     """
-    def __init__(self, config: dict, mode: str = "metrics_driven"):
+    def __init__(self, config: dict, mode: str = "metrics_driven", node_selection: str = "all"):
         """
         - `config`: config for the search,
         examples in `configs-example` folder
@@ -36,10 +37,16 @@ class GraphSearchFramework:
             and `type_metrics`
             Else: not implemented now
         """
-        possible_modes = ["metrics_driven"]
+        possible_modes = ["metrics_driven", "exploration"]
         if mode not in possible_modes:
             raise ValueError(f"`mode` should be one of the followings: {possible_modes}")
         self.mode = mode
+
+        possible_node_selection = ["random", "all"]
+        if node_selection not in possible_node_selection:
+            raise ValueError(f"`node_selection` should be one of the followings: {possible_node_selection}")
+        self.node_selection_type = node_selection
+        self.node_selection = NodeSelection(mode=node_selection)
 
         self.possible_type_interface = ["triply", "hdt"]
         self.possible_type_ranking = [
@@ -67,7 +74,12 @@ class GraphSearchFramework:
         self.predicate_filter = config["predicate_filter"]
         self.start = config["start"]
 
-        self.dates = [config["start_date"], config["end_date"]]
+        # TEMPORAL FILTER
+        if ("start_date" and "end_date") in config:
+            self.dates = [config["start_date"], config["end_date"]]
+        else:
+            self.dates = None
+
         self.name_exp = config["name_exp"]
 
         if "exclude_category" in config:
@@ -78,8 +90,7 @@ class GraphSearchFramework:
             self.interface = TriplInterface()
         else:  # type_interface == "hdt"
             nested = config["nested_dataset"] if "nested_dataset" in config else 1
-            pred = self.dataset_config["point_in_time"] + self.dataset_config["start_dates"] + \
-                self.dataset_config["end_dates"] + [self.dataset_config["rdf_type"]]
+            pred = self.get_pred_interface()
             self.interface = HDTInterface(filter_kb=filter_kb, folder_hdt=config["dataset_path"],
                                           dataset_config=self.dataset_config, nested_dataset=nested,
                                           default_pred=pred)
@@ -108,11 +119,11 @@ class GraphSearchFramework:
         # METRICS
         # Metrics part, only if mode == "metrics_driven"
         # Will compute metrics at each iteration (standard are: precision, recall, f1)
-        config_metrics = {
-            "referents": config["referents"], "type_metrics": config["type_metrics"],
-            "gold_standard": config['gold_standard']
-        }
         if self.mode == "metrics_driven":
+            config_metrics = {
+                "referents": config["referents"], "type_metrics": config["type_metrics"],
+                "gold_standard": config['gold_standard']
+            }
             self.metrics = Metrics(config_metrics=config_metrics)
             self.metrics_data = {}
 
@@ -135,6 +146,16 @@ class GraphSearchFramework:
                                            args_filtering=self.get_config_filtering(
                                             config=config, dataset_config=self.dataset_config))
 
+    def get_pred_interface(self):
+        """ Specific predicates for retrieving info with interface """
+        res = []
+        for pred in [x for x in ["point_in_time", "start_dates", "end_dates"] \
+            if x in self.dataset_config]:
+            res += self.dataset_config[pred]
+        if "rdf_type" in self.dataset_config:
+            res += [self.dataset_config["rdf_type"]]
+        return res
+
     @staticmethod
     def get_config_filtering(config: dict, dataset_config: dict):
         """ Create config for Filtering module in NodeExpansion """
@@ -149,12 +170,12 @@ class GraphSearchFramework:
             "when": filtering_when,
             "where": filtering_where,
             "who": filtering_who,
-            "point_in_time": dataset_config["point_in_time"],
-            "start_dates": dataset_config["start_dates"],
-            "end_dates": dataset_config["end_dates"],
-            "places": dataset_config["places"],
-            "people": dataset_config["person"],
-            "dataset_type": dataset_config["config_type"],
+            "point_in_time": dataset_config.get("point_in_time"),
+            "start_dates": dataset_config.get("start_dates"),
+            "end_dates": dataset_config.get("end_dates"),
+            "places": dataset_config.get("places"),
+            "people": dataset_config.get("person"),
+            "dataset_type": dataset_config.get("config_type"),
         }
 
     def _check_config(self, config: dict):
@@ -196,12 +217,11 @@ class GraphSearchFramework:
             raise TypeError(self.config_error_messages['type_interface'])
 
         for date in ["start_date", "end_date"]:
-            if date not in config:
-                raise ValueError(self.config_error_messages[date])
-            try:
-                datetime(int(config[date][:4]), int(config[date][5:7]), int(config[date][8:10]))
-            except Exception as type_error:
-                raise TypeError(self.config_error_messages[date]) from type_error
+            if date in config:
+                try:
+                    datetime(int(config[date][:4]), int(config[date][5:7]), int(config[date][8:10]))
+                except Exception as type_error:
+                    raise TypeError(self.config_error_messages[date]) from type_error
 
         for k_p, v_p in [
             ("ordering", "domain_range"), ("filtering", "what"),
@@ -295,7 +315,11 @@ class GraphSearchFramework:
         else:  # INIT state: only starting node
             path, nodes = [], [self.start]
 
-        return [node for node in nodes if node not in self.nodes_expanded], path
+        nodes = [node for node in nodes if node not in self.nodes_expanded]
+        if nodes:
+            nodes, _ = self.node_selection(nodes)
+
+        return nodes, path
 
     def _expand_one_node(self, args: dict):
         return self.node_expander(args=args, dates=self.dates)
@@ -336,7 +360,7 @@ class GraphSearchFramework:
                 self.nodes_expanded.append(args["node"])
                 output.append(self._expand_one_node(args))
 
-        return output
+        return output, nodes_to_expand
 
     def update_occurence(self, ingoing: pd.core.frame.DataFrame,
                          outgoing: pd.core.frame.DataFrame, occurence: dict):
@@ -378,6 +402,14 @@ class GraphSearchFramework:
                 occurence[f"{nb_order}-outgoing-{str(row.subject)};{str(row.predicate)}"] += 1
         return occurence
 
+    def update_occurrence_after_expansion(self, occurence: dict, to_expand: str):
+        """ Updating path count:
+        - if node selection is all nodes corresponding to a path, then removing that path
+        - else decreasing it by one """
+        if self.node_selection_type == "random":
+            return defaultdict(int, {k: v if v != to_expand else v-1 for k, v in occurence.items()})
+        return defaultdict(int, {k: v for k, v in occurence.items() if k != to_expand})
+
 
     def merge_outputs(self, output: list, iteration: int, info: dict):
         """ Gather outputs from each of the nodes expanded """
@@ -399,8 +431,7 @@ class GraphSearchFramework:
 
         self.to_expand, self.score_expansion = self.ranker(occurences=self.occurence)
         if self.to_expand:
-            self.occurence = defaultdict(int, {k:v for k, v in self.occurence.items() \
-                if k != self.to_expand})
+            self.occurence = self.update_occurrence_after_expansion(occurence=self.occurence, to_expand=self.to_expand)
             self.pending_nodes_ingoing = self.pending_nodes_ingoing[\
                 ~self.pending_nodes_ingoing.subject.isin(self.nodes_expanded)]
             self.pending_nodes_outgoing = self.pending_nodes_outgoing[\
@@ -465,14 +496,14 @@ class GraphSearchFramework:
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
-        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded", "score"])
+        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded", "node_expanded", "score"])
         self.metrics_data = {}
         self.info = {}
         best_fone = 0
 
         for i in range(1, self.iterations+1):
             print(f"Iteration {i} started at {datetime.now()}")
-            output = self.run_one_iteration(iteration=i)
+            output, nodes_to_expand = self.run_one_iteration(iteration=i)
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
 
             self.add_subgraph_info(iteration=i)
@@ -499,6 +530,7 @@ class GraphSearchFramework:
                     [str(e) for e in self.subgraph[self.subgraph.type_df == "outgoing"] \
                         .object.unique()]
 
+            # METRICS
             if self.mode == "metrics_driven":
                 self.metrics_data = self.metrics.update_metrics_data(
                     metrics_data=self.metrics_data, iteration=i, found=events_found)
@@ -524,7 +556,9 @@ class GraphSearchFramework:
                     "last_it": i
                 })
 
-            # METRICS
+                with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
+                    self.plotter(info=json.load(openfile), save_folder=self.save_folder)
+
             metadata.update({"end": str(datetime.now())})
 
 
@@ -533,14 +567,11 @@ class GraphSearchFramework:
 
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
-            with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
-                self.plotter(info=json.load(openfile), save_folder=self.save_folder)
-
             if self.to_expand:
 
                 self.expanded = pd.concat(
-                    [self.expanded, pd.DataFrame([[i, self.to_expand, self.score_expansion]],
-                    columns=["iteration", "path_expanded", "score"])],
+                    [self.expanded, pd.DataFrame([[i, self.to_expand, nodes_to_expand, self.score_expansion]],
+                    columns=["iteration", "path_expanded", "node_expanded", "score"])],
                     ignore_index=True
                 )
 
@@ -561,13 +592,15 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument("-j", "--json", required=True,
                     help="Path to json file containing configuration file")
-    json_path = vars(ap.parse_args())["json"]
+    ap.add_argument("-m", "--mode", default="metrics_driven",
+                    help="mode for the search: either `metrics_driven` or `exploration`")
+    args_main = vars(ap.parse_args())
 
-    with open(json_path, "r", encoding="utf-8") as openfile_main:
+    with open(args_main["json"], "r", encoding="utf-8") as openfile_main:
         config_loaded = json.load(openfile_main)
     config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
 
-    framework = GraphSearchFramework(config=config_loaded)
+    framework = GraphSearchFramework(config=config_loaded, mode=args_main["mode"])
     START = datetime.now()
     print(f"Process started at {START}")
     framework()

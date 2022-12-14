@@ -33,8 +33,7 @@ class ExtractDomainRange:
             os.path.join(FOLDER_PATH, "dataset-config", f"{dataset_type}.yaml"),
                         encoding='utf-8') as file:
             self.dataset_config = yaml.load(file, Loader=yaml.FullLoader)
-        self.pred = self.dataset_config["point_in_time"] + self.dataset_config["start_dates"] + \
-            self.dataset_config["end_dates"] + [self.dataset_config["rdf_type"]]
+        self.pred = []
 
         # Loading HDT Interface
         self.interface = HDTInterface(filter_kb=self.filter_kb, folder_hdt=self.dataset_path,
@@ -194,7 +193,7 @@ if __name__ == '__main__':
                                    dataset_path=args_main["dataset_path"])
     DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extractor()
 
-    SAVE_FOLDER = os.path.join(FOLDER_PATH, "domain-range-pred")
+    SAVE_FOLDER = os.path.join(FOLDER_PATH)
     if not os.path.exists(SAVE_FOLDER):
         os.makedirs(SAVE_FOLDER)
 
