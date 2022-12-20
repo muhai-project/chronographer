@@ -49,7 +49,7 @@ def main(sparql_endpoint, uri, folder_out, hdt_cpp):
 
 if __name__ == '__main__':
     SPARQL_ENDPOINT = "http://dbpedia.org/sparql"
-    URI = "http://dbpedia.org/resource/2022_Russian_invasion_of_Ukraine"
+    URI = "http://dbpedia.org/resource/Russo-Ukrainian_War"
 
     FOLDER_OUT = "dbpedia-snapshot-2021-09/updated"
     HDT_CPP = "/Users/ines/Projects/hdt-cpp"

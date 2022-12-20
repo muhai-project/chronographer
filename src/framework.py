@@ -28,7 +28,9 @@ class GraphSearchFramework:
     """
     Main class to run the search from a config
     """
-    def __init__(self, config: dict, mode: str = "search_type_node_metrics", node_selection: str = "random"):
+    def __init__(self, config: dict,
+                 mode: str = "search_type_node_metrics",
+                 node_selection: str = "random"):
         """
         - `config`: config for the search,
         examples in `configs-example` folder
@@ -80,7 +82,8 @@ class GraphSearchFramework:
 
         possible_node_selection = ["random", "all"]
         if node_selection not in possible_node_selection:
-            raise ValueError(f"`node_selection` should be one of the followings: {possible_node_selection}")
+            raise ValueError(
+                "`node_selection` should be one of the followings:", possible_node_selection)
         self.node_selection_type = node_selection
         self.node_selection = NodeSelection(mode=node_selection)
 
@@ -180,6 +183,8 @@ class GraphSearchFramework:
                                            args_filtering=self.get_config_filtering(
                                             config=config, dataset_config=self.dataset_config))
 
+        self.path_node_to_start = {}
+
     def get_pred_interface(self):
         """ Specific predicates for retrieving info with interface """
         res = []
@@ -254,14 +259,14 @@ class GraphSearchFramework:
             raise ValueError(self.config_error_messages['dataset_path'])
         if not isinstance(config["dataset_path"], str):
             raise TypeError(self.config_error_messages['dataset_path'])
-        
+
         # OPTIONAL FOR ALL
         # `predicate_filter`
         if "predicate_filter" in config:
             if not isinstance(config["predicate_filter"], list) or \
                 any(not isinstance(elt, str) for elt in config["predicate_filter"]):
                 raise TypeError(self.config_error_messages['predicate_filter'])
-        
+
         # `ordering` (`domain_range`), `filtering` (`what`, `where`, `when`, `who`)
         for k_p, v_p in [
             ("ordering", "domain_range"), ("filtering", "what"),
@@ -272,7 +277,7 @@ class GraphSearchFramework:
                 isinstance(config[k_p], dict) and v_p in config[k_p]:
                 if config[k_p][v_p] not in [0, 1]:
                     raise TypeError(self.config_error_messages[k_p][v_p])
-        
+
         # `start_date`, `end_date` (for filtering params, checked just above)
         if "filtering" in config and config["filtering"].get("when"):
             for date in ["start_date", "end_date"]:
@@ -493,7 +498,8 @@ class GraphSearchFramework:
 
         self.to_expand, self.score_expansion = self.ranker(occurences=self.occurence)
         if self.to_expand:
-            self.occurence = self.update_occurrence_after_expansion(occurence=self.occurence, to_expand=self.to_expand)
+            self.occurence = self.update_occurrence_after_expansion(
+                occurence=self.occurence, to_expand=self.to_expand)
             self.pending_nodes_ingoing = self.pending_nodes_ingoing[\
                 ~self.pending_nodes_ingoing.subject.isin(self.nodes_expanded)]
             self.pending_nodes_outgoing = self.pending_nodes_outgoing[\
@@ -552,13 +558,40 @@ class GraphSearchFramework:
         self.subgraph_info[iteration] = dict(subgraph_nb_event=size,
                                              subgraph_nb_event_unique=unique)
 
-    def __call__(self):
+    def _update_path(self, output, iteration, end_node):
+        """ Updating paths between visited node and starting node
+        self.mode == 'simple_search' -> checking all paths
+        self.mode == "search_specific_node" -> additionally check if node was found """
+        found_node = False
+        for _, path_ingoing, _, path_outgoing, _ in output:
+            for _, row in path_ingoing.iterrows():
+                previous_path = self.path_node_to_start[row.object] if iteration > 1 else []
+                self.path_node_to_start[row.subject] = \
+                    [(row.subject, row.predicate, row.object)] + previous_path
+                if row.subject == end_node:
+                    found_node = True
+
+            for _, row in path_outgoing.iterrows():
+                previous_path = self.path_node_to_start[row.subject] if iteration > 1 else []
+                self.path_node_to_start[row.object] = \
+                    [(row.subject, row.predicate, row.object)] + previous_path
+                if row.object == end_node:
+                    found_node = True
+        return found_node
+
+    def __call__(self, end_node: str = ""):
+        """ end_node necessary only if self.mode == 'search_specific_node' """
+
+        if self.mode == "search_specific_node" and end_node == "":
+            raise ValueError(f"For mode {self.mode}, `end_node` should not be empty")
+
         start = datetime.now()
         metadata = {"start": str(start)}
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
-        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded", "node_expanded", "score"])
+        self.expanded = pd.DataFrame(columns=[
+            "iteration", "path_expanded", "node_expanded", "score"])
         self.metrics_data = {}
         self.info = {}
         best_fone = 0
@@ -579,8 +612,14 @@ class GraphSearchFramework:
 
             with open(f"{self.save_folder}/{i}-occurences.json", "w", encoding='utf-8') \
                     as openfile:
-                json.dump(self.occurence, openfile,
-                            indent=4)
+                json.dump(self.occurence, openfile, indent=4)
+
+            if self.mode in ["simple_search", "search_specific_node"]:
+                found_node = self._update_path(output=output, iteration=i, end_node=end_node)
+                with open(f"{self.save_folder}/{i}-paths.json", "w", encoding='utf-8') \
+                        as openfile:
+                    json.dump(self.path_node_to_start, openfile, indent=4)
+
             self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
             with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
@@ -630,10 +669,16 @@ class GraphSearchFramework:
 
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
+            if found_node:
+                print(f"Node {end_node} was found, stopping search. Path can be found in {i}-paths.json")
+                break
+
             if self.to_expand:
 
                 self.expanded = pd.concat(
-                    [self.expanded, pd.DataFrame([[i, self.to_expand, nodes_to_expand, self.score_expansion]],
+                    [self.expanded,
+                     pd.DataFrame(
+                        [[i, self.to_expand, nodes_to_expand, self.score_expansion]],
                     columns=["iteration", "path_expanded", "node_expanded", "score"])],
                     ignore_index=True
                 )
@@ -657,6 +702,10 @@ if __name__ == '__main__':
                     help="Path to json file containing configuration file")
     ap.add_argument("-m", "--mode", default="search_type_node_metrics",
                     help="mode for the search")
+    ap.add_argument("-n", "--node_selection", default="all",
+                    help="node selection for the search")
+    ap.add_argument("-e", "--end_node", default="",
+                    help="node to look for in search (only if mode == 'search_specific_node'")
     args_main = vars(ap.parse_args())
 
     with open(args_main["json"], "r", encoding="utf-8") as openfile_main:
@@ -664,12 +713,10 @@ if __name__ == '__main__':
     if "rdf_type" in config_loaded:
         config_loaded["rdf_type"] = list(config_loaded["rdf_type"].items())
 
-    framework = GraphSearchFramework(config=config_loaded, mode=args_main["mode"])
+    framework = GraphSearchFramework(config=config_loaded, mode=args_main["mode"],
+                                     node_selection=args_main["node_selection"])
     START = datetime.now()
     print(f"Process started at {START}")
-    framework()
+    framework(end_node=args_main["end_node"])
     END = datetime.now()
     print(f"Process ended at {END}, took {END-START}")
-    # print(framework.ordering.superclasses)
-    # print(framework.ordering.domain)
-    # print(framework.ordering.range)

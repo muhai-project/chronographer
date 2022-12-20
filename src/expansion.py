@@ -60,7 +60,7 @@ class NodeExpansion:
     def _check_args(self):
         """ Checking params when instantiating the class """
         if self.rdf_type:
-            if (not isinstance(self.rdf_type, list)):
+            if not isinstance(self.rdf_type, list):
                 raise ValueError('`rdf_type` param should be a non-empty list of tuples')
             if any(not (isinstance(elt, tuple) and len(elt) == 2) for elt in self.rdf_type):
                 raise ValueError('`rdf_type` param should be a list of tuples')
