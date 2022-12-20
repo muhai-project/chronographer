@@ -151,12 +151,15 @@ if __name__ == '__main__':
         args_grid = []
         for _, row in df.iterrows():
             event_name = row['event_name'].split('/')[-1].split(".")[0]
-            if os.path.exists(os.path.join(FOLDER_PATH, "data-test", row["dataset"], "config", f"{event_name}.json")):
+            if os.path.exists(os.path.join(FOLDER_PATH, "data-test", row["dataset"], "config", f"{event_name}.json")) and \
+                os.path.exists(os.path.join(FOLDER_PATH, "data-test", row["dataset"], "referents", f"{event_name}.json")):
                 with open(os.path.join(FOLDER_PATH, "data-test", row["dataset"], "config", f"{event_name}.json"), 'r', encoding="utf-8") as openfile:
                     config = json.load(openfile)
                 args_grid += get_args_grid_one_event(config=config, iteration=row["iterations"], param_grid=PARAM_GRID,
                                                     date="2022-07-25", name_exp=f"{row['dataset']}_{event_name}",
                                                     dataset=row["dataset"])
+            else:
+                print(event_name)
 
     else:
         raise ValueError("-c argument should be either a .json file with one config, or a .csv file with several event names")
@@ -194,8 +197,3 @@ if __name__ == '__main__':
         return "_".join(elts)
 
     main(args_grid)
-
-    # for elt in args_grid:
-    #     print(elt["name_exp"], elt["filtering"], elt["ordering"], elt["iterations"])
-    # print(len(args_grid))
-
