@@ -55,7 +55,7 @@ CONFIG_TYPE_ERROR_MESSAGES = {
     "dataset_type": "`dataset_type` should be either `dbpedia`, `wikidata` or `yago`",
     "dataset_path": "`dataset_path` should be of type string",
     "uri_limit": "`uri_limit` should be in the config keys if type_walk is `random`, " + \
-        "with format: int",
+        "with format: int, or with value `all`",
     "max_uri": "`max_uri`, if used, should be an integer"
 
 }

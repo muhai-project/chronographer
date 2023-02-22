@@ -279,7 +279,8 @@ class GraphSearchFramework:
 
         if walk == "random" and "uri_limit" not in config:
             raise ValueError(self.config_error_messages["uri_limit"])
-        if walk == "random" and not isinstance(config["uri_limit"], int):
+        if walk == "random" and not \
+            (isinstance(config["uri_limit"], int) or config["uri_limit"] == "all"):
             raise TypeError(self.config_error_messages["uri_limit"])
 
         if "type_interface" not in config:
@@ -431,7 +432,10 @@ class GraphSearchFramework:
             candidates = set(list(self.pending_nodes_ingoing.subject.unique()) + \
                 list(self.pending_nodes_outgoing.object.unique()))
             candidates = {node for node in candidates if node not in self.nodes_expanded}
-            nodes = random.sample(list(candidates), k=self.uri_limit)
+            if isinstance(self.uri_limit, int):  # sampling a subset of nodes
+                nodes = random.sample(list(candidates), k=self.uri_limit)
+            else:  # take all nodes, BFS setting
+                nodes = list(candidates)
             path = self._extract_paths_from_candidates(nodes)
 
 
