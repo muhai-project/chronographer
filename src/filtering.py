@@ -26,12 +26,17 @@ class Filtering:
         self.when = args["when"] if "when" in args else 0
         self.who = args["who"] if "who" in args else 0
 
-        self.time = {
-            "point_in_time": args["point_in_time"],
-            "start_dates": args["start_dates"],
-            "end_dates": args["end_dates"],
-            "temporal": args["point_in_time"] + args["start_dates"] + args["end_dates"]
-        }
+        if all(x in args for x in ["point_in_time", "start_dates", "end_dates"]):
+            if all(args[x] for x in ["point_in_time", "start_dates", "end_dates"]):
+                self.time = {
+                    "point_in_time": args["point_in_time"],
+                    "start_dates": args["start_dates"],
+                    "end_dates": args["end_dates"],
+                    "temporal": args["point_in_time"] + args["start_dates"] + args["end_dates"]
+                }
+        else:
+            self.time = None
+
         self.places = args["places"]
         self.people = args["people"]
 
@@ -120,11 +125,12 @@ class Filtering:
             to_discard += list(set(self.get_to_discard_entity(
                 df_pd=type_date, filter_type=self.people)))
 
-        if self.when:
-            to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates)))
+        if dates:
+            if self.when and self.time:
+                to_discard += list(set(self.get_to_discard_date(date_df=date_df, dates=dates)))
 
-        if self.when and self.dataset_type in ["dbpedia"]:
-            to_discard += list(set(self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing,
-                                                             dates=dates)))
+            if self.when and self.dataset_type in ["dbpedia"]:
+                to_discard += list(set(self.get_to_discard_regex(ingoing=ingoing, outgoing=outgoing,
+                                                                dates=dates)))
 
         return to_discard
