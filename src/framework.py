@@ -386,6 +386,8 @@ class GraphSearchFramework:
             elts.append(wikilink)
         cat = "with_category" if config.get("exclude_category") == 0 else "without_category"
         elts.append(cat)
+        elts += ["uri", "iter", str(config.get("uri_limit")) if config.get('uri_limit') else '',  "max", str(config.get("max_uri")) if config.get('max_uri') else 'inf']
+
         return "_".join(elts)
 
     def select_nodes_to_expand(self, iteration):
