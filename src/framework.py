@@ -175,7 +175,8 @@ class GraphSearchFramework:
         self.to_expand = None
         self.score_expansion = None
         self.nodes_expanded_per_iter = pd.DataFrame(columns=["iteration", "node_expanded"])
-        self.expanded = pd.DataFrame(columns=["iteration", "path_expanded"])
+        self.expanded = pd.DataFrame(columns=[
+            "iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])
         self.discarded = pd.DataFrame(columns=["iteration", "node_discarded"])
 
         # METRICS
@@ -424,7 +425,13 @@ class GraphSearchFramework:
                         [self.to_expand])].object.values)
                 # print(nodes)
 
-            nodes = [node for node in nodes if node not in self.nodes_expanded]
+            nodes = list(set([node for node in nodes if node not in self.nodes_expanded]))
+
+            # Sampling nodes if too many compared to max uri
+            if len(nodes) > self.max_uri - len(self.nodes_expanded):
+                random.seed(23)
+                nodes = random.sample(nodes, k=self.max_uri - len(self.nodes_expanded))
+
             if nodes:
                 nodes, _ = self.node_selection(nodes)
 
@@ -433,6 +440,7 @@ class GraphSearchFramework:
                 list(self.pending_nodes_outgoing.object.unique()))
             candidates = {node for node in candidates if node not in self.nodes_expanded}
             if isinstance(self.uri_limit, int):  # sampling a subset of nodes
+                random.seed(23)
                 nodes = random.sample(list(candidates), k=self.uri_limit)
             else:  # take all nodes, BFS setting
                 nodes = list(candidates)
@@ -673,7 +681,7 @@ class GraphSearchFramework:
             json.dump(self.config, openfile,
                       indent=4)
         self.expanded = pd.DataFrame(columns=[
-            "iteration", "path_expanded", "node_expanded", "score"])
+            "iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])
         self.metrics_data = {}
         self.info = {}
         best_fone = 0
@@ -745,6 +753,7 @@ class GraphSearchFramework:
                 with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
                     self.plotter(info=json.load(openfile), save_folder=self.save_folder)
 
+            metadata.update({"nb_expanded": len(self.nodes_expanded)})
             metadata.update({"end": str(datetime.now())})
 
 
@@ -761,7 +770,7 @@ class GraphSearchFramework:
                 list(self.pending_nodes_outgoing.object.unique()))
             candidates = {node for node in candidates if node not in self.nodes_expanded}
 
-            if len(self.nodes_expanded) > self.max_uri:
+            if len(self.nodes_expanded) >= self.max_uri:
                 print(f"More than {self.max_uri} nodes were expanded, ",
                       f"finishing process at {datetime.now()} due to parameter `max_uri`\n=====")
                 break
@@ -770,8 +779,8 @@ class GraphSearchFramework:
                 self.expanded = pd.concat(
                     [self.expanded,
                      pd.DataFrame(
-                        [[i, self.to_expand, nodes_to_expand, self.score_expansion]],
-                    columns=["iteration", "path_expanded", "node_expanded", "score"])],
+                        [[i, self.to_expand, len(nodes_to_expand), nodes_to_expand, self.score_expansion]],
+                    columns=["iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])],
                     ignore_index=True
                 )
 
@@ -781,8 +790,8 @@ class GraphSearchFramework:
                 self.expanded = pd.concat(
                     [self.expanded,
                      pd.DataFrame(
-                        [[i, path[nb], node, None] for nb, node in enumerate(nodes_to_expand)],
-                    columns=["iteration", "path_expanded", "node_expanded", "score"])],
+                        [[i, path[nb], 1, node, None] for nb, node in enumerate(nodes_to_expand)],
+                    columns=["iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])],
                     ignore_index=True
                 )
 
