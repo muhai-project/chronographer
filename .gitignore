@@ -38,3 +38,4 @@ domain-range-pred/
 
 ingoing.csv
 outgoing.csv
+data/*

@@ -27,8 +27,8 @@
     "iterations": 1,
     "type_ranking": "pred_object_freq",
     "type_interface": "hdt",
-    "gold_standard": "./data/gs_events/events_french_revolution.csv",
-    "referents": "./data/referents/referents_french_revolution.json",
+    "gold_standard": "./data/dbpedia/gs_events/French_Revolution.csv",
+    "referents": "./data/dbpedia/referents/French_Revolution.json",
     "type_metrics": ["precision", "recall", "f1"],
     "ordering": {
         "domain_range": 1
