@@ -362,7 +362,7 @@ class GraphSearchFramework:
     def get_exp_name(self, config):
         """ Get experiment name, depending on parameters """
         exp = config["name_exp"] if "name_exp" in config else config["start"].split("/")[-1].lower()
-        elts = [config['dataset_type'], exp,
+        elts = [self.walk, config['dataset_type'], exp,
                 str(config["iterations"]), self.type_ranking]
         domain_range = "domain_range" if \
             config.get('ordering') and \
