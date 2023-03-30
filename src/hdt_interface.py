@@ -134,6 +134,8 @@ class HDTInterface:
             not any(elt[0].startswith(pattern) for pattern in filter_out)]
         triples = [elt for elt in triples if \
             not any(elt[2].startswith(pattern) for pattern in filter_out)]
+        triples = [elt for elt in triples if \
+            not any(elt[2].endswith(pattern) for pattern in [".svg"])]
         return triples
 
     def _filter_specific(self, triples):

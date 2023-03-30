@@ -32,7 +32,8 @@ class GraphSearchFramework:
     def __init__(self, config: dict,
                  mode: str = "search_type_node_metrics",
                  node_selection: str = "all",
-                 walk: str = "informed"):
+                 walk: str = "informed",
+                 save_only_last: bool = True):
         """
         - `config`: config for the search,
         examples in `configs-example` folder
@@ -45,8 +46,9 @@ class GraphSearchFramework:
             Values: `all` or `random``
         - `walk`: type of walk when exploring the graph
             * `informed`: regular one, with ranker for paths
-            * `random`: no ranker or best path, select 5 nodes randomly for next iteration
-        
+            * `random`: no ranker or best path, select nodes randomly for next iteration
+        - `save_only_last`: boolean, save only files from last occurrence (useful because very disk space consuming)
+
         Additional `max_uri`
         When the number of nodes visited gets higher than `max_uri`, the search stops
         -------
@@ -89,6 +91,10 @@ class GraphSearchFramework:
         dataset_path: all
         uri_limit: A
         """
+        if not isinstance(save_only_last, bool):
+            raise ValueError("Param `save_only_last` should be boolean")
+        self.save_only_last = save_only_last
+
         possible_modes = ["search_type_node_metrics", "search_type_node_no_metrics",
                           "search_specific_node", "simple_search"]
         if mode not in possible_modes:
@@ -190,7 +196,7 @@ class GraphSearchFramework:
             self.metrics = Metrics(config_metrics=config_metrics)
             self.metrics_data = {}
 
-        self.plotter = Plotter()
+        # self.plotter = Plotter()
 
 
         ordering_domain_range = config["ordering"]["domain_range"] if \
@@ -405,7 +411,8 @@ class GraphSearchFramework:
 
             # Gettings args for next iteration
             if (";" in self.to_expand) and ("ingoing" in self.to_expand):
-                pred, obj = self.to_expand.replace('ingoing-', '').split(";")
+                splitted = self.to_expand.replace('ingoing-', '').split(";")
+                pred, obj = splitted[0], ";".join(splitted[1:])
                 nodes = list(
                     self.pending_nodes_ingoing[
                         (self.pending_nodes_ingoing.predicate.isin([pred, str(pred)])) & \
@@ -690,35 +697,41 @@ class GraphSearchFramework:
         found_node = False  # only if looking for a specific node
 
         for i in range(1, self.iterations+1):
+            print(i, self.iterations)
             print(f"Iteration {i} started at {datetime.now()}")
             output, nodes_to_expand, path = self.run_one_iteration(iteration=i)
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
 
             self.add_subgraph_info(iteration=i)
-            if self.rdf_type:
-                self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
+            if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                if self.rdf_type:
+                    self.subgraph.to_csv(f"{self.save_folder}/{i}-subgraph.csv")
 
-            self.pending_nodes_ingoing.to_csv(
-                f"{self.save_folder}/{i}-pending_nodes_ingoing.csv")
-            self.pending_nodes_outgoing.to_csv(
-                f"{self.save_folder}/{i}-pending_nodes_outgoing.csv")
+                self.pending_nodes_ingoing.to_csv(
+                    f"{self.save_folder}/{i}-pending_nodes_ingoing.csv")
+                self.pending_nodes_outgoing.to_csv(
+                    f"{self.save_folder}/{i}-pending_nodes_outgoing.csv")
 
-            if self.walk == "informed":  # if walk is random, no occurences used for best path choosing
-                with open(f"{self.save_folder}/{i}-occurences.json", "w", encoding='utf-8') \
-                        as openfile:
-                    json.dump(self.occurence, openfile, indent=4)
+            if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                if self.walk == "informed":  # if walk is random, no occurences used for best path choosing
+                    with open(f"{self.save_folder}/{i}-occurences.json", "w", encoding='utf-8') \
+                            as openfile:
+                        json.dump(self.occurence, openfile, indent=4)
 
-            if self.mode in ["simple_search", "search_specific_node"]:
-                found_node = self._update_path(output=output, iteration=i, end_node=end_node)
-                with open(f"{self.save_folder}/{i}-paths.json", "w", encoding='utf-8') \
-                        as openfile:
-                    json.dump(self.path_node_to_start, openfile, indent=4)
+            if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                if self.mode in ["simple_search", "search_specific_node"]:
+                    found_node = self._update_path(output=output, iteration=i, end_node=end_node)
+                    with open(f"{self.save_folder}/{i}-paths.json", "w", encoding='utf-8') \
+                            as openfile:
+                        json.dump(self.path_node_to_start, openfile, indent=4)
 
-            self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
+            if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
-            with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
-                json.dump(self.info, openfile,
-                            indent=4)
+            # if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+            #     with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
+            #         json.dump(self.info, openfile,
+            #                     indent=4)
 
             events_found = \
                 [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
@@ -731,8 +744,9 @@ class GraphSearchFramework:
                 self.metrics_data = self.metrics.update_metrics_data(
                     metrics_data=self.metrics_data, iteration=i, found=events_found)
 
-                with open(f"{self.save_folder}/metrics.json", "w", encoding='utf-8') as openfile:
-                    json.dump(self.metrics_data, openfile, indent=4)
+                if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                    with open(f"{self.save_folder}/metrics.json", "w", encoding='utf-8') as openfile:
+                        json.dump(self.metrics_data, openfile, indent=4)
 
                 current_metrics = self.metrics_data[i]
 
@@ -752,15 +766,16 @@ class GraphSearchFramework:
                     "last_it": i
                 })
 
-                with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
-                    self.plotter(info=json.load(openfile), save_folder=self.save_folder)
+                # if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                #     with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
+                #         self.plotter(info=json.load(openfile), save_folder=self.save_folder)
 
             metadata.update({"nb_expanded": len(self.nodes_expanded)})
             metadata.update({"end": str(datetime.now())})
 
-
-            with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
-                json.dump(metadata, openfile, indent=4)
+            if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
+                    json.dump(metadata, openfile, indent=4)
 
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
@@ -775,6 +790,7 @@ class GraphSearchFramework:
             if len(self.nodes_expanded) >= self.max_uri:
                 print(f"More than {self.max_uri} nodes were expanded, ",
                       f"finishing process at {datetime.now()} due to parameter `max_uri`\n=====")
+                self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
                 break
 
             elif (self.walk == "informed" and self.to_expand):
@@ -785,8 +801,8 @@ class GraphSearchFramework:
                     columns=["iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])],
                     ignore_index=True
                 )
-
-                self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
+                if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                    self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
             elif (self.walk == "random" and candidates):
                 self.expanded = pd.concat(
@@ -796,8 +812,8 @@ class GraphSearchFramework:
                     columns=["iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])],
                     ignore_index=True
                 )
-
-                self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
+                if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
+                    self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
             else:
                 print("According to params, no further nodes to expand," \
