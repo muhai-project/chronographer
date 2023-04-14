@@ -21,6 +21,7 @@ from src.expansion import NodeExpansion
 from src.selecting_node import NodeSelection
 from src.hdt_interface import HDTInterface
 from src.triply_interface import TriplInterface
+from src.sparql_interface import SPARQLInterface
 from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
     as config_error_messages
 
@@ -101,7 +102,7 @@ class GraphSearchFramework:
             raise ValueError(f"`mode` should be one of the followings: {possible_modes}")
         self.mode = mode
 
-        self.possible_type_interface = ["triply", "hdt"]
+        self.possible_type_interface = ["triply", "hdt", "sparql_endpoint"]
         self.possible_type_ranking = [
             "pred_freq", "inverse_pred_freq", "entropy_pred_freq",
             "pred_object_freq", "inverse_pred_object_freq", "entropy_pred_object_freq"]
@@ -134,6 +135,10 @@ class GraphSearchFramework:
             filter_kb = 1
         if self.type_interface == "triply":
             self.interface = TriplInterface()
+        elif self.type_interface == "sparql_endpoint":
+            self.interface = SPARQLInterface(dataset_config=self.dataset_config, dates=self.dates,
+                                             default_pred=self.get_pred_interface(), filter_kb=filter_kb,
+                                             sparql_endpoint=config["sparql_endpoint"])
         else:  # type_interface == "hdt"
             nested = config["nested_dataset"] if "nested_dataset" in config else 1
             pred = self.get_pred_interface()
@@ -300,10 +305,17 @@ class GraphSearchFramework:
         if config["dataset_type"] not in ["wikidata", "dbpedia", "yago"]:
             raise TypeError(self.config_error_messages['dataset_type'])
 
-        if "dataset_path" not in config:
-            raise ValueError(self.config_error_messages['dataset_path'])
-        if not isinstance(config["dataset_path"], str):
-            raise TypeError(self.config_error_messages['dataset_path'])
+        if config["type_interface"] == "hdt":
+            if "dataset_path" not in config:
+                raise ValueError(self.config_error_messages['dataset_path'])
+            if not isinstance(config["dataset_path"], str):
+                raise TypeError(self.config_error_messages['dataset_path'])
+        
+        if config["type_interface"] == "sparql_endpoint":
+            if "sparql_endpoint" not in config:
+                raise ValueError(self.config_error_messages['sparql_endpoint'])
+            if not isinstance(config["sparql_endpoint"], str):
+                raise TypeError(self.config_error_messages['sparql_endpoint'])
 
         # OPTIONAL FOR ALL
         # `predicate_filter`

@@ -3,9 +3,10 @@
 """
 import os
 import yaml
+from urllib.parse import quote_plus
 import urllib.request
 import pandas as pd
-from SPARQLWrapper import SPARQLWrapper, RDFXML
+from SPARQLWrapper import SPARQLWrapper, RDFXML, POST
 from settings import AGENT, FOLDER_PATH
 from src.interface import Interface
 
@@ -48,11 +49,10 @@ class SPARQLQuery:
             if name in params and params[name]:
                 query = query.replace(
                     f"<VALUES-unique-{name}>",
-                    "VALUES ?" + abbr + " { <" + params[name] + "> } "
+                    "VALUES ?" + abbr + " { <" + quote_plus(params[name], safe='/:') + "> } "
                 )
             else:
                 query = query.replace(f"<VALUES-unique-{name}>", "")
-
         return query
 
 
@@ -69,7 +69,7 @@ class SPARQLInterface(Interface):
         self.sparql = SPARQLWrapper(sparql_endpoint, agent=agent)
         self.sparql_query = SPARQLQuery()
     
-    def get_triples(self, params: dict[str, str]):
+    def get_triples(self, **params: dict[str, str]):
         query = self.sparql_query(params=params)
         triples = self.call_endpoint(query=query)
         return triples
@@ -78,11 +78,15 @@ class SPARQLInterface(Interface):
         proxy_support = urllib.request.ProxyHandler({})
         opener = urllib.request.build_opener(proxy_support)
         urllib.request.install_opener(opener)
-        self.sparql.setQuery(query)
         self.sparql.setReturnFormat(RDFXML)
-        results = self.sparql.query().convert()
-        return [(str(triple[0]), str(triple[1]), str(triple[2])) \
-            for triple in list(set(results))]
+        self.sparql.setQuery(query)
+        # self.sparql.setMethod(POST)
+        try:
+            results = self.sparql.query().convert()
+            return [(str(triple[0]), str(triple[1]), str(triple[2])) \
+                for triple in list(set(results))]
+        except:
+            return []
 
 
 if __name__ == '__main__':
@@ -94,8 +98,10 @@ if __name__ == '__main__':
     # "https://api.triplydb.com/datasets/DBpedia-association/dbpedia/services/dbpedia/sparql"
 
     interface = SPARQLInterface()
-    triples = interface.run_request(params={"subject": NODE}, filter_pred=[], filter_keep=False)
-    print(triples)
-    # df = interface(node=NODE, predicate=PREDICATE)
-    # df.to_csv("sparql.csv")
-    # print(df)
+    ingoing, outgoing, types = interface(node=NODE, predicate=PREDICATE)
+
+    from datetime import datetime
+    log = str(datetime.now())[:19].replace(" ", "-")
+    ingoing.to_csv(f"{log}_ingoing_sparql.csv")
+    outgoing.to_csv(f"{log}_outgoing_sparql.csv")
+    types.to_csv(f"{log}_types_sparql.csv")
