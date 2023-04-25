@@ -38,3 +38,6 @@ domain-range-pred/
 
 ingoing.csv
 outgoing.csv
+data/*
+experiments_iswc/*
+experiments-22-iswc-nautilod/*
