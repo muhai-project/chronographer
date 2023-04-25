@@ -9,6 +9,10 @@ def on_click_refresh_filters():
     st.session_state.param_2 = False
     st.session_state["experiments_run"] = False
 
+def on_click_set_true(key):
+    """ Setting a param in session_statet to True """
+    st.session_state[key] = True
+
 
 def on_click_refresh_common_params():
     """ Refreshing common parameters for search """
