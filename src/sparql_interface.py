@@ -2,11 +2,11 @@
 #TO DO: add documentation on this script
 """
 import os
-import yaml
-from urllib.parse import quote_plus
 import urllib.request
+from urllib.parse import quote_plus
+import yaml
 import pandas as pd
-from SPARQLWrapper import SPARQLWrapper, RDFXML, POST
+from SPARQLWrapper import SPARQLWrapper, RDFXML
 from settings import AGENT, FOLDER_PATH
 from src.interface import Interface
 
@@ -17,7 +17,7 @@ DEFAULT_PRED = \
      "http://dbpedia.org/ontology/endDate",
      "http://dbpedia.org/property/birthDate",
      "http://dbpedia.org/property/deathDate"]
-    
+
 with open(os.path.join(FOLDER_PATH, "dataset-config", "dbpedia.yaml"),
           encoding='utf-8') as file:
     dbpedia_dataset_config = yaml.load(file, Loader=yaml.FullLoader)
@@ -28,7 +28,7 @@ class SPARQLQuery:
     """
     def __init__(self):
         self.query_template = self._set_query_template()
-    
+
     def _set_query_template(self) -> str:
         query = """
         CONSTRUCT {
@@ -42,7 +42,7 @@ class SPARQLQuery:
             }
         """
         return query
-    
+
     def __call__(self, params: dict[str, str]):
         query = self.query_template
         for name, abbr in [("subject", "s"), ("predicate", "p"), ("object", "o")]:
@@ -65,16 +65,16 @@ class SPARQLInterface(Interface):
                  filter_kb: bool = 1, sparql_endpoint: str = "http://dbpedia.org/sparql",
                  agent: str = AGENT):
         Interface.__init__(self, dataset_config=dataset_config, dates=dates,
-                           default_pred=default_pred, filter_kb=filter_kb)           
+                           default_pred=default_pred, filter_kb=filter_kb)
         self.sparql = SPARQLWrapper(sparql_endpoint, agent=agent)
         self.sparql_query = SPARQLQuery()
-    
+
     def get_triples(self, **params: dict[str, str]):
         query = self.sparql_query(params=params)
-        triples = self.call_endpoint(query=query)
-        return triples
+        return self.call_endpoint(query=query)
 
     def call_endpoint(self, query: str) -> pd.core.frame.DataFrame:
+        """ Querying KG through SPARQL endpoint """
         proxy_support = urllib.request.ProxyHandler({})
         opener = urllib.request.build_opener(proxy_support)
         urllib.request.install_opener(opener)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     ingoing, outgoing, types = interface(node=NODE, predicate=PREDICATE)
 
     from datetime import datetime
-    log = str(datetime.now())[:19].replace(" ", "-")
-    ingoing.to_csv(f"{log}_ingoing_sparql.csv")
-    outgoing.to_csv(f"{log}_outgoing_sparql.csv")
-    types.to_csv(f"{log}_types_sparql.csv")
+    LOG = str(datetime.now())[:19].replace(" ", "-")
+    ingoing.to_csv(f"{LOG}_ingoing_sparql.csv")
+    outgoing.to_csv(f"{LOG}_outgoing_sparql.csv")
+    types.to_csv(f"{LOG}_types_sparql.csv")
