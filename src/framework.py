@@ -4,6 +4,7 @@ Main class for the informed graph traversal
 """
 import os
 import json
+from tqdm import tqdm
 import random
 import multiprocessing as mp
 from datetime import datetime
@@ -220,7 +221,9 @@ class GraphSearchFramework:
                                            args_filtering=self.get_config_filtering(
                                             config=config, dataset_config=self.dataset_config))
 
-        self.path_node_to_start = {}
+        self.path_node_to_start = defaultdict(list)
+        self.path_found = False
+        self.it_found = None
 
         self.folder_name_suffix = \
             self.get_exp_name(config=config)
@@ -674,30 +677,48 @@ class GraphSearchFramework:
         self.mode == 'simple_search' -> checking all paths
         self.mode == "search_specific_node" -> additionally check if node was found """
         found_node = False
-        for _, path_ingoing, _, path_outgoing, _ in output:
+        for i in tqdm(range(len(output))):
+            _, path_ingoing, _, path_outgoing, _ = output[i]
             for _, row in path_ingoing.iterrows():
-                previous_path = self.path_node_to_start[row.object] if iteration > 1 else []
-                self.path_node_to_start[row.subject] = \
-                    [(row.subject, row.predicate, row.object)] + previous_path
+                # if iteration > 1:
+                #     for previous_path in self.path_node_to_start[row.object]:
+                #         self.path_node_to_start[row.subject].append(
+                #         [(row.subject, row.predicate, row.object)] + previous_path)
+                # else:
+                #     self.path_node_to_start[row.subject].append(
+                #         [(row.subject, row.predicate, row.object)])
+                # self.path_node_to_start[row.subject].append(
+                #         [(row.subject, row.predicate, row.object)])
+                
                 if row.subject == end_node:
                     found_node = True
 
             for _, row in path_outgoing.iterrows():
-                previous_path = self.path_node_to_start[row.subject] if iteration > 1 else []
-                self.path_node_to_start[row.object] = \
-                    [(row.subject, row.predicate, row.object)] + previous_path
+                # if iteration > 1:
+                #     for previous_path in self.path_node_to_start[row.subject]:
+                #         self.path_node_to_start[row.object].append(
+                #         [(row.subject, row.predicate, row.object)] + previous_path)
+                # else:
+                #     self.path_node_to_start[row.object].append(
+                #         [(row.subject, row.predicate, row.object)])
+                # self.path_node_to_start[row.object].append(
+                #         [(row.subject, row.predicate, row.object)])
+
                 if row.object == end_node:
                     found_node = True
         return found_node
 
     def __call__(self, end_node: str = ""):
         """ end_node necessary only if self.mode == 'search_specific_node' """
+        start = datetime.now()
+        metadata = {"start": str(start), "node_start": self.start}
 
         if self.mode == "search_specific_node" and end_node == "":
             raise ValueError(f"For mode {self.mode}, `end_node` should not be empty")
+        if self.mode == "search_specific_node":
+            metadata.update({"path_found": False,
+                             "node_searched": end_node})
 
-        start = datetime.now()
-        metadata = {"start": str(start)}
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
@@ -788,11 +809,16 @@ class GraphSearchFramework:
             if (not self.save_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
                 with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
                     json.dump(metadata, openfile, indent=4)
-
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
             if found_node:
                 print(f"Node {end_node} was found, stopping search. Path can be found in {i}-paths.json")
+                self.path_found = True
+                self.it_found = i
+                metadata.update({"path_found": True, "path_found_iteration": i,
+                                 "path": self.path_node_to_start[end_node]})
+                with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
+                    json.dump(metadata, openfile, indent=4)
                 break
 
             candidates = set(list(self.pending_nodes_ingoing.subject.unique()) + \
