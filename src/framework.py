@@ -449,8 +449,11 @@ class GraphSearchFramework:
                 list(self.pending_nodes_outgoing.object.unique()))
             candidates = {node for node in candidates if node not in self.nodes_expanded}
             if isinstance(self.uri_limit, int):  # sampling a subset of nodes
-                random.seed(23)
-                nodes = random.sample(list(candidates), k=self.uri_limit)
+                if len(list(candidates)) < self.uri_limit:
+                    nodes = list(candidates)
+                else:
+                    random.seed(23)
+                    nodes = random.sample(list(candidates), k=self.uri_limit)
             else:  # take all nodes, BFS setting
                 nodes = list(candidates)
             path = self._extract_paths_from_candidates(nodes)
