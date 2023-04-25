@@ -135,7 +135,8 @@ with st.container():
             run_search = st.button(GRAPH_SEARCH['btn_run_search'])
             if run_search:
                 with st.spinner("Running the search"):
-                    for config, folder, nb in [(config_1, folder_1, "1"), (config_2, folder_2, "2")]:
+                    for config, folder, nb in \
+                        [(config_1, folder_1, "1"), (config_2, folder_2, "2")]:
                         start_time = datetime.now()
                         if (not os.path.exists(folder)) or \
                             (f"subgraph-{st.session_state['iterations']}.html" \

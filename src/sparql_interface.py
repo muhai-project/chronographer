@@ -48,7 +48,8 @@ class SPARQLInterface:
         final_query = final_query.replace("[2]", filter_type)
         return final_query
 
-    def __call__(self, node: str = '', predicate: list[str] = [], query: str = '') -> pd.core.frame.DataFrame:
+    def __call__(self, node: str = '', predicate: list[str] = [],
+                 query: str = '') -> pd.core.frame.DataFrame:
         if not query:
             query = self._format_template(node=node, predicate=predicate)
         proxy_support = urllib.request.ProxyHandler({})
