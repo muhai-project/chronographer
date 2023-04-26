@@ -36,7 +36,7 @@ def check_variables_for_search():
                      (st.session_state.end_date, 'end_date')]:
         try:
             datetime.strptime(var, "%Y-%m-%d")
-        except Exception:
+        except ValueError:
             st.error(logs[key])
             check_ok = False
 
