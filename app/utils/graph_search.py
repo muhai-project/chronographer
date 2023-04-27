@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Helpers related to graph search framework """
 import os
+import json
 import pickle
 from datetime import datetime
 import streamlit as st
@@ -80,10 +81,11 @@ def get_specific_config(id_set):
             "what": helper("what", st.session_state[f"filters_{id_set}"]),
             "where": helper("where", st.session_state[f"filters_{id_set}"]),
             "when": helper("when", st.session_state[f"filters_{id_set}"]),
-            "who": helper("whwhot", st.session_state[f"filters_{id_set}"]),
+            "who": helper("who", st.session_state[f"filters_{id_set}"]),
         },
         "uri_limit": st.session_state[f"nb_random_{id_set}"] if \
-            st.session_state[f"nb_random_{id_set}"] else 'all'
+            st.session_state[f"nb_random_{id_set}"] and \
+                st.session_state[f"expand_all_vs_subset_{id_set}"] == "subset-random" else 'all'
     }
 
 
@@ -98,18 +100,19 @@ def get_graph_search_info(id_set, base_config):
 
     def helper(k, val):
         return k if val else ""
-    
-    # to add: walk, max_uri_val, uri_limit
+
     max_uri = spec_config["max_uri"] if "max_uri" in spec_config \
         else float('inf')
-    
+
     folder_name = \
         "./data/" + dataset.lower() + "_" + event_id + "_" + \
-            st.session_state[f"walk_{id_set}"] + "_max_uri_" + \
+            st.session_state[f"walk_{id_set}"] + "_iterations_" + \
+                str(st.session_state["iterations"]) + "_max_uri_" + \
                 str(max_uri) + "_uri_limit_" + \
                     str(spec_config["uri_limit"]) + "_" + \
                         spec_config['type_ranking'].replace('_freq', '') + \
-                            "_" + helper('domain_range', spec_config['ordering']['domain_range']) + \
+                            "_" + helper(
+                                'domain_range', spec_config['ordering']['domain_range']) + \
                                 "_" + helper('what', spec_config['filtering']['what']) + \
                                     "_" + helper('when', spec_config['filtering']['when']) + \
                                         "_" + helper('where', spec_config['filtering']['where']) + \
@@ -122,7 +125,7 @@ def run_search_save_info(config, save_folder, walk):
     config["rdf_type"] = list(config["rdf_type"].items())
     framework = GraphSearchFramework(
         config=config, walk=walk,
-        save_only_last=False)
+        keep_only_last=False)
     framework()
     to_pickle = {
         "config": framework.config,
@@ -134,11 +137,14 @@ def run_search_save_info(config, save_folder, walk):
     with open(f"{save_folder}/framework.pkl", "wb") as openfile:
         pickle.dump(to_pickle, openfile)
 
+    with open(f"{save_folder}/config.json", "w+") as openfile:
+        json.dump(framework.config, openfile)
+
     curr_subgraph = framework.subgraph
     curr_nodes_expanded = framework.nodes_expanded_per_iter
     curr_path_expanded = framework.expanded
 
-    for iteration in range(framework.iterations):
+    for iteration in range(framework.last_iteration):
         build_complete_network(
             subgraph=curr_subgraph[curr_subgraph.iteration <= iteration+1],
             nodes_expanded=curr_nodes_expanded[curr_nodes_expanded.iteration <= iteration+1],

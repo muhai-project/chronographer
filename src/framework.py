@@ -229,6 +229,8 @@ class GraphSearchFramework:
         # max_uri
         self.max_uri = config["max_uri"] if "max_uri" in config else float("inf")
 
+        self.last_iteration = None
+
     def get_pred_interface(self):
         """ Specific predicates for retrieving info with interface """
         res = []
@@ -467,7 +469,12 @@ class GraphSearchFramework:
                     random.seed(23)
                     nodes = random.sample(list(candidates), k=self.uri_limit)
             else:  # take all nodes, BFS setting
-                nodes = list(candidates)
+                # Sampling nodes if too many compared to max uri
+                if len(candidates) > self.max_uri - len(self.nodes_expanded):
+                    random.seed(23)
+                    nodes = random.sample(candidates, k=self.max_uri - len(self.nodes_expanded))
+                else:
+                    nodes = list(candidates)
             path = self._extract_paths_from_candidates(nodes)
 
 
@@ -712,6 +719,7 @@ class GraphSearchFramework:
         found_node = False  # only if looking for a specific node
 
         for i in range(1, self.iterations+1):
+            self.last_iteration = i
             print(i, self.iterations)
             print(f"Iteration {i} started at {datetime.now()}")
             output, nodes_to_expand, path = self.run_one_iteration(iteration=i)
