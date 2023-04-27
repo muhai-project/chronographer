@@ -289,10 +289,8 @@ with st.container():
         with col1_vis_graph:
             max_iter_1 = get_max_iteration_nb(id_set=1)
 
-            st.write(max_iter_1)
             iteration_1 = st.slider("Iteration value", min_value=1, max_value=max_iter_1,
                                   step=1, label_visibility='hidden', key="slider_1")
-            st.write(data_1)
             write_metrics(data=data_1["metrics"][iteration_1])
             write_params("1")
             source_code = get_source_code(html_path=f"{folder_1}/subgraph-{iteration_1}.html")
@@ -300,10 +298,8 @@ with st.container():
 
         with col2_vis_graph:
             max_iter_2 = get_max_iteration_nb(id_set=2)
-            st.write(max_iter_2)
             iteration_2 = st.slider("Iteration value", min_value=1, max_value=max_iter_2,
                                     step=1, label_visibility='hidden', key="slider_2")
-            st.write(data_2)
             write_metrics(data=data_2["metrics"][iteration_2])
             write_params("2")
             source_code = get_source_code(html_path=f"{folder_2}/subgraph-{iteration_2}.html")
