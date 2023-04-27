@@ -12,6 +12,7 @@ configs/
 iter-*/
 settings/private.py
 experiments/*
+experiments_search/*
 wandb/
 dbpedia-archive/
 eventkg/
