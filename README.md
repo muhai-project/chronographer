@@ -1,8 +1,3 @@
-[current modifications]
-
-Adding different modes for the graph search
-metrics_driven only vs. exploration and not computing metrics
-
 # **Informed Graph Traversal**
 
 This is the code for the paper submitted to ISWC 2023: "Identifying graph traversal strategies to build narrative graphs".
@@ -159,7 +154,7 @@ In the terminal command, go to the app folder.
 cd app
 ```
 
-First open the `variables.py` file in that folder. You can add information on the dataset(s) you are using. As specified in that file, you need to enter details about `dataset_path`, `data_files_path` (folder where are stored ground truth, referents and config files), `start_uri` and `nested_dataset`.
+First open the `variables.py` file in that folder. You can add information on the dataset(s) you are using (`VARIABLES_DATASET`)). As specified in that file, you need to enter details about `dataset_path`, `data_files_path` (folder where are stored ground truth, referents and config files), `start_uri` and `nested_dataset`. You can also change the default values that will be displayed (`DEFAULT_VARIABLES`).
 
 Then run the following to run the interface:
 ```bash

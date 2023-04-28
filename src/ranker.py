@@ -29,7 +29,7 @@ class Ranker:
 
 
     @staticmethod
-    def filter_dict(dico):
+    def filter_dict(dico: str) -> str:
         """ Ordering dico based on path info
         If starts by 1: highest priority, then descending order """
         for order in ["1", "2", "3"]:
@@ -37,7 +37,7 @@ class Ranker:
                 return {k: v for k, v in dico.items() if k.startswith(order)}
         return dico
 
-    def _sort_dict(self, dico, reverse, filter_items=True):
+    def _sort_dict(self, dico: str, reverse, filter_items: bool =True) -> (str, str):
         dico = self.filter_dict(dico=dico)
         sorted_filtered_items = []
         if filter_items:
@@ -56,14 +56,14 @@ class Ranker:
 
 
     @staticmethod
-    def _add_entropy_score(dico):
+    def _add_entropy_score(dico: str) -> str:
         new_dico = {}
         tot = sum(nb for _, nb in dico.items())
         for path, count in dico.items():
             new_dico[path] = - (count / tot) * log(count / tot)
         return new_dico
 
-    def __call__(self, occurences):
+    def __call__(self, occurences: dict) -> dict:
         """
         sorted values with superclass info
         1. domain/range + score

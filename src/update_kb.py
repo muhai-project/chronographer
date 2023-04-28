@@ -6,7 +6,7 @@ import os
 import subprocess
 from SPARQLWrapper import SPARQLWrapper
 
-def query_kb(sparql_endpoint, uri):
+def query_kb(sparql_endpoint: str, uri: str) -> dict:
     """ Query a KG from its SPARQL endpoint, and returns 
     the ingoing and outgoing nodes of the input node uri"""
     sparql = SPARQLWrapper(sparql_endpoint)
@@ -25,7 +25,7 @@ def query_kb(sparql_endpoint, uri):
     sparql.setQuery(query)
     return sparql.queryAndConvert()
 
-def main(sparql_endpoint, uri, folder_out, hdt_cpp):
+def main(sparql_endpoint: str, uri: str, folder_out: str, hdt_cpp: str):
     """ Query the KG and serializes it as a .ttl file,
     then converts it to HDT compressed format """
     results = query_kb(sparql_endpoint, uri)

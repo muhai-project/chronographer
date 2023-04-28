@@ -6,6 +6,8 @@ import os
 import json
 from copy import deepcopy
 import pandas as pd
+from pandas.core.frame import DataFrame
+from pandas.core.series import Series
 from tqdm import tqdm
 from settings import FOLDER_PATH
 
@@ -66,7 +68,7 @@ class Ordering:
         self.focus_pred = [focus_for_search]
         self.domain_range = domain_range
 
-    def __call__(self, triple_df: pd.core.frame.DataFrame,
+    def __call__(self, triple_df: DataFrame,
                  type_node: str, info: dict[str, int],
                  iteration: int):
         """
@@ -105,7 +107,7 @@ class Ordering:
         return self.update_info_filter(triple_df=triple_df, type_node=type_node,
                                        info=info, iteration=iteration)
 
-    def update_info_filter(self, triple_df: pd.core.frame.DataFrame,
+    def update_info_filter(self, triple_df: DataFrame,
                            type_node: str, info: dict[str, int], iteration: int):
         """
         1. Counting number of ingoing/outgoing edges,
@@ -124,7 +126,7 @@ class Ordering:
 
         triple_df.to_csv(f"{type_node}.csv")
 
-        def filter_null(row):
+        def filter_null(row: Series):
             return len(row.superclass) > 0
 
         info[iteration][f"{type_node}"] += triple_df.shape[0]
@@ -141,7 +143,8 @@ class Ordering:
         return triple_df, info
 
 
-    def add_superclass_to_df(self, triple_df, type_node):
+    def add_superclass_to_df(self, triple_df: DataFrame, type_node: str) \
+        -> DataFrame:
         """ Adding col in df to add superclass of domain/range predicates"""
 
         def helper_func(x_input, lookup):
@@ -171,13 +174,13 @@ class Ordering:
         return triple_df
 
     @staticmethod
-    def remove_literals(triple_df):
+    def remove_literals(triple_df: DataFrame) -> DataFrame:
         """ Removing outgoing nodes that are Literals """
         triple_df = triple_df.fillna("")
         return triple_df[triple_df.object.str.startswith('http://')] \
             [["subject", "predicate", "object"]]
 
-    def add_superclass_to_class(self, df_pd: pd.core.frame.DataFrame, type_node: str):
+    def add_superclass_to_class(self, df_pd: DataFrame, type_node: str):
         """
         UPDATE (2022.07.11): obsolete, not used anymore
         Instead of searching domain/range/superclasses during the search,

@@ -5,7 +5,7 @@ import os
 import urllib.request
 from urllib.parse import quote_plus
 import yaml
-import pandas as pd
+from pandas.core.frame import DataFrame
 from SPARQLWrapper import SPARQLWrapper, RDFXML
 from settings import AGENT, FOLDER_PATH
 from src.interface import Interface
@@ -43,7 +43,7 @@ class SPARQLQuery:
         """
         return query
 
-    def __call__(self, params: dict[str, str]):
+    def __call__(self, params: dict[str, str]) -> str:
         query = self.query_template
         for name, abbr in [("subject", "s"), ("predicate", "p"), ("object", "o")]:
             if name in params and params[name]:
@@ -69,11 +69,11 @@ class SPARQLInterface(Interface):
         self.sparql = SPARQLWrapper(sparql_endpoint, agent=agent)
         self.sparql_query = SPARQLQuery()
 
-    def get_triples(self, **params: dict[str, str]):
+    def get_triples(self, **params: dict[str, str]) -> list[(str, str, str)]:
         query = self.sparql_query(params=params)
         return self.call_endpoint(query=query)
 
-    def call_endpoint(self, query: str) -> pd.core.frame.DataFrame:
+    def call_endpoint(self, query: str) -> DataFrame:
         """ Querying KG through SPARQL endpoint """
         proxy_support = urllib.request.ProxyHandler({})
         opener = urllib.request.build_opener(proxy_support)

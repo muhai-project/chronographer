@@ -2,14 +2,17 @@
 """ Visualisation helpers for graph """
 import ast
 import pandas as pd
+from pandas.core.series import Series
+from pandas.core.frame import DataFrame
 from pyvis.network import Network
 
-def pre_process(node):
+def pre_process(node: str) -> str:
     """ URI > more human-readable """
     return node.split("/")[-1].replace('_', ' ')
 
 
-def get_single_color(row, col_of_interest, gs_nodes, max_iter):
+def get_single_color(row: Series, col_of_interest: str,
+                     gs_nodes: set, max_iter: int) -> str:
     """ Colors of row[col_of_interest] in the graph """
     if row.type_df == 'ingoing' and row[col_of_interest] in gs_nodes:
         return 'green'
@@ -20,7 +23,8 @@ def get_single_color(row, col_of_interest, gs_nodes, max_iter):
     return 'yellow'
 
 
-def get_node_color(subgraph, ground_truth, nodes_expanded):
+def get_node_color(subgraph: DataFrame, ground_truth: set,
+                   nodes_expanded: DataFrame) -> list[(str, str)]:
     """ Color of nodes in graph, different options:
     - green: true positive
     - orange: false positive
@@ -55,6 +59,7 @@ def get_node_color(subgraph, ground_truth, nodes_expanded):
 
     return [(nodes[i], colors[i]) for i in range(len(nodes))]
 
+
 def get_curr_nodes(nodes):
     """ Get nodes expanded in a list format"""
     if isinstance(nodes, list):
@@ -64,7 +69,7 @@ def get_curr_nodes(nodes):
     return [nodes]
 
 
-def extract_triples(path_expanded):
+def extract_triples(path_expanded: pd.core.frame.DataFrame) -> list[(str, str, str)]:
     """ Extract triples for graph vis"""
     triples = []
     for iteration in range(min(path_expanded.iteration.values),
@@ -84,7 +89,10 @@ def extract_triples(path_expanded):
     return triples
 
 
-def build_complete_network(subgraph, nodes_expanded, path_expanded, save_file, ground_truth):
+def build_complete_network(subgraph: pd.core.frame.DataFrame,
+                           nodes_expanded: pd.core.frame.DataFrame,
+                           path_expanded: pd.core.frame.DataFrame,
+                           save_file: str, ground_truth: set):
     """ Build html network after one iteration """
     nt_subgraph = Network("680px", "680px",
                            notebook=False, directed=True)

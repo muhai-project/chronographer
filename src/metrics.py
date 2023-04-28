@@ -13,7 +13,7 @@ class Metrics:
     Quantitative metrics: precision, recall, f1
     """
 
-    def __init__(self, config_metrics):
+    def __init__(self, config_metrics: dict):
         """ config_metrics should have the following keys:
         cf. doc/check_config_framework.py for indications
         - `referents`:
@@ -37,7 +37,7 @@ class Metrics:
         with open(config_metrics["referents"], "r", encoding='utf-8') as openfile:
             self.referents = json.load(openfile)
 
-    def _check_config(self, config):
+    def _check_config(self, config: dict):
         if "gold_standard" not in config:
             raise ValueError(self.config_error_messages['gold_standard'])
         try:
@@ -60,7 +60,7 @@ class Metrics:
             raise TypeError(self.config_error_messages['type_metrics'])
 
     @staticmethod
-    def get_numbers(found, gold_standard):
+    def get_numbers(found: list[str], gold_standard: list[str]) -> dict:
         """ Numbers necessary to calculate the metrics """
         found, gold_standard = set(found), set(gold_standard)
         true_pos = len(found.intersection(gold_standard))
@@ -71,21 +71,21 @@ class Metrics:
                     false_neg=false_neg)
 
     @staticmethod
-    def get_precision(**args):
+    def get_precision(**args: dict) -> float:
         """ Precision """
         if args["true_pos"] + args["false_pos"] == 0:
             return 0
         return args["true_pos"] / (args["true_pos"] + args["false_pos"])
 
     @staticmethod
-    def get_recall(**args):
+    def get_recall(**args: dict) -> float:
         """ Recall """
         if args["true_pos"] + args["false_neg"] == 0:
             return 0
         return args["true_pos"] / (args["true_pos"] + args["false_neg"])
 
     @staticmethod
-    def get_f1(**args):
+    def get_f1(**args: dict) -> float:
         """ f1 """
         if args["true_pos"] + \
             0.5 * (args["false_pos"] + args["false_neg"]) == 0:
@@ -93,12 +93,13 @@ class Metrics:
         return args["true_pos"] / (args["true_pos"] + \
             0.5 * (args["false_pos"] + args["false_neg"]))
 
-    def update_metrics_data(self, metrics_data, iteration, found):
+    def update_metrics_data(self, metrics_data: dict, iteration: int,
+                            found: list[str]) -> dict:
         """ Compute metrics for one iteration """
         metrics_data[iteration] = self.get_metrics(found=found)
         return metrics_data
 
-    def get_metrics(self, found: list):
+    def get_metrics(self, found: list) -> dict:
         """ Calculate all metrics from found nodes (compared to ground truth) """
         def f_change(url):
             return self.referents[url] if url in self.referents else url
@@ -114,7 +115,7 @@ class Metrics:
         return _metrics
 
     def __call__(self, found: list, gold_standard: list,
-                 type_metrics: list):
+                 type_metrics: list) -> dict:
         def f_change(url):
             return self.referents[url] if url in self.referents else url
         found = [f_change(url) for url in found]

@@ -8,6 +8,7 @@ import os
 import yaml
 from tqdm import tqdm
 import pandas as pd
+from pandas.core.frame import DataFrame
 from settings import FOLDER_PATH
 
 DEFAULT_PRED = \
@@ -36,19 +37,19 @@ class Interface:
         self.dataset_config = dataset_config
         self.dataset_type = dataset_config["config_type"]
 
-    def get_triples(self, **params):
+    def get_triples(self, **params: dict) -> list:
         """ Will be inherited by subclassses """
         return []
 
     def run_request(self, params: dict[str, str], filter_pred: list,
-                    filter_keep: bool):
+                    filter_keep: bool) -> list[(str, str, str)]:
         """ Returning triples corresponding to query """
         triples = self.get_triples(**params)
         if filter_keep:
             return [(a, b, c) for (a, b, c) in triples if b in filter_pred]
         return [(a, b, c) for (a, b, c) in triples if b not in filter_pred]
 
-    def get_superclass(self, node):
+    def get_superclass(self, node: str) -> str:
         """ Superclass of a node
         Most ancient ancestor before owl:Thing """
         info = self.run_request(
@@ -62,14 +63,15 @@ class Interface:
             return node
         return self.get_superclass(str(info[0][2]))
 
-    def _get_all_results(self, node: str, predicate: list[str]):
+    def _get_all_results(self, node: str, predicate: list[str]) \
+        -> (DataFrame, DataFrame, DataFrame):
         """ ingoing, outgoing, specific outgoing """
         ingoing = self._get_ingoing(node, predicate)
         outgoing = self._get_outgoing(node, predicate)
         return ingoing, outgoing, self._filter_specific(
             self._get_specific_outgoing(ingoing=ingoing, outgoing=outgoing))
 
-    def _filter_namespace(self, triples):
+    def _filter_namespace(self, triples: list[(str, str, str)]):
         """ Filters nodes that start with a regexed value """
 
         def filter_f(x_val):
@@ -82,7 +84,7 @@ class Interface:
         return triples
 
     @staticmethod
-    def pre_process_date(x_date):
+    def pre_process_date(x_date: str) -> str:
         """ Pre processing date (to be format comparable later) """
         xml_dates = [
             "<http://www.w3.org/2001/XMLSchema#date>",
@@ -95,7 +97,8 @@ class Interface:
         else:
             return x_date
 
-    def _filter_node(self, triples, filter_out):
+    def _filter_node(self, triples: list[(str, str, str)], filter_out: list[str]) \
+        -> list[(str, str, str)]:
         """ Filtering nodes based on starting patterns/regexs"""
         triples = self._filter_namespace(triples)
         triples = [elt for elt in triples if \
@@ -106,25 +109,30 @@ class Interface:
             not any(elt[2].endswith(pattern) for pattern in [".svg"])]
         return triples
 
-    def _filter_specific(self, triples):
+    def _filter_specific(self, triples: list[(str, str, str)]) \
+        -> list[(str, str, str)]:
         """ Filtering objects of triples based on value """
         invalid = ['"Unknown"@']
         triples = [(sub, pred, obj) for (sub, pred, obj) in triples if obj not in invalid]
         return [(sub, pred, self.pre_process_date(obj)) for (sub, pred, obj) in triples]
 
-    def _get_outgoing(self, node: str, predicate: list[str]):
+    def _get_outgoing(self, node: str, predicate: list[str]) \
+        -> list[(str, str, str)]:
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
         return self._helper_ingoing_outgoing(params=dict(subject=str(node)),
                                              predicate=predicate, filter_keep=False)
 
-    def _get_ingoing(self, node: str, predicate: list[str]):
+    def _get_ingoing(self, node: str, predicate: list[str]) \
+        -> list[(str, str, str)]:
         """ Return all triples (s, p, o) s.t.
         p not in predicate and o = node """
         return self._helper_ingoing_outgoing(params=dict(object=str(node)),
                                              predicate=predicate, filter_keep=False)
 
-    def _helper_ingoing_outgoing(self, params, predicate, filter_keep):
+    def _helper_ingoing_outgoing(self, params: dict, predicate: list[str],
+                                 filter_keep: bool) \
+                                    -> list[(str, str, str)]:
         """ Filtering 1-hop neighbours depending on dataset """
         triples = self.run_request(params=params,
                                    filter_pred=predicate, filter_keep=filter_keep)
@@ -135,7 +143,8 @@ class Interface:
                                      filter_out=self.dataset_config["start_stop_uri"])
         return triples
 
-    def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
+    def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]) \
+        -> list[(str, str, str)]:
         """ Returning specific outgoing nodes, e.g. rdf:type and dates """
         temp_res = []
 
@@ -154,14 +163,15 @@ class Interface:
         return temp_res
 
     @staticmethod
-    def _get_df(list_triples: list[tuple], type_df: str) -> pd.core.frame.DataFrame:
+    def _get_df(list_triples: list[tuple], type_df: str) -> DataFrame:
         """ Transform into df """
         return pd.DataFrame({"subject": [str(row[0]) for row in list_triples],
                              "predicate": [str(row[1]) for row in list_triples],
                              "object": [str(row[2]) for row in list_triples],
                              "type_df": [type_df] * len(list_triples)}).drop_duplicates()
 
-    def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
+    def __call__(self, node: str, predicate: list[str]) \
+        -> (DataFrame, DataFrame, DataFrame):
         ingoing, outgoing, types = self._get_all_results(node=node, predicate=predicate)
 
         return self._get_df(ingoing, type_df="ingoing"), \

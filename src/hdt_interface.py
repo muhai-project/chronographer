@@ -4,10 +4,8 @@ Interface to query a KG - format compressed HDT
 """
 import os
 import fnmatch
-from tqdm import tqdm
 import yaml
 
-import pandas as pd
 from hdt import HDTDocument
 
 from src.interface import Interface
@@ -59,7 +57,7 @@ class HDTInterface(Interface):
                         if fnmatch.fnmatch(file, "*.hdt")]
             self.docs = [HDTDocument(file) for file in files]
 
-    def get_triples(self, **params):
+    def get_triples(self, **params: dict) -> list[(str, str, str)]:
         """ Querying HDT dataset """
         subject_t = params["subject"] if "subject" in params else ""
         predicate_t = params["predicate"] if "predicate" in params else ""

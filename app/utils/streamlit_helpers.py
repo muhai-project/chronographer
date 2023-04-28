@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Helpers related to streamlit frontend """
 import os
+import pandas as pd
 import streamlit as st
 from .variables import DEFAULT_VARIABLES
 from .content import RES_ITERATION
@@ -37,13 +38,13 @@ def on_click_refresh_common_params():
         st.session_state[key] = DEFAULT_VARIABLES[key]
 
 
-def init_var(var_list):
+def init_var(var_list: list[(str, object)]):
     """ Initialising list of key, val in session state if not there """
     for key_, val_ in [(key, val) for key, val in var_list if key not in st.session_state]:
         st.session_state[key_] = val_
 
 
-def write_params(id_set):
+def write_params(id_set: str):
     """ Displaying params of set of filters {id_set} """
 
     filters = st.session_state[f"filters_{id_set}"]
@@ -64,7 +65,7 @@ def write_params(id_set):
         """)
 
 
-def write_path_expanded(path):
+def write_path_expanded(path: str):
     """ Detailing meaning of path expanded """
     if 'ingoing' in path:
         [predicate_t, object_t] = path.split("ingoing-")[1].split(';')
@@ -80,26 +81,26 @@ def write_path_expanded(path):
         **predicate:** {predicate_t}""")
 
 
-def write_nodes_expanded(nodes):
+def write_nodes_expanded(nodes: list[str]):
     """ Listing all nodes in MD format """
     for node in nodes:
         st.markdown(f"* {node}")
 
 
-def write_metrics(data):
+def write_metrics(data: dict):
     """ Writing rounded metrics """
     metrics = {key: round(val, 2) for key, val in data.items()}
     st.write(metrics)
 
 
-def get_max_iteration_nb(id_set):
+def get_max_iteration_nb(id_set: int) -> int:
     """ For one search, get the last iteration number """
     files = [x for x in os.listdir(st.session_state[f"folder_{id_set}"]) \
         if x.endswith(".html")]
     return max(int(x.replace(".html", "").split("-")[-1]) for x in files)
 
 
-def write_path_node_info(iteration, data, id_set):
+def write_path_node_info(iteration: int, data: pd.core.frame.DataFrame, id_set: str):
     """ Additional info on paths and nodes at each iteration """
     if st.session_state[f"walk_{id_set}"] == "informed":
         # Displaying paths expanded at each iteration and nodes

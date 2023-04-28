@@ -12,7 +12,7 @@ from .graph_vis import build_complete_network
 from .streamlit_helpers import init_var
 
 
-def check_variables_for_search():
+def check_variables_for_search() -> bool:
     """ Checking that variables are suited for search """
     dataset = st.session_state.dataset
     var_dataset = st.session_state.variables_dataset[dataset]
@@ -44,10 +44,11 @@ def check_variables_for_search():
     return check_ok
 
 
-def get_common_base_config():
+def get_common_base_config() -> dict:
     """ Update config for search with common params for two sets of filters """
     var_dataset = st.session_state.variables_dataset[st.session_state.dataset]
     event_id = st.session_state.start_node.replace(var_dataset["start_uri"], "")
+    # Common params for all systems
     config = {
         "start": st.session_state.start_node,
         "start_date": st.session_state.start_date,
@@ -60,13 +61,14 @@ def get_common_base_config():
         "dataset_path": var_dataset["dataset_path"],
         "nested_dataset": var_dataset["nested_dataset"],
     }
+    # Only for systems whose node expansion is random
     if isinstance(st.session_state.max_uri_val, int):
         config.update({"max_uri": st.session_state.max_uri_val})
     return config
 
 
-def get_specific_config(id_set):
-    """ Retrieving narrative filter config for set of params {id_set} (1 or 2)"""
+def get_specific_config(id_set: str) -> dict:
+    """ Retrieving narrative filter config for set of params {id_set} ('1' or '2')"""
     uri_limit = st.session_state[f"nb_random_{id_set}"] if \
             st.session_state[f"nb_random_{id_set}"] else 'all'
     init_var([('uri_limit', uri_limit)])
@@ -89,7 +91,7 @@ def get_specific_config(id_set):
     }
 
 
-def get_graph_search_info(id_set, base_config):
+def get_graph_search_info(id_set: str, base_config: dict) -> (dict, str):
     """ Returns config for search and folder to save data """
     spec_config = get_specific_config(id_set)
     spec_config.update(base_config)
@@ -120,7 +122,7 @@ def get_graph_search_info(id_set, base_config):
     return spec_config, folder_name
 
 
-def run_search_save_info(config, save_folder, walk):
+def run_search_save_info(config: dict, save_folder: str, walk: str):
     """ Running search and saving info (graph+stats) to later display results """
     config["rdf_type"] = list(config["rdf_type"].items())
     framework = GraphSearchFramework(
@@ -137,13 +139,14 @@ def run_search_save_info(config, save_folder, walk):
     with open(f"{save_folder}/framework.pkl", "wb") as openfile:
         pickle.dump(to_pickle, openfile)
 
-    with open(f"{save_folder}/config.json", "w+") as openfile:
+    with open(f"{save_folder}/config.json", "w+", encoding='utf-8') as openfile:
         json.dump(framework.config, openfile)
 
     curr_subgraph = framework.subgraph
     curr_nodes_expanded = framework.nodes_expanded_per_iter
     curr_path_expanded = framework.expanded
 
+    # Building html files for visualisation
     for iteration in range(framework.last_iteration):
         build_complete_network(
             subgraph=curr_subgraph[curr_subgraph.iteration <= iteration+1],

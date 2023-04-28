@@ -16,30 +16,26 @@ from utils.read_data import read_pickled_data_graph_search, get_source_code
 
 from utils.variables import VARIABLES_DATASET, DEFAULT_VARIABLES
 from utils.content import LOGS_VARIABLES_SEARCH, BASE_CONFIG, EVENT_INPUT, \
-    SYSTEM_INPUT, GRAPH_SEARCH, RES_COMPARISON, RES_ITERATION
+    SYSTEM_INPUT, GRAPH_SEARCH, RES_COMPARISON, RES_ITERATION, MAIN_LAYOUT
 
 
 # Setting layout + init session state varialbes
 st.set_page_config(layout="wide")
-init_var(var_list=[("variables_dataset", VARIABLES_DATASET),
-                   ("logs_variables_search", LOGS_VARIABLES_SEARCH),
-                   ("base_config", BASE_CONFIG),
-                   ("max_uri_val", "all")])
-init_var(var_list=[(var, False) for var in \
-    ["experiments_run", "common_params", 'submit_all_vs_subset_1',
-     'submit_all_vs_subset_2', 'param_1', 'param_2', 'stop_param_val',
-     'submit_max_uri']])
-init_var(var_list=[(f"{var}_{id_var}", 0) for var in  \
-    ["nb_random", "domain_range"] \
-        for id_var in ["1", "2"]])
-init_var(var_list=[(f"{var}_{id_var}", "") for var in  \
-    ["ranking"] \
-        for id_var in ["1", "2"]])
-init_var(var_list=[('walk_1', 'random'), ('walk_2', 'random')])
+VAR_LIST = [
+    ("variables_dataset", VARIABLES_DATASET), ("logs_variables_search", LOGS_VARIABLES_SEARCH),
+    ("base_config", BASE_CONFIG), ("max_uri_val", "all"), ('walk_1', 'random'),
+    ('walk_2', 'random')] + \
+        [(var, False) for var in ["experiments_run", "common_params", 'submit_all_vs_subset_1',
+                                    'submit_all_vs_subset_2', 'param_1', 'param_2',
+                                    'stop_param_val', 'submit_max_uri']] + \
+            [(f"{var}_{id_var}", 0) for var in ["nb_random", "domain_range"] \
+                for id_var in ["1", "2"]]
 
-st.title("Comparing systems for the narrative graph traversal")
+init_var(var_list=VAR_LIST)
 
-# Container for event selection
+st.title(MAIN_LAYOUT["title"])
+
+# Container for event selection (common params)
 with st.container():
     st.markdown(EVENT_INPUT['headline'])
 
@@ -97,7 +93,7 @@ with st.container():
     else:
         st.empty()
 
-# Container for system selection
+# Container for systems selection (two different set of params)
 with st.container():
     st.markdown(SYSTEM_INPUT['headline'])
 
@@ -208,7 +204,7 @@ with st.container():
         st.warning(SYSTEM_INPUT['no_submit_warning'])
 
 
-# Container for graph search side
+# Container for graph search side (init search + run)
 with st.container():
     st.write('#')
     st.markdown(GRAPH_SEARCH['headline'])
