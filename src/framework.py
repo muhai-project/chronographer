@@ -8,19 +8,22 @@ import random
 import multiprocessing as mp
 from datetime import datetime
 from collections import defaultdict
+from tqdm import tqdm
+
 import yaml
 from ray.util.multiprocessing import Pool
 
 import pandas as pd
+from pandas.core.frame import DataFrame
 from settings import FOLDER_PATH
 from src.ranker import Ranker
 from src.metrics import Metrics
-from src.plotter import Plotter
 from src.ordering import Ordering
 from src.expansion import NodeExpansion
 from src.selecting_node import NodeSelection
 from src.hdt_interface import HDTInterface
 from src.triply_interface import TriplInterface
+from src.sparql_interface import SPARQLInterface
 from doc.check_config_framework import CONFIG_TYPE_ERROR_MESSAGES \
     as config_error_messages
 
@@ -47,7 +50,8 @@ class GraphSearchFramework:
         - `walk`: type of walk when exploring the graph
             * `informed`: regular one, with ranker for paths
             * `random`: no ranker or best path, select nodes randomly for next iteration
-        - `keep_only_last`: boolean, keep only files from the latest iteration (useful because very disk space consuming)
+        - `keep_only_last`: boolean, keep only files from the latest iteration 
+        (useful because very disk space consuming)
 
         Additional `max_uri`
         When the number of nodes visited gets higher than `max_uri`, the search stops
@@ -101,7 +105,7 @@ class GraphSearchFramework:
             raise ValueError(f"`mode` should be one of the followings: {possible_modes}")
         self.mode = mode
 
-        self.possible_type_interface = ["triply", "hdt"]
+        self.possible_type_interface = ["triply", "hdt", "sparql_endpoint"]
         self.possible_type_ranking = [
             "pred_freq", "inverse_pred_freq", "entropy_pred_freq",
             "pred_object_freq", "inverse_pred_object_freq", "entropy_pred_object_freq"]
@@ -134,6 +138,11 @@ class GraphSearchFramework:
             filter_kb = 1
         if self.type_interface == "triply":
             self.interface = TriplInterface()
+        elif self.type_interface == "sparql_endpoint":
+            self.interface = SPARQLInterface(dataset_config=self.dataset_config, dates=self.dates,
+                                             default_pred=self.get_pred_interface(),
+                                             filter_kb=filter_kb,
+                                             sparql_endpoint=config["sparql_endpoint"])
         else:  # type_interface == "hdt"
             nested = config["nested_dataset"] if "nested_dataset" in config else 1
             pred = self.get_pred_interface()
@@ -215,7 +224,9 @@ class GraphSearchFramework:
                                            args_filtering=self.get_config_filtering(
                                             config=config, dataset_config=self.dataset_config))
 
-        self.path_node_to_start = {}
+        self.path_node_to_start = defaultdict(list)
+        self.path_found = False
+        self.it_found = None
 
         self.folder_name_suffix = \
             self.get_exp_name(config=config)
@@ -224,7 +235,9 @@ class GraphSearchFramework:
         # max_uri
         self.max_uri = config["max_uri"] if "max_uri" in config else float("inf")
 
-    def get_pred_interface(self):
+        self.last_iteration = None
+
+    def get_pred_interface(self) -> list[(str, str)]:
         """ Specific predicates for retrieving info with interface """
         res = []
         for pred in [x for x in ["point_in_time", "start_dates", "end_dates"] \
@@ -235,7 +248,7 @@ class GraphSearchFramework:
         return res
 
     @staticmethod
-    def get_config_filtering(config: dict, dataset_config: dict):
+    def get_config_filtering(config: dict, dataset_config: dict) -> dict:
         """ Create config for Filtering module in NodeExpansion """
         filtering_when = config["filtering"]["when"] if \
             "filtering" in config and "when" in config["filtering"] else 0
@@ -300,10 +313,17 @@ class GraphSearchFramework:
         if config["dataset_type"] not in ["wikidata", "dbpedia", "yago"]:
             raise TypeError(self.config_error_messages['dataset_type'])
 
-        if "dataset_path" not in config:
-            raise ValueError(self.config_error_messages['dataset_path'])
-        if not isinstance(config["dataset_path"], str):
-            raise TypeError(self.config_error_messages['dataset_path'])
+        if config["type_interface"] == "hdt":
+            if "dataset_path" not in config:
+                raise ValueError(self.config_error_messages['dataset_path'])
+            if not isinstance(config["dataset_path"], str):
+                raise TypeError(self.config_error_messages['dataset_path'])
+
+        if config["type_interface"] == "sparql_endpoint":
+            if "sparql_endpoint" not in config:
+                raise ValueError(self.config_error_messages['sparql_endpoint'])
+            if not isinstance(config["sparql_endpoint"], str):
+                raise TypeError(self.config_error_messages['sparql_endpoint'])
 
         # OPTIONAL FOR ALL
         # `predicate_filter`
@@ -337,7 +357,7 @@ class GraphSearchFramework:
         if "name_exp" in config:
             if not isinstance(config["name_exp"], str):
                 raise TypeError(self.config_error_messages['name_exp'])
-        
+
         if "max_uri" in config:
             if not isinstance(config["max_uri"], int):
                 raise TypeError(self.config_error_messages['max_uri'])
@@ -354,7 +374,7 @@ class GraphSearchFramework:
                 any(not isinstance(k, str) \
                 or not isinstance(v, str) for k, v in config['rdf_type']):
                 raise TypeError(self.config_error_messages['rdf_type'])
-        
+
 
         # MANDATORY FOR MODE 2: search type + no metrics
 
@@ -364,8 +384,7 @@ class GraphSearchFramework:
 
         # MANDATORY ON CONDITIONS
 
-
-    def get_exp_name(self, config):
+    def get_exp_name(self, config: dict) -> str:
         """ Get experiment name, depending on parameters """
         exp = config["name_exp"] if "name_exp" in config else config["start"].split("/")[-1].lower()
         elts = [self.walk, config['dataset_type'], exp,
@@ -392,15 +411,17 @@ class GraphSearchFramework:
             elts.append(wikilink)
         cat = "with_category" if config.get("exclude_category") == 0 else "without_category"
         elts.append(cat)
-        elts += ["uri", "iter", str(config.get("uri_limit")) if config.get('uri_limit') else '',  "max", str(config.get("max_uri")) if config.get('max_uri') else 'inf']
+        elts += ["uri", "iter", str(config.get("uri_limit")) \
+            if config.get('uri_limit') else \
+                '',  "max", str(config.get("max_uri")) if config.get('max_uri') else 'inf']
 
         return "_".join(elts)
 
-    def select_nodes_to_expand(self, iteration):
+    def select_nodes_to_expand(self, iteration: int) -> list[str]:
         """ Accessible call to _select_nodes_to_expand"""
         return self._select_nodes_to_expand(iteration)
 
-    def _select_nodes_to_expand(self, iteration):
+    def _select_nodes_to_expand(self, iteration: int) -> list[str]:
         if iteration == 1:  # INIT state: only starting node
             return [self.start], [""]
         if self.walk == "informed":  # choosing nodes based on best path for next iteration
@@ -455,13 +476,18 @@ class GraphSearchFramework:
                     random.seed(23)
                     nodes = random.sample(list(candidates), k=self.uri_limit)
             else:  # take all nodes, BFS setting
-                nodes = list(candidates)
+                # Sampling nodes if too many compared to max uri
+                if len(candidates) > self.max_uri - len(self.nodes_expanded):
+                    random.seed(23)
+                    nodes = random.sample(candidates, k=self.max_uri - len(self.nodes_expanded))
+                else:
+                    nodes = list(candidates)
             path = self._extract_paths_from_candidates(nodes)
 
 
         return nodes, path
 
-    def _extract_paths_from_candidates(self, nodes):
+    def _extract_paths_from_candidates(self, nodes: list[str]) -> str:
         """ Extract paths from randomly sampled nodes """
         path = []
         for node in nodes:
@@ -487,11 +513,11 @@ class GraphSearchFramework:
 
         return path
 
-
-    def _expand_one_node(self, args: dict):
+    def _expand_one_node(self, args: dict) \
+        -> (DataFrame, DataFrame, DataFrame, DataFrame, list[str]):
         return self.node_expander(args=args, dates=self.dates)
 
-    def _update_nodes_expanded(self, iteration:int, nodes: list[str]):
+    def _update_nodes_expanded(self, iteration:int, nodes: list[str]) -> DataFrame:
 
         self.nodes_expanded_per_iter = pd.concat(
             [self.nodes_expanded_per_iter,
@@ -499,7 +525,8 @@ class GraphSearchFramework:
             ignore_index=True
         )
 
-    def run_one_iteration(self, iteration: int):
+    def run_one_iteration(self, iteration: int) \
+        -> (list[(DataFrame, DataFrame, DataFrame, DataFrame, list[str])], list[str], str):
         """ Running one iteration of the search framework """
         nodes_to_expand, path = self._select_nodes_to_expand(iteration)
         self._update_nodes_expanded(iteration=iteration, nodes=nodes_to_expand)
@@ -529,20 +556,20 @@ class GraphSearchFramework:
 
         return output, nodes_to_expand, path
 
-    def update_occurence(self, ingoing: pd.core.frame.DataFrame,
-                         outgoing: pd.core.frame.DataFrame, occurence: dict):
+    def update_occurence(self, ingoing: DataFrame,
+                         outgoing: DataFrame, occurence: dict) -> dict:
         """ Accessible call to _update_occurence """
         return self._update_occurence(ingoing, outgoing, occurence)
 
-    def _get_nb(self, superclass, pred):
+    def _get_nb(self, superclass: str, pred: str):
         if any(x in superclass for x in [y[1] for y in self.rdf_type]):
             return "1"
         if pred in []:
             return "2"
         return "3"
 
-    def _update_occurence(self, ingoing: pd.core.frame.DataFrame,
-                          outgoing: pd.core.frame.DataFrame, occurence: dict):
+    def _update_occurence(self, ingoing: DataFrame,
+                          outgoing: DataFrame, occurence: dict) -> dict:
         """
         Updating occurences for future path ranking
         In any case: adding info about the type of predicate
@@ -569,7 +596,7 @@ class GraphSearchFramework:
                 occurence[f"{nb_order}-outgoing-{str(row.subject)};{str(row.predicate)}"] += 1
         return occurence
 
-    def update_occurrence_after_expansion(self, occurence: dict, to_expand: str):
+    def update_occurrence_after_expansion(self, occurence: dict, to_expand: str) -> dict:
         """ Updating path count:
         - if node selection is all nodes corresponding to a path, then removing that path
         - else decreasing it by one """
@@ -577,8 +604,7 @@ class GraphSearchFramework:
             return defaultdict(int, {k: v if v != to_expand else v-1 for k, v in occurence.items()})
         return defaultdict(int, {k: v for k, v in occurence.items() if k != to_expand})
 
-
-    def merge_outputs(self, output: list, iteration: int, info: dict):
+    def merge_outputs(self, output: list, iteration: int, info: dict) -> dict:
         """ Gather outputs from each of the nodes expanded """
         curr_discarded = []
         for subgraph_ingoing, path_ingoing, subgraph_outgoing, path_outgoing, to_discard in output:
@@ -608,10 +634,10 @@ class GraphSearchFramework:
 
         return info
 
-    def _merge_outputs_single_run(self, subgraph_ingoing: pd.core.frame.DataFrame,
-                                  path_ingoing: pd.core.frame.DataFrame,
-                                  subgraph_outgoing: pd.core.frame.DataFrame,
-                                  path_outgoing: pd.core.frame.DataFrame,
+    def _merge_outputs_single_run(self, subgraph_ingoing: DataFrame,
+                                  path_ingoing: DataFrame,
+                                  subgraph_outgoing: DataFrame,
+                                  path_outgoing: DataFrame,
                                   info: dict, iteration: int):
         self.subgraph = pd.concat([self.subgraph, subgraph_ingoing], axis=0)
         self.subgraph = pd.concat([self.subgraph, subgraph_outgoing], axis=0)
@@ -634,8 +660,7 @@ class GraphSearchFramework:
                                                     outgoing=path_outgoing,
                                                     occurence=self.occurence)
 
-
-    def _add_save_info(self):
+    def _add_save_info(self) -> str:
         date_begin = datetime.now()
         date = '-'.join([str(date_begin)[:10], str(date_begin)[11:19]])
 
@@ -650,7 +675,7 @@ class GraphSearchFramework:
         os.makedirs(save_folder)
         return save_folder
 
-    def add_subgraph_info(self, iteration):
+    def add_subgraph_info(self, iteration: int):
         """ Tracking # of events + unique events found """
         size = self.subgraph.shape[0]
         unique = len(set([str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
@@ -660,35 +685,33 @@ class GraphSearchFramework:
         self.subgraph_info[iteration] = dict(subgraph_nb_event=size,
                                              subgraph_nb_event_unique=unique)
 
-    def _update_path(self, output, iteration, end_node):
+    def _update_path(self, output: list, end_node: str) -> bool:
         """ Updating paths between visited node and starting node
         self.mode == 'simple_search' -> checking all paths
         self.mode == "search_specific_node" -> additionally check if node was found """
         found_node = False
-        for _, path_ingoing, _, path_outgoing, _ in output:
+        for i in tqdm(range(len(output))):
+            _, path_ingoing, _, path_outgoing, _ = output[i]
             for _, row in path_ingoing.iterrows():
-                previous_path = self.path_node_to_start[row.object] if iteration > 1 else []
-                self.path_node_to_start[row.subject] = \
-                    [(row.subject, row.predicate, row.object)] + previous_path
                 if row.subject == end_node:
                     found_node = True
 
             for _, row in path_outgoing.iterrows():
-                previous_path = self.path_node_to_start[row.subject] if iteration > 1 else []
-                self.path_node_to_start[row.object] = \
-                    [(row.subject, row.predicate, row.object)] + previous_path
                 if row.object == end_node:
                     found_node = True
         return found_node
 
     def __call__(self, end_node: str = ""):
         """ end_node necessary only if self.mode == 'search_specific_node' """
+        start = datetime.now()
+        metadata = {"start": str(start), "node_start": self.start}
 
         if self.mode == "search_specific_node" and end_node == "":
             raise ValueError(f"For mode {self.mode}, `end_node` should not be empty")
+        if self.mode == "search_specific_node":
+            metadata.update({"path_found": False,
+                             "node_searched": end_node})
 
-        start = datetime.now()
-        metadata = {"start": str(start)}
         with open(f"{self.save_folder}/config.json", "w", encoding='utf-8') as openfile:
             json.dump(self.config, openfile,
                       indent=4)
@@ -700,13 +723,13 @@ class GraphSearchFramework:
         found_node = False  # only if looking for a specific node
 
         for i in range(1, self.iterations+1):
+            self.last_iteration = i
             print(i, self.iterations)
             print(f"Iteration {i} started at {datetime.now()}")
             output, nodes_to_expand, path = self.run_one_iteration(iteration=i)
             self.info = self.merge_outputs(output=output, iteration=i, info=self.info)
 
             self.add_subgraph_info(iteration=i)
-            # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
 
             if self.keep_only_last and i > 1:
                 if self.rdf_type:
@@ -722,8 +745,8 @@ class GraphSearchFramework:
             self.pending_nodes_outgoing.to_csv(
                 f"{self.save_folder}/{i}-pending_nodes_outgoing.csv")
 
-            # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
-            if self.walk == "informed":  # if walk is random, no occurences used for best path choosing
+            if self.walk == "informed":
+                # if walk is random, no occurences used for best path choosing
                 if self.keep_only_last and i > 1:
                     os.remove(f"{self.save_folder}/{i-1}-occurences.json")
 
@@ -731,9 +754,8 @@ class GraphSearchFramework:
                         as openfile:
                     json.dump(self.occurence, openfile, indent=4)
 
-            # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
             if self.mode in ["simple_search", "search_specific_node"]:
-                found_node = self._update_path(output=output, iteration=i, end_node=end_node)
+                found_node = self._update_path(output=output, end_node=end_node)
                 if self.keep_only_last and i > 1:
                     os.remove(f"{self.save_folder}/{i}-paths.json")
 
@@ -741,13 +763,7 @@ class GraphSearchFramework:
                         as openfile:
                     json.dump(self.path_node_to_start, openfile, indent=4)
 
-            # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
             self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
-
-            # if (not self.keep_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
-            #     with open(f"{self.save_folder}/info.json", "w", encoding='utf-8') as openfile:
-            #         json.dump(self.info, openfile,
-            #                     indent=4)
 
             events_found = \
                 [str(e) for e in self.subgraph[self.subgraph.type_df == "ingoing"] \
@@ -760,7 +776,6 @@ class GraphSearchFramework:
                 self.metrics_data = self.metrics.update_metrics_data(
                     metrics_data=self.metrics_data, iteration=i, found=events_found)
 
-                # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
                 with open(f"{self.save_folder}/metrics.json", "w", encoding='utf-8') as openfile:
                     json.dump(self.metrics_data, openfile, indent=4)
 
@@ -782,21 +797,22 @@ class GraphSearchFramework:
                     "last_it": i
                 })
 
-                # if (not self.keep_only_last) or (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
-                #     with open(f"{self.save_folder}/metrics.json", "r", encoding="utf-8") as openfile:
-                #         self.plotter(info=json.load(openfile), save_folder=self.save_folder)
-
             metadata.update({"nb_expanded": len(self.nodes_expanded)})
             metadata.update({"end": str(datetime.now())})
 
-            # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
             with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
                 json.dump(metadata, openfile, indent=4)
-
             print(f"Iteration {i} finished at {datetime.now()}\n=====")
 
             if found_node:
-                print(f"Node {end_node} was found, stopping search. Path can be found in {i}-paths.json")
+                print(f"Node {end_node} was found, stopping search. " + \
+                    "Path can be found in {i}-paths.json")
+                self.path_found = True
+                self.it_found = i
+                metadata.update({"path_found": True, "path_found_iteration": i,
+                                 "path": self.path_node_to_start[end_node]})
+                with open(f"{self.save_folder}/metadata.json", "w", encoding="utf-8") as openfile:
+                    json.dump(metadata, openfile, indent=4)
                 break
 
             candidates = set(list(self.pending_nodes_ingoing.subject.unique()) + \
@@ -813,11 +829,12 @@ class GraphSearchFramework:
                 self.expanded = pd.concat(
                     [self.expanded,
                      pd.DataFrame(
-                        [[i, self.to_expand, len(nodes_to_expand), nodes_to_expand, self.score_expansion]],
-                    columns=["iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])],
+                        [[i, self.to_expand, len(nodes_to_expand),
+                          nodes_to_expand, self.score_expansion]],
+                    columns=["iteration", "path_expanded", "nb_expanded",
+                             "node_expanded", "score"])],
                     ignore_index=True
                 )
-                # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
                 self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
             elif (self.walk == "random" and candidates):
@@ -825,10 +842,10 @@ class GraphSearchFramework:
                     [self.expanded,
                      pd.DataFrame(
                         [[i, path[nb], 1, node, None] for nb, node in enumerate(nodes_to_expand)],
-                    columns=["iteration", "path_expanded", "nb_expanded", "node_expanded", "score"])],
+                    columns=["iteration", "path_expanded", "nb_expanded",
+                             "node_expanded", "score"])],
                     ignore_index=True
                 )
-                # if (i == self.iterations) or ((len(self.nodes_expanded) >= self.max_uri)):
                 self.expanded.to_csv(f"{self.save_folder}/expanded.csv")
 
             else:

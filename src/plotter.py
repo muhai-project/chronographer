@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 """ Plotting simple line charts from results """
 import pandas as pd
+from pandas.core.frame import DataFrame
 import plotly.express as px
+from plotly.graph_objs._figure import Figure
 
 class Plotter:
     """ Transforming metrics output into dataset and plotting figures"""
     def __init__(self):
         self.metrics = ['precision', 'recall', 'f1']
 
-    def build_df_from_output(self, info):
+    def build_df_from_output(self, info: dict) -> DataFrame:
         """ dict -> dataframe (more suited for plotly plotting) """
         dataframe = pd.DataFrame(dict(iteration=[], value=[], type_=[]))
 
@@ -21,17 +23,17 @@ class Plotter:
         return dataframe
 
     @staticmethod
-    def build_figure(info):
+    def build_figure(info: dict) -> Figure:
         """ dataframe -> figure """
         fig = px.line(info, x="iteration", y="value", color='type_')
         return fig
 
     @staticmethod
-    def save_fig(fig, path):
+    def save_fig(fig: Figure, path: str):
         """ fig -> dynamic html """
         fig.write_html(path)
 
-    def __call__(self, info, save_folder):
+    def __call__(self, info: dict, save_folder: str):
         dataframe = self.build_df_from_output(info)
         self.save_fig(fig=self.build_figure(dataframe),
                       path=f"{save_folder}/metrics.html")

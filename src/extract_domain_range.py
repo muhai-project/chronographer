@@ -48,13 +48,13 @@ class ExtractDomainRange:
         if self.nested not in [0, 1]:
             raise ValueError("`nested` should be boolean")
 
-    def get_triples(self, params):
+    def get_triples(self, params: dict) -> list[(str, str, str)]:
         """ Querying KB """
         return self.interface.run_request(params=params, filter_pred=[],
                                           filter_keep=False)
 
     @staticmethod
-    def pre_process_yago(value):
+    def pre_process_yago(value: str) -> list[str]:
         """
         Domain and range values are templated in YAGO HDT
         Not one triple per domain/range value, but all encoded in one triple
@@ -82,7 +82,7 @@ class ExtractDomainRange:
 
         return res
 
-    def get_pred(self, type_to_extract):
+    def get_pred(self, type_to_extract: str) -> dict:
         """ Getting domain and range information depending on `type_to_extract`"""
         triples = self.get_triples(
                 params=dict(predicate=self.dataset_config[type_to_extract]))
@@ -93,7 +93,7 @@ class ExtractDomainRange:
                 key: self.pre_process_yago(value=val[0]) for key, val in pred_res.items()}
         return pred_res
 
-    def get_type_wikidata(self, type_to_extract):
+    def get_type_wikidata(self, type_to_extract: str) -> dict:
         """ Class types of predicates in Wikidata"""
         triples = self.get_triples(
             params=dict(
@@ -126,7 +126,7 @@ class ExtractDomainRange:
                 for x in statement_to_class_type[statement]]))\
             for pred, statements in pred_to_statement.items()}
 
-    def get_superclass_wikidata(self):
+    def get_superclass_wikidata(self) -> dict:
         """ Wikidata superclasses """
         triples = self.interface.run_request(
             params=dict(predicate=self.dataset_config["sub_class_of"][0]),

@@ -3,6 +3,7 @@
 """
 from tqdm import tqdm
 import pandas as pd
+from pandas.core.frame import DataFrame
 import requests
 from rdflib import Graph
 from rdflib.term import Literal
@@ -38,7 +39,7 @@ class TriplInterface:
 
         self.discard_nodes = ["http://dbpedia.org/resource/Category:"]
 
-    def _run_get_request(self, params: dict[str, str]):
+    def _run_get_request(self, params: dict[str, str]) -> bytes:
         """ Retrieving get curl request by chunks """
         content = bytes('', 'utf-8')
         with requests.get(self.url, headers=self.headers,
@@ -50,7 +51,7 @@ class TriplInterface:
         return content
 
     def run_request(self, params: dict[str, str], filter_pred: list,
-                          filter_keep: bool):
+                          filter_keep: bool) -> list[(str, str, str)]:
         """ Returning triples corresponding to query """
         # response = requests.get(self.url, headers=self.headers,
         #                         params=params, timeout=10)
@@ -69,7 +70,7 @@ class TriplInterface:
 
         return triples
 
-    def get_superclass(self, node):
+    def get_superclass(self, node: str) -> str:
         """ Superclass of a node
         Most ancient ancestor before owl:Thing """
         info = self.run_request(
@@ -83,30 +84,33 @@ class TriplInterface:
             return node
         return self.get_superclass(str(info[0][2]))
 
-    def _get_all_results(self, node: str, predicate: list[str]):
+    def _get_all_results(self, node: str, predicate: list[str]) \
+        -> (list[(str, str, str)], list[(str, str, str)], list[(str, str, str)]):
 
         ingoing = self._get_ingoing(node, predicate)
         outgoing = self._get_outgoing(node, predicate)
         return ingoing, outgoing, self._get_specific_outgoing(ingoing=ingoing,
                                                               outgoing=outgoing)
 
-    def _get_ingoing(self, node: str, predicate: list[str]):
+    def _get_ingoing(self, node: str, predicate: list[str]) -> list[(str, str, str)]:
         """ Return all triples (s, p, o) s.t.
         p not in predicate and o = node """
         return self.run_request(params=dict(object=str(node)),
                                      filter_pred=predicate, filter_keep=False)
 
-    def _filter_outgoing(self, outgoing):
+    def _filter_outgoing(self, outgoing: list[(str, str, str)]) -> list[(str, str, str)]:
         return [elt for elt in outgoing if not isinstance(elt[2], Literal)]
 
-    def _get_outgoing(self, node: str, predicate: list[str]):
+    def _get_outgoing(self, node: str, predicate: list[str]) -> list[(str, str, str)]:
         """ Return all triples (s, p, o) s.t.
         p not in predicate and s = node """
         return self._filter_outgoing(
             outgoing=self.run_request(params=dict(subject=str(node)),
                                            filter_pred=predicate, filter_keep=False))
 
-    def _get_specific_outgoing(self, ingoing: list[tuple], outgoing: list[tuple]):
+    def _get_specific_outgoing(self, ingoing: list[(str, str, str)],
+                               outgoing: list[(str, str, str)]) \
+                                -> list[(str, str, str)]:
         temp_res = []
 
         print("ingoing")
@@ -126,13 +130,13 @@ class TriplInterface:
         return temp_res
 
     @staticmethod
-    def _get_df(list_triples: list[tuple], type_df: str) -> pd.core.frame.DataFrame:
+    def _get_df(list_triples: list[(str, str, str)], type_df: str) -> DataFrame:
         return pd.DataFrame({"subject": [str(row[0]) for row in list_triples],
                              "predicate": [str(row[1]) for row in list_triples],
                              "object": [str(row[2]) for row in list_triples],
                              "type_df": [type_df] * len(list_triples)}).drop_duplicates()
 
-    def __call__(self, node: str, predicate: list[str]) -> pd.core.frame.DataFrame:
+    def __call__(self, node: str, predicate: list[str]) -> DataFrame:
         ingoing, outgoing, types = self._get_all_results(node=node, predicate=predicate)
         return self._get_df(ingoing, type_df="ingoing"), \
             self._get_df(outgoing, type_df="outgoing"), \

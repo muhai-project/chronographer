@@ -6,6 +6,7 @@ Filtering subgraph and pending nodes to be explored
 import os
 import json
 from collections import defaultdict
+from pandas.core.frame import DataFrame
 
 from settings import FOLDER_PATH
 from src.filtering import Filtering
@@ -69,19 +70,24 @@ class NodeExpansion:
                 raise ValueError("Type of two-element tuples should be" \
                         + "(str, str)")
 
-    def get_output_triples(self, node, predicate):
+    def get_output_triples(self, node: str, predicate: list[str]) \
+        -> (DataFrame, DataFrame, DataFrame):
         """ Direct call to _get_output_triples """
         return self._get_output_triples(node, predicate)
 
-    def _get_output_triples(self, node, predicate):
+    def _get_output_triples(self, node: str, predicate: list[str]) \
+        -> (DataFrame, DataFrame, DataFrame):
         """ Getting ingoing, outgoing and specific outgoing nodes """
         return self.interface(node=node, predicate=predicate)
 
-    def filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
+    def filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates) \
+        -> (DataFrame, DataFrame, DataFrame, DataFrame, list[str]):
         """ Direct call to _filter_sub_graph """
         return self._filter_sub_graph(type_date_df, triple_ingoing, triple_outgoing, dates)
 
-    def _filter_sub_graph(self, type_date_df, triple_ingoing, triple_outgoing, dates):
+    def _filter_sub_graph(self, type_date_df: DataFrame, triple_ingoing: DataFrame,
+                          triple_outgoing: DataFrame, dates: list[str, str]) \
+                            -> (DataFrame, DataFrame, DataFrame, DataFrame, list[str]):
         """ Filtering subgraph: nodes to be removed, nodes to be kept, other """
 
         # Edge case: type_date_df is empty
@@ -111,7 +117,8 @@ class NodeExpansion:
             triple_outgoing[~triple_outgoing.object.isin(to_discard)], \
             to_discard
 
-    def __call__(self, args, dates):
+    def __call__(self, args: dict, dates: list[str, str]) \
+        -> (DataFrame, DataFrame, DataFrame, DataFrame, list[str]):
 
         # Querying knowledge base
         ingoing, outgoing, types_date = self._get_output_triples(

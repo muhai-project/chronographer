@@ -20,7 +20,7 @@ class NodeSelection:
         }
 
     @staticmethod
-    def get_random(nodes):
+    def get_random(nodes: list[str]) -> (list[str], list[str]):
         """ Selecting random node to expand """
         node = random.choice(nodes)
         nodes.remove(node)

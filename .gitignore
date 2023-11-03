@@ -1,40 +1,40 @@
-miscellaneous/
+# Generated when running scripts
 **/.ipynb_checkpoints/**
 **/__pycache__/**
 **/htmlcovwe nee/**
 **/.coverage
-other/
 dist/
 build/
-configs/
 *.egg-info
 .vscode/
-iter-*/
-settings/private.py
-experiments/*
 wandb/
-dbpedia-archive/
+.DS_Store
+
+# Experiments/Diverse
+miscellaneous/
+experiments/*
+pre-process-data/*
+experiments_iswc/*
+config_test.json
+experiments-other-vm/*
+
+
+# Settings
+settings/private.py
+
+# Datasets
 eventkg/
 *.parquet
 *.nq
 data-test/*
+data/*
 dbpedia-snapshot-2021-09/*
-data-ind/*
-from-remote/*
 wikidata-2021-03-05/*
 yago-2020-02-24/*
-experiments-22/*
-pre-process-data/*
-results-img/*
-sample-data/metrics.html
 app/data/*
 !app/data/.gitkeep
-data-all/
-
 domain-range-pred/
 !domain-range-pred/.gitkeep
-
-.DS_Store
 
 ingoing.csv
 outgoing.csv

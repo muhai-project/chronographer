@@ -10,7 +10,7 @@ from tqdm import tqdm
 import pandas as pd
 from src.triply_interface import TriplInterface
 
-def get_equivalent_url(df_path, save_path, dataset="dbpedia"):
+def get_equivalent_url(df_path: str, save_path: str, dataset: str = "dbpedia"):
     """
     df_path contains the ground truth, i.e. the events for a given topic
     The "linkDBpediaEn" column must contain the dbpedia corresponding pages

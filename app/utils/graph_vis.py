@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 """ Visualisation helpers for graph """
-
+import ast
+import pandas as pd
+from pandas.core.series import Series
+from pandas.core.frame import DataFrame
 from pyvis.network import Network
 
-def pre_process(node):
+def pre_process(node: str) -> str:
     """ URI > more human-readable """
     return node.split("/")[-1].replace('_', ' ')
 
 
-def get_single_color(row, col_of_interest, gs_nodes, max_iter):
+def get_single_color(row: Series, col_of_interest: str,
+                     gs_nodes: set, max_iter: int) -> str:
     """ Colors of row[col_of_interest] in the graph """
     if row.type_df == 'ingoing' and row[col_of_interest] in gs_nodes:
         return 'green'
@@ -19,7 +23,8 @@ def get_single_color(row, col_of_interest, gs_nodes, max_iter):
     return 'yellow'
 
 
-def get_node_color(subgraph, ground_truth, nodes_expanded):
+def get_node_color(subgraph: DataFrame, ground_truth: set,
+                   nodes_expanded: DataFrame) -> list[(str, str)]:
     """ Color of nodes in graph, different options:
     - green: true positive
     - orange: false positive
@@ -55,23 +60,39 @@ def get_node_color(subgraph, ground_truth, nodes_expanded):
     return [(nodes[i], colors[i]) for i in range(len(nodes))]
 
 
-def extract_triples(path_expanded, nodes):
+def get_curr_nodes(nodes):
+    """ Get nodes expanded in a list format"""
+    if isinstance(nodes, list):
+        return nodes
+    if nodes.startswith("[") and nodes.endswith("]"):
+        return ast.literal_eval(nodes)
+    return [nodes]
+
+
+def extract_triples(path_expanded: pd.core.frame.DataFrame) -> list[(str, str, str)]:
     """ Extract triples for graph vis"""
     triples = []
     for iteration in range(min(path_expanded.iteration.values),
                            max(path_expanded.iteration.values)+1):
-        curr_path = path_expanded[path_expanded.iteration==iteration].path_expanded.values[0]
-        curr_nodes = nodes[nodes.node_expanded==iteration].node_expanded.values
-        if 'ingoing' in curr_path:
-            [predicate_t, object_t] = curr_path.split("ingoing-")[1].split(';')
-            triples += [(node, predicate_t, object_t) for node in curr_nodes]
-        else:
-            [subject_t, predicate_t] = curr_path.split("outgoing-")[1].split(';')
-            triples += [(subject_t, predicate_t, node) for node in curr_nodes]
+        curr_df = path_expanded[path_expanded.iteration == iteration]
+        for _, row in curr_df.iterrows():
+            if (not pd.isna(row.path_expanded)) and row.path_expanded:
+                curr_path = row.path_expanded
+                curr_nodes = get_curr_nodes(nodes=row.node_expanded)
+                print(curr_nodes)
+                if 'ingoing' in curr_path:
+                    [predicate_t, object_t] = curr_path.split("ingoing-")[1].split(';')
+                    triples += [(node, predicate_t, object_t) for node in curr_nodes]
+                else:
+                    [subject_t, predicate_t] = curr_path.split("outgoing-")[1].split(';')
+                    triples += [(subject_t, predicate_t, node) for node in curr_nodes]
     return triples
 
 
-def build_complete_network(subgraph, nodes_expanded, path_expanded, save_file, ground_truth):
+def build_complete_network(subgraph: pd.core.frame.DataFrame,
+                           nodes_expanded: pd.core.frame.DataFrame,
+                           path_expanded: pd.core.frame.DataFrame,
+                           save_file: str, ground_truth: set):
     """ Build html network after one iteration """
     nt_subgraph = Network("680px", "680px",
                            notebook=False, directed=True)
@@ -84,7 +105,7 @@ def build_complete_network(subgraph, nodes_expanded, path_expanded, save_file, g
         nt_subgraph.add_edge(row.subject, row.object,
                              label=pre_process(row.predicate))
 
-    triples = extract_triples(path_expanded=path_expanded, nodes=nodes_expanded)
+    triples = extract_triples(path_expanded=path_expanded)
     for subject_t, predicate_t, object_t in triples:
         nt_subgraph.add_edge(subject_t, object_t,
                              label=pre_process(predicate_t))

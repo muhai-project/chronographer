@@ -66,6 +66,10 @@ BASE_CONFIG = {
     }
 }
 
+MAIN_LAYOUT = {
+    "title": "Comparing systems for the narrative graph traversal",
+}
+
 EVENT_INPUT = {
     'headline': "### First enter the event you are interested in",
     'expand': "Expand to enter",
@@ -73,27 +77,46 @@ EVENT_INPUT = {
     'select_start_node': "Select a starting node for the search",
     'select_start_date': "Enter a start date for the starting node",
     'select_end_date': "Enter a start date for the starting node",
-    'iterations': "Pick a number of iteration",
+    'stop_param': 'Choose parameter to stop the search',
+    'stop_iteration': 'Iteration number',
+    'stop_uri_limit': 'Number of URIs to expand',
+    'submit_stop_param': 'Continue',
+    'no_submit_max_uri': 'You need to choose one option for the max URIs,' + \
+        ' and then click on Continue',
+    'iterations': 'Choose a number of iterations',
+    'max_uri': 'Do you want to set a maximum number of URIs to expand at each iteration?',
+    'max_uri_val': "Pick a number of max URIs to expand at each iteration",
     'submit': 'Submit',
-    'refresh': "Refresh common params",
+    'refresh_common_params': "Refresh common params",
+    'refresh_system_params': "Refresh system params",
     'no_submit_warning': "You need to enter an event information to compare the" + \
-        " set of filters. Please expand to enter the input information and click 'Submit'."
+        " set of filters. Please expand to enter the input information and ' + \
+            'click 'Continue', then 'Submit'."
 }
 
-FILTERS_INPUT = {
+SYSTEM_INPUT = {
     'headline': "### Then select the filters you want to compare",
     'expand': "Expand to select",
     'set_filters_1': "##### Set of filters 1",
+    'filters_prune_search_space': 'Choose any of the filters to prune the search space',
+    'who_filter': 'who',
+    'what_filter': 'what',
+    'where_filter': 'where',
+    'when_filter': 'when',
+    'expand_all_vs_subset': 'Do you want to expand all nodes, a random subset' + \
+        ' or an informed subset (for each iteration)?',
+    'nb_random': 'Choose a number of nodes to be randomly chosen at each iteration',
     'ranking': 'ranking',
     'domain_range': 'domain/range',
-    'who_filter': 'WHO filter',
-    'what_filter': 'WHAT filter',
-    'where_filter': 'WHERE filter',
-    'when_filter': 'WHEN filter',
+    'ranking_metrics': [
+        'pred_freq', 'entropy_pred_freq', 'inverse_pred_freq',
+        'pred_object_freq', 'entropy_pred_object_freq', 'inverse_pred_object_freq'
+    ],
     'submit': 'Submit',
     'set_filters_2': "##### Set of filters 2",
     'no_submit_warning': "You need to select two sets of filters to compare. Please" + \
-        " expand to select the filters and click 'Submit' for each set of filters.",
+        " expand to select the filters and click 'Continue' & 'Submit' for each set of filters.",
+    'continue': "Continue",
 }
 
 GRAPH_SEARCH = {
@@ -124,8 +147,11 @@ RES_ITERATION = {
             * Red nodes are false positives,
             * Blue nodes are nodes added at iteration `i`, and that are part of the graph
             * Grey nodes are nearly identical to blue nodes, but they were added in a previous iteration
-        * Path chosen and nodes expanded at iteration `i`: nodes that were expanded at iteration `i` and who correspond to the path chosen
-        * Path chosen for iteration `i+1`: path with the highest score at the end of iteration `i`
+        * If you are using a `subset-informed` system (during the expansion phase, heuristic to prioritise nodes)
+            * Path chosen and nodes expanded at iteration `i`: nodes that were expanded at iteration `i` and who correspond to the path chosen
+            * Path chosen for iteration `i+1`: path with the highest score at the end of iteration `i`
+        * Else
+            * Nodes expanded at each iteration, and the triple in which they were viisted
         
         ####
 

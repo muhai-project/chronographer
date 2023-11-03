@@ -10,14 +10,14 @@ Filtering class: Filtering out certain types of nodes
         --> removed from expandable nodes space
 """
 import re
-import pandas as pd
+from pandas.core.frame import DataFrame
 
 class Filtering:
     """
     Main Filtering class for subgraph and pending nodes
 
     """
-    def __init__(self, args):
+    def __init__(self, args: dict):
         """
         - `args`: dict, keys = narrative dimensions, value = boolean
         """
@@ -43,13 +43,13 @@ class Filtering:
         self.dataset_type = args["dataset_type"]
 
     @staticmethod
-    def _check_args(args):
+    def _check_args(args: dict):
         """ Check arguments when instantiating """
         for val in ["where", "when"]:
             if val in args and args[val] not in [0, 1]:
                 raise ValueError(f"`{val}` value from args should be 0 or 1 (int)")
 
-    def get_to_discard_date(self, date_df: pd.core.frame.DataFrame, dates: list[str]):
+    def get_to_discard_date(self, date_df: DataFrame, dates: list[str]) -> DataFrame:
         """ Filtering on temporal dimension
         - checking date/start date/end date """
 
@@ -63,7 +63,7 @@ class Filtering:
                              (date_df.object > dates[1]))].subject.unique())
 
     @staticmethod
-    def regex_helper(val, default_return_val):
+    def regex_helper(val: str, default_return_val: str) -> str:
         """ Finding regex column name in subject str uri """
         pattern = "\\d{4}"
         matches = re.findall(pattern, val)
@@ -72,8 +72,9 @@ class Filtering:
         return default_return_val
 
 
-    def get_to_discard_regex(self, ingoing: pd.core.frame.DataFrame,
-                             outgoing: pd.core.frame.DataFrame, dates: list[str]):
+    def get_to_discard_regex(self, ingoing: DataFrame,
+                             outgoing: DataFrame, dates: list[str]) \
+                                -> list[str]:
         """ Filtering on string uri
         - temporal dimension: regex on the URL (and therefore name of the events,
             e.g. 1997_National_Championships > non relevant """
@@ -95,20 +96,21 @@ class Filtering:
 
         return ingoing_discard + outgoing_discard
 
-    def get_to_discard_location(self, df_pd: pd.core.frame.DataFrame):
+    def get_to_discard_location(self, df_pd: DataFrame) -> list[str]:
         """ Location filter: retrieving nodes that correspond to locations
         (would be too broad for the search, hence later discarded """
         return list(df_pd[df_pd.object.isin(self.places)].subject.unique())
 
-    def get_to_discard_entity(self, df_pd: pd.core.frame.DataFrame, filter_type: list[str]):
+    def get_to_discard_entity(self, df_pd: DataFrame, filter_type: list[str]) \
+        -> list[str]:
         """ Entity-based filter: retrieving nodes corresponding to any of the
         types in filter. Applicable for:
         WHERE-filter: locations
         WHO-filter: people """
         return list(df_pd[df_pd.object.isin(filter_type)].subject.unique())
 
-    def __call__(self, ingoing: pd.core.frame.DataFrame, outgoing: pd.core.frame.DataFrame,
-                 type_date: pd.core.frame.DataFrame, dates: list[str]):
+    def __call__(self, ingoing: DataFrame, outgoing: DataFrame,
+                 type_date: DataFrame, dates: list[str]) -> list[str]:
         """
         Extracting list of nodes to discard from search space
         """

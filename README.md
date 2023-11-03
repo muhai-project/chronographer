@@ -1,20 +1,11 @@
-[current modifications]
-
-Adding different modes for the graph search
-metrics_driven only vs. exploration and not computing metrics
-
 # **Informed Graph Traversal**
 
-This is the code for the paper submitted to The Web Conference: "Building narratives through informed graph traversal".
+This is the code for the paper submitted to ISWC 2023: "Identifying graph traversal strategies to build narrative graphs".
 
 First clone the repo
 ```bash
 git clone <link-ommitted-for-submission>
 ```
-
-<!-- <details>
-<summary>Set Up Virtual Environment</summary>
-</details> -->
 ---
 ## 1. Set Up Virtual Environment
 
@@ -163,7 +154,7 @@ In the terminal command, go to the app folder.
 cd app
 ```
 
-First open the `variables.py` file in that folder. You can add information on the dataset(s) you are using. As specified in that file, you need to enter details about `dataset_path`, `data_files_path` (folder where are stored ground truth, referents and config files), `start_uri` and `nested_dataset`.
+First open the `variables.py` file in that folder. You can add information on the dataset(s) you are using (`VARIABLES_DATASET`)). As specified in that file, you need to enter details about `dataset_path`, `data_files_path` (folder where are stored ground truth, referents and config files), `start_uri` and `nested_dataset`. You can also change the default values that will be displayed (`DEFAULT_VARIABLES`).
 
 Then run the following to run the interface:
 ```bash
@@ -174,7 +165,13 @@ Depending on the parameter and event that you choose, running the search can be 
 
 ---
 
-## 6. Other
+## 6. Reproducibility
+
+Scripts for reproducibility (on the 12 pre-experiments and the main experiments) are available upon demand
+
+---
+
+## 7. Other
 
 If you want __pycache__ content or other removed, you can run:
 ```
