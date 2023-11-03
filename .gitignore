@@ -35,3 +35,10 @@ app/data/*
 !app/data/.gitkeep
 domain-range-pred/
 !domain-range-pred/.gitkeep
+
+ingoing.csv
+outgoing.csv
+data/*
+experiments_iswc/*
+experiments_search/*
+experiments-22-iswc-nautilod/*
