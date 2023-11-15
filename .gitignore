@@ -43,3 +43,6 @@ experiments_eswc/*
 experiments_iswc/*
 experiments_search/*
 experiments-22-iswc-nautilod/*
+data_ng_building/
+
+kglab/

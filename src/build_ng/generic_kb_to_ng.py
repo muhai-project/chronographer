@@ -21,10 +21,12 @@ import os
 import re
 import yaml
 import time
+import click
 from tqdm import tqdm
 import pandas as pd
 from rdflib import URIRef, Literal, Graph
 from settings import FOLDER_PATH
+from kglab.helpers.encoding import encode
 from src.hdt_interface import HDTInterface
 from src.helpers.kg_build import init_graph
 from src.helpers.kg_query import get_labels, get_outgoing
@@ -140,7 +142,7 @@ class KGConverter:
     def helper_temporal(self, row, cands: list[str], ta: list[str], graph: Graph, to_add: str) -> (Graph, list[str]):
         """ Helper """
         for cand in cands:
-            graph.add((URIRef(row.subject), self.nf_to_pred[self.str_to_nf[cand]],
+            graph.add((URIRef(encode(row.subject)), self.nf_to_pred[self.str_to_nf[cand]],
                         Literal(row.object[1:11], datatype=NS_XSD["date"])))
         ta.append(to_add)
         return graph, ta
@@ -168,8 +170,8 @@ class KGConverter:
             if start_found and (not end_found):
                 end_found = start_found
             if start_found:
-                graph.add((URIRef(event), self.nf_to_pred["when_bts"], Literal(start_found, datatype=NS_XSD["date"])))
-                graph.add((URIRef(event), self.nf_to_pred["when_ets"], Literal(end_found, datatype=NS_XSD["date"])))
+                graph.add((URIRef(encode(event)), self.nf_to_pred["when_bts"], Literal(start_found, datatype=NS_XSD["date"])))
+                graph.add((URIRef(encode(event)), self.nf_to_pred["when_ets"], Literal(end_found, datatype=NS_XSD["date"])))
 
         return graph
 
@@ -180,17 +182,17 @@ class KGConverter:
         #                 # In EventKG, no event ?e with (?e, sem:hasTimeStamp, ?ts)
         #                 # If only one --> same begin and end timestamps
         #                 if start_d <= matches[0] <= end_d:
-        #                     graph.add((URIRef(row.subject), self.nf_to_pred["when_bts"],
+        #                     graph.add((URIRef(encode(row.subject)), self.nf_to_pred["when_bts"],
         #                             Literal(matches[0], datatype=NS_XSD["date"])))
-        #                     graph.add((URIRef(row.subject), self.nf_to_pred["when_ets"],
+        #                     graph.add((URIRef(encode(row.subject)), self.nf_to_pred["when_ets"],
         #                             Literal(matches[0], datatype=NS_XSD["date"])))
         #             if len(matches) == 2:
         #                 matches = sorted(matches)
         #                 if start_d <= matches[0] <= end_d:
-        #                     graph.add((URIRef(row.subject), self.nf_to_pred["when_bts"],
+        #                     graph.add((URIRef(encode(row.subject)), self.nf_to_pred["when_bts"],
         #                             Literal(matches[0], datatype=NS_XSD["date"])))
         #                 if start_d <= matches[1] <= end_d:
-        #                     graph.add((URIRef(row.subject), self.nf_to_pred["when_ets"],
+        #                     graph.add((URIRef(encode(row.subject)), self.nf_to_pred["when_ets"],
         #                             Literal(matches[1], datatype=NS_XSD["date"])))
 
 
@@ -215,7 +217,7 @@ class KGConverter:
 
         # Adding events
         for event in events:
-            graph.add((URIRef(event), NS_RDF["type"], NS_SEM["Event"]))
+            graph.add((URIRef(encode(event)), NS_RDF["type"], NS_SEM["Event"]))
 
         # Getting predicate labels
         # print("Retrieving labels")
@@ -235,15 +237,15 @@ class KGConverter:
             if self.cached[row.predicate]:
                 for (nf, type_pred) in self.cached[row.predicate]:
                     if type_pred == "range":
-                        graph.add((URIRef(row.subject), self.nf_to_pred[nf], URIRef(row.object)))
+                        graph.add((URIRef(encode(row.subject)), self.nf_to_pred[nf], URIRef(encode(row.object))))
                     else:  # type_pred == "domain"
-                        graph.add((URIRef(row.object), self.nf_to_pred[nf], URIRef(row.subject)))
+                        graph.add((URIRef(encode(row.object)), self.nf_to_pred[nf], URIRef(encode(row.subject))))
             # Predicate contains one key from self.str_to_nf
             label_pred = pred_to_labels.get(row.predicate, row.predicate.split("/")[-1].lower())
             cands = [x for x in self.str_to_nf if x in label_pred]
             for cand in cands:
-                graph.add((URIRef(row.subject), self.nf_to_pred[self.str_to_nf[cand]],
-                           URIRef(row.object)))
+                graph.add((URIRef(encode(row.subject)), self.nf_to_pred[self.str_to_nf[cand]],
+                           URIRef(encode(row.object))))
 
         # Literal objects: extracting additional information
         # print("Build Narrative Graph - Literal objects")
@@ -272,26 +274,44 @@ class KGConverter:
                         self.cached[row.object] = get_db_entities(doc)
                     
                     for ent in self.cached[row.object]:
-                        graph.add((URIRef(row.subject), pred, URIRef(ent)))
+                        graph.add((URIRef(encode(row.subject)), pred, URIRef(encode(ent))))
 
         return graph
 
 
-if __name__ == '__main__':
-    import argparse
+@click.command()
+@click.option("--input_file", help="path to .csv (format similar to output of graph search)")
+@click.option("--dataset", help="dataset to work with (dbpedia/wikidata)")
+@click.option("--start_d", help="start date")
+@click.option("--end_d", help="end date")
+@click.option("--save", help="save file")
+def main(input_file: str, dataset: str, start_d: str, end_d: str, save: str):
+    df = read_csv(path=input_file)
+    converter = KGConverter(dataset=dataset)
+    graph = converter(input_df=df, start_d=start_d, end_d=end_d)
+    graph.serialize(save, format="ttl")
 
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--input", required=True,
-                    help="path to .csv (format similar to output of graph search)")
-    ap.add_argument("-d", "--dataset", required=True,
-                    help="dataset to work with (dbpedia/wikidata)")
-    args_main = vars(ap.parse_args())
+
+if __name__ == '__main__':
+    # import argparse
+
+    # ap = argparse.ArgumentParser()
+    # ap.add_argument("-i", "--input", required=True,
+    #                 help="path to .csv (format similar to output of graph search)")
+    # ap.add_argument("-d", "--dataset", required=True,
+    #                 help="dataset to work with (dbpedia/wikidata)")
+    # args_main = vars(ap.parse_args())
     # DF = read_csv("kg_transformation/outgoing_Napoleonic_Wars.csv")
     # DF = read_csv(os.path.join(FOLDER_PATH, "experiments_eswc", "fr-test-subgraph.csv"))
     # CONVERTER = KGConverter(
     #     dataset="dbpedia")
-    DF = read_csv(path=args_main["input"])
-    CONVERTER = KGConverter(dataset=args_main["dataset"])
-    GRAPH = CONVERTER(input_df=DF, 
-                      start_d="1789-05-05", end_d="1799-12-31")
-    GRAPH.serialize(os.path.join(FOLDER_PATH, "experiments_eswc", "search_ng.ttl"), format="ttl")
+    # DF = read_csv(path=args_main["input"])
+    # CONVERTER = KGConverter(dataset=args_main["dataset"])
+    # GRAPH = CONVERTER(input_df=DF, 
+    #                   start_d="1789-05-05", end_d="1799-12-31")
+    # GRAPH.serialize(os.path.join(FOLDER_PATH, "experiments_eswc", "search_ng.ttl"), format="ttl")
+    """ 
+    python src/build_ng/generic_kb_to_ng.py --input_file <french-rev-ex> --dataset dbpedia \
+        --start_d 1789-05-05 --end_d 1799-12-31 --save <save>
+    """
+    main()

@@ -2,21 +2,21 @@
 """
 Comparing two graphs
 """
+import click
 from collections import defaultdict
+from rdflib import Graph
 from src.helpers.variables import NS_SEM, STR_SEM, PREFIX_SEM
 from src.helpers.graph_structure import get_intersection_difference
+
+def get_f1(precision: float, recall: float) -> float:
+    return 2*precision*recall/(precision + recall)
 
 class SEMComparer:
     """ Comparing wrt. SEM predicates """
     def __init__(self):
-        self.predicates = {
-            "place": NS_SEM["hasPlace"],
-            "actor": NS_SEM["hasActor"],
-            "begin_ts": NS_SEM["hasBeginTimeStamp"],
-            "end_ts": NS_SEM["hasEndTimeStamp"],
-            "ts": NS_SEM["hasTimeStamp"],
-            "sub_event": NS_SEM["subEventOf"],
-        }
+        self.predicates = [NS_SEM["hasPlace"], NS_SEM["hasActor"], 
+                           NS_SEM["hasBeginTimeStamp"], NS_SEM["hasEndTimeStamp"]]
+        self.predicats = [str(x) for x in self.predicates]
         self.pred_to_prefix = {
             STR_SEM: PREFIX_SEM
         }
@@ -32,37 +32,60 @@ class SEMComparer:
             res[key] += 1
         return res
     
+    def remove_pred(self, graph):
+        return [x for x in graph if x[1] in self.predicates]
+    
 
     def __call__(self, graph_c, graph_gs):
-        print(f"# of triples in graph_c: {len(graph_c)}")
-        print(f"# of triples in graph_gs: {len(graph_gs)}")
+        output = {"numbers": {}, "metrics": {}}
 
         intersection, graph_c_only, graph_gs_only = get_intersection_difference(g1=graph_c, g2=graph_gs)
+        intersection = self.remove_pred(intersection)
+        graph_c_only = self.remove_pred(graph_c_only)
+        graph_gs_only = self.remove_pred(graph_gs_only)
 
-        print(f"# of triples in both: {len(intersection)}")
-        print(f"# of triples in graph_c only: {len(graph_c_only)}")
-        print(f"# of triples in graph_gs only: {len(graph_gs_only)}")
+        output["numbers"]["all"] = {
+            "triples_common": len(intersection),
+            "triples_search_only": len(graph_c_only),
+            "triples_gs_only": len(graph_gs_only)
+        }
+
+        precision = 100*len(intersection)/(len(intersection) + len(graph_gs_only))
+        recall = 100*len(intersection)/(len(intersection) + len(graph_c_only))
+        output["metrics"] = {
+            "all": {"precision": precision, "recall": recall, "f1": get_f1(precision, recall)}
+        }
 
         pred_i, pred_c, pred_gs = self.count_pred(intersection), self.count_pred(graph_c_only), self.count_pred(graph_gs_only)
 
-        print(pred_i)
-        print("=====")
-        print(pred_c)
-        print("=====")
-        print(pred_gs)
-        print("=====")
-        # print(f"Intersection\\n{'\\n'.join([pred + ': ' + count for pred, count in pred_i.items()])}\\n=====")
+        keys = set(pred_i.keys()).intersection(set(pred_c.keys())).intersection(set(pred_gs.keys()))
+        for key in keys:
+            output["numbers"][key] = {
+                "triples_common": pred_i.get(key, 0),
+                "triples_search_only": pred_c.get(key, 0),
+                "triples_gs_only": pred_gs.get(key, 0)
+            }
+            precision = 100*pred_i.get(key, 0)/(pred_i.get(key, 0) + pred_gs.get(key, 0))
+            recall = 100*pred_i.get(key, 0)/(pred_i.get(key, 0) + pred_c.get(key, 0))
+            output["metrics"] = output["metrics"] | \
+                {key: {"precision": precision, "recall": recall, "f1": get_f1(precision, recall)}}
+        return output
 
+
+@click.command()
+@click.option("--build", help=".ttl path to built narrative graph")
+@click.option("--gs", help=".ttl path to ground truth narrative graph")
+def main(build, gs):
+    graph_c = Graph()
+    graph_c.parse(build, format="ttl")
+
+    graph_gs = Graph()
+    graph_gs.parse(gs, format="ttl")
+
+    comparer = SEMComparer()
+    output = comparer(graph_c=graph_c, graph_gs=graph_gs)
+    print(output)
 
 
 if __name__ == '__main__':
-    from rdflib import Graph
-
-    GRAPH_C = Graph()
-    GRAPH_C.parse("kg_transformation/kg.ttl", format="ttl")
-
-    GRAPH_GS = Graph()
-    GRAPH_GS.parse("kg_transformation/eventkg_french_rev.ttl", format="ttl")
-
-    COMPARER = SEMComparer()
-    COMPARER(graph_c=GRAPH_C, graph_gs=GRAPH_GS)
+    main()

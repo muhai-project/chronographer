@@ -4,6 +4,7 @@ Converting EventKG to a format that is comparable to the Narrative Graphs (NGs) 
 """
 import click
 from tqdm import tqdm
+from kglab.helpers.encoding import encode
 from src.helpers.kg_query import run_query
 from src.helpers.kg_build import init_graph
 from src.helpers.data_load import read_csv
@@ -141,58 +142,13 @@ class EventKGToNGConverter:
             {end}
             """
 
-
-        if False:
-            convert_query_template = f"""
-            {prefixes}
-            CONSTRUCT {start}
-            <event-input> sem:hasPlace ?kb_place ;
-                        sem:hasActor ?kb_actor ;
-                        sem:hasBeginTimeStamp ?b_timestamp ;
-                        sem:hasEndTimeStamp ?e_timestamp ;
-                        rdf:type sem:Event .
-            ?kb_sub_event sem:subEventOf <event-input> .
-            <event-input> sem:subEventOf ?kb_super_event .
-            {end}
-            WHERE
-            {start}
-            ?s owl:sameAs <event-input> .
-            ?subject_rel rdf:type sem:Actor ;
-                        owl:sameAs ?kb_actor .
-            OPTIONAL {start}
-            ?s sem:subEventOf ?super_event .
-            ?super_event owl:sameAs ?kb_super_event .
-            FILTER(CONTAINS(str(?kb_super_event), "<filter-str>"))
-            {end}
-            OPTIONAL {start}
-            ?s sem:hasSubEvent ?sub_event .
-            ?sub_event owl:sameAs ?kb_sub_event .
-            FILTER(CONTAINS(str(?kb_sub_event), "<filter-str>"))
-            {end}
-
-            GRAPH eventkg-g:<filter-named-graph> {start}
-            ?rel rdf:type eventkg-s:Relation ;
-                    rdf:subject ?s ;
-                    rdf:object ?subject_rel ;
-                    sem:roleType ?role .
-            OPTIONAL {start}
-                ?s sem:hasPlace ?place .
-                ?place owl:sameAs ?kb_place .{end}
-            OPTIONAL {start}?s sem:hasBeginTimeStamp ?b_timestamp .{end}
-            OPTIONAL {start}?s sem:hasEndTimeStamp ?e_timestamp .{end}
-            {end}
-
-            FILTER(CONTAINS(str(?kb_actor), "<filter-str>"))
-            {end}
-            """
-
         return [template_place, template_actor, template_bts, template_ets, template_event,
                 template_sub_event, template_super_event]
         
 
     def construct_one_sub_ng(self, template, event, filter_str, filter_named_graph):
         """ From one event + one KB, constructs the NG """
-        query = template.replace("event-input", event) \
+        query = template.replace("event-input", encode(text=event)) \
             .replace("<filter-str>", filter_str) \
                 .replace("<filter-named-graph>", filter_named_graph)
         return run_query(query=query, sparql_endpoint=self.endpoint, headers=HEADERS_CONSTRUCT)
