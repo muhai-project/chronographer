@@ -8,14 +8,15 @@ Output = KG under new schema
 Abbreviations:
 - NG = narrative graph
 
+Done:
+- Rule-based filters on labels rather than predicate IRI (works for wikidata then)
+- HDT Interface for querying // move back to graph search code
+- Add argparse 
+
 Improvements
 - Filters when adding an actor to an event (WHEN filter)
-- Rule-based filters on labels rather than predicate IRI (works for wikidata then)
 - WordNet taxonomy for nf_to_str?
-- Result/cause 
-- HDT Interface for querying // move back to graph search code
-
-- Add argparse 
+- Result/cause
 """
 import os
 import re
@@ -91,7 +92,7 @@ class KGConverter:
             PREFIX_SEM: NS_SEM, PREFIX_XSD: NS_XSD,
             PREFIX_DBR: NS_DBR, PREFIX_RDF: NS_RDF}
 
-    def get_sem_pred_by_type(self, type_, info, pred):
+    def get_sem_pred_by_type(self, type_: str, info: dict, pred: str) -> list[tuple(str, str)]:
         """ Differentiating between domain/range """
         res = set()
         curr_info = info.get(pred, [])
@@ -103,14 +104,14 @@ class KGConverter:
                     res.add((self.str_to_nf[cclass_name], type_))
         return list(res)
 
-    def get_sem_pred(self, pred):
+    def get_sem_pred(self, pred: str) -> list[str]:
         """Using domain and pred to find corresponding SEM predicate"""
         res = []
         for type_, info in [("range", self.range), ("domain", self.domain)]:
             res.extend(self.get_sem_pred_by_type(type_=type_, info=info, pred=pred))
         return res
 
-    def get_outgoing_links(self, input_df: pd.DataFrame) -> pd.DataFrame:
+    def get_outgoing_links(self, input_df: pd.DataFrame) -> (pd.DataFrame, list[str]):
         """ Takes output of graph search, extract events and retrieve outgoing links """
         events = list(input_df[input_df.type_df == "ingoing"].subject.unique()) + \
             list(input_df[input_df.type_df == "outgoing"].object.unique())
@@ -293,23 +294,6 @@ def main(input_file: str, dataset: str, start_d: str, end_d: str, save: str):
 
 
 if __name__ == '__main__':
-    # import argparse
-
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument("-i", "--input", required=True,
-    #                 help="path to .csv (format similar to output of graph search)")
-    # ap.add_argument("-d", "--dataset", required=True,
-    #                 help="dataset to work with (dbpedia/wikidata)")
-    # args_main = vars(ap.parse_args())
-    # DF = read_csv("kg_transformation/outgoing_Napoleonic_Wars.csv")
-    # DF = read_csv(os.path.join(FOLDER_PATH, "experiments_eswc", "fr-test-subgraph.csv"))
-    # CONVERTER = KGConverter(
-    #     dataset="dbpedia")
-    # DF = read_csv(path=args_main["input"])
-    # CONVERTER = KGConverter(dataset=args_main["dataset"])
-    # GRAPH = CONVERTER(input_df=DF, 
-    #                   start_d="1789-05-05", end_d="1799-12-31")
-    # GRAPH.serialize(os.path.join(FOLDER_PATH, "experiments_eswc", "search_ng.ttl"), format="ttl")
     """ 
     python src/build_ng/generic_kb_to_ng.py --input_file <french-rev-ex> --dataset dbpedia \
         --start_d 1789-05-05 --end_d 1799-12-31 --save <save>

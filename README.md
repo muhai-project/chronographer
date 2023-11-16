@@ -1,5 +1,11 @@
 # **Informed Graph Traversal**
 
+[WIP] 
+to be updated
+- install kglab module (wip, to be added into pip afterwards)
+
+---
+
 This is the code for the paper submitted to ISWC 2023: "Identifying graph traversal strategies to build narrative graphs".
 
 First clone the repo

@@ -16,7 +16,7 @@ def run_query(query: str, sparql_endpoint: str, headers: dict) -> pd.DataFrame:
         return pd.read_csv(io.StringIO(response.content.decode('utf-8')))
     return response
 
-def write_values_sparql(list_str: list[str], var: str):
+def write_values_sparql(list_str: list[str], var: str) -> str:
     """ Convert a list of strings into `VALUES ?var {x1 x2 ...}`"""
     return f"VALUES ?{var} " + \
         "{" + ' '.join([f"<{x}>" for x in list_str]) + "}"
@@ -47,15 +47,3 @@ def get_outgoing(list_str: list[str], sparql_endpoint: str):
     """
     return run_query(query=query, sparql_endpoint=sparql_endpoint, headers=HEADERS_CSV)
 
-LIST_STR = [
-    "http://dbpedia.org/property/last", "http://dbpedia.org/property/participants"
-]
-SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
-# TEST = get_labels(list_pred=LIST_STR, sparql_endpoint=SPARQL_ENDPOINT, filter_lang="en")
-
-LIST_STR = [
-    "http://dbpedia.org/resource/Storming_of_the_Bastille",
-    "http://dbpedia.org/resource/Day_of_Daggers"
-]
-TEST = get_outgoing(list_str=LIST_STR, sparql_endpoint=SPARQL_ENDPOINT)
-TEST.to_csv("labels.csv")

@@ -21,7 +21,7 @@ class SEMComparer:
             STR_SEM: PREFIX_SEM
         }
 
-    def count_pred(self, graph):
+    def count_pred(self, graph: Graph) -> dict:
         """ Count number of unique preds in the graph
         NB: to be replaced with a SPARQL query """
         res = defaultdict(int)
@@ -32,11 +32,10 @@ class SEMComparer:
             res[key] += 1
         return res
     
-    def remove_pred(self, graph):
+    def remove_pred(self, graph: Graph):
         return [x for x in graph if x[1] in self.predicates]
     
-
-    def __call__(self, graph_c, graph_gs):
+    def __call__(self, graph_c: Graph, graph_gs: Graph) -> dict:
         output = {"numbers": {}, "metrics": {}}
 
         intersection, graph_c_only, graph_gs_only = get_intersection_difference(g1=graph_c, g2=graph_gs)

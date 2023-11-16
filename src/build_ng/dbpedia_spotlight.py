@@ -22,7 +22,7 @@ python -m spacy download en_core_web_sm
 """
 import spacy
 
-def init_spacy_pipeline(spotlight=True):
+def init_spacy_pipeline(spotlight=True) -> spacy.lang.en.English:
     """ Init spacy pipeline with additional components """
     nlp = spacy.load("en_core_web_sm")
     if spotlight:

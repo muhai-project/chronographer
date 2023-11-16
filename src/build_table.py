@@ -50,7 +50,7 @@ def check_args(columns: list[str], alignment: str,
     return
         
 
-def get_start_end_multicol(multicol: list[int]):
+def get_start_end_multicol(multicol: list[int]) -> list[str]:
     curr_start, start, end = 1, [], []
     for x in multicol:
         start.append(curr_start)
@@ -61,7 +61,7 @@ def get_start_end_multicol(multicol: list[int]):
 
 def build_table(columns: list[str], alignment: str,
                 caption: str, label: str, position: str,
-                data: list[list[str]], sub_columns: list[str] = [], multicol: list[int] = []):
+                data: list[list[str]], sub_columns: list[str] = [], multicol: list[int] = []) -> str:
     """ 
     - `data`: list of list. Each element in the list corresponds to the set of values
     for one row of the table
@@ -71,7 +71,7 @@ def build_table(columns: list[str], alignment: str,
         columns = ["\\multicolumn{" + str(multicol[i]) + "}{c}{" + col + "}" for i, col in enumerate(columns)]
 
         start_end = get_start_end_multicol(multicol=multicol)
-        midrule_1 = "\n".join(["\\cmidrule(lr){" + x + "}" for x in start_end])
+        midrule_1 = "\n\t".join(["\\cmidrule(lr){" + x + "}" for x in start_end])
         midrule_2 = midrule_1
 
         sub_columns = " & ".join(sub_columns) + "\\\\"

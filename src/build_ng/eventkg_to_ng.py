@@ -4,6 +4,8 @@ Converting EventKG to a format that is comparable to the Narrative Graphs (NGs) 
 """
 import click
 from tqdm import tqdm
+from requests.models import Response
+from rdflib import Graph
 from kglab.helpers.encoding import encode
 from src.helpers.kg_query import run_query
 from src.helpers.kg_build import init_graph
@@ -144,16 +146,15 @@ class EventKGToNGConverter:
 
         return [template_place, template_actor, template_bts, template_ets, template_event,
                 template_sub_event, template_super_event]
-        
 
-    def construct_one_sub_ng(self, template, event, filter_str, filter_named_graph):
+    def construct_one_sub_ng(self, template: str, event: str, filter_str: str, filter_named_graph: str) -> Response:
         """ From one event + one KB, constructs the NG """
         query = template.replace("event-input", encode(text=event)) \
             .replace("<filter-str>", filter_str) \
                 .replace("<filter-named-graph>", filter_named_graph)
         return run_query(query=query, sparql_endpoint=self.endpoint, headers=HEADERS_CONSTRUCT)
 
-    def __call__(self, events: list[str], filter_str: str, filter_named_graph: str):
+    def __call__(self, events: list[str], filter_str: str, filter_named_graph: str) -> Graph:
         """ events: list of events """
         graph = init_graph(prefix_to_ns=self.prefix_to_ns)
 
@@ -174,7 +175,7 @@ class EventKGToNGConverter:
 @click.option("--fs", help="filter string based on KG, eg. `/dbpedia` or `wikidata`")
 @click.option("--fng", help="filter named graph for query, eg. `dbpedia_en` or `wikidata`")
 @click.option("--save", help=".ttl save path for KG")
-def main(csv, fs, fng, save):
+def main(csv: str, fs: str, fng: str, save: str):
     df = read_csv(path=csv)
     events = df.linkDBpediaEn.values[:10]
     print(events)
