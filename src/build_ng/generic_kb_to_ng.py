@@ -92,7 +92,7 @@ class KGConverter:
             PREFIX_SEM: NS_SEM, PREFIX_XSD: NS_XSD,
             PREFIX_DBR: NS_DBR, PREFIX_RDF: NS_RDF}
 
-    def get_sem_pred_by_type(self, type_: str, info: dict, pred: str) -> list[tuple(str, str)]:
+    def get_sem_pred_by_type(self, type_: str, info: dict, pred: str) -> list:
         """ Differentiating between domain/range """
         res = set()
         curr_info = info.get(pred, [])

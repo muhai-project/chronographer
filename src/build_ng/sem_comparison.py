@@ -14,8 +14,8 @@ def get_f1(precision: float, recall: float) -> float:
 class SEMComparer:
     """ Comparing wrt. SEM predicates """
     def __init__(self):
-        self.predicates = [NS_SEM["hasPlace"], NS_SEM["hasActor"], 
-                           NS_SEM["hasBeginTimeStamp"], NS_SEM["hasEndTimeStamp"]]
+        self.predicates = [str(NS_SEM["hasPlace"]), str(NS_SEM["hasActor"]), 
+                           str(NS_SEM["hasBeginTimeStamp"]), str(NS_SEM["hasEndTimeStamp"])]
         self.predicats = [str(x) for x in self.predicates]
         self.pred_to_prefix = {
             STR_SEM: PREFIX_SEM
@@ -32,11 +32,20 @@ class SEMComparer:
             res[key] += 1
         return res
     
+    def init_query(self):
+        start, end = "{", "}"
+        return f"""
+        SELECT ?event (COUNT(?o) as ?nb_triples) WHERE {start}
+            ?event ?p ?o .
+        {end}
+        GROUP BY ?event
+        """
+    
     def remove_pred(self, graph: Graph):
         return [x for x in graph if x[1] in self.predicates]
     
     def __call__(self, graph_c: Graph, graph_gs: Graph) -> dict:
-        output = {"numbers": {}, "metrics": {}}
+        output = {"numbers": {}, "metrics": {}, "triples": {"len_c": len(graph_c), "len_gs": len(graph_gs)}}
 
         intersection, graph_c_only, graph_gs_only = get_intersection_difference(g1=graph_c, g2=graph_gs)
         intersection = self.remove_pred(intersection)
