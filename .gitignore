@@ -12,6 +12,7 @@ wandb/
 
 # Experiments/Diverse
 miscellaneous/
+misc/
 experiments/*
 pre-process-data/*
 experiments_iswc/*

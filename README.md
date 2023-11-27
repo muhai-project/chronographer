@@ -6,7 +6,6 @@ to be updated
 
 ---
 
-This is the code for the paper submitted to ISWC 2023: "Identifying graph traversal strategies to build narrative graphs".
 
 First clone the repo
 ```bash
@@ -43,6 +42,12 @@ Create a `private.py` file in the settings folder and add the followings:
 * TOKEN (for Triply) [optional]
 * FOLDER_PATH (of git repository on your machine)
 
+
+[For submission] We use an external package that is currently WIP, for the purpose of this submission we include it directly into this code. To run its dependencies, run: 
+```bash
+cd kglab && python setup.py install
+```
+ 
 Then run the following for setting up the packages
 ```bash
 python setup.py install
@@ -149,7 +154,96 @@ Corresponding notebook: `eventkg-retrieving-events.ipynb`
 
 ---
 
-## 5. Run the interface
+## 5. Reproducibility
+
+There are different scripts to run to reproduce the experiments described in the paper. First make sure that you have downloaded the data (cf. Sections above). 
+
+For the search experiments, we created a main folder with the data in the root directory: `data-test`, with two sub-folders: `dbpedia` and `wikidata`. Each sub-folder had three folders: `config`, `gs_events` and `referents`.
+
+All scripts are in the `experiments_run` folder. All example commands are run from root directory.
+
+* Parameter selection for the search (subset of 12 events)
+    * Python script: `run_all_grid_search.py`
+    * Example command:
+        ```bash
+        python experiments_run/run_all_grid_search.py -t <type-system> -e experiments_run/grid-search-events.csv 
+        ```
+* Main results for the search (all events)
+    * Python script: `run_all_search.py`
+    * Example command:
+        ```bash
+        python experiments_run/run_all_search.py -t <type-system> -e experiments_run/all-search-events.csv 
+        ```
+
+For the narrative graph generation experiments, we extracted the data that we needed from the search experiments, and created a new folder, `data_ng_building`.
+
+* Extracting data
+    * Python script: `get_data_ng_building.py`. There are some parameters to change in PARAMS (start and end date of experiments, folder_gs if different)
+    * Example command:
+        ```bash
+        python experiments_run/get_data_ng_building.py 
+        ```
+    * The data was saved in a new folder: `data_ng_building`
+
+* Narrative graph generation (NGG) from KG
+    * This includes NGG from the output of graph search, NGG with our system from ground truth events, NGG from EventKG
+    * Python script: `build_ng_from_search.py`
+    * Example command:
+        ```bash
+        python experiments_run/build_ng_from_search.py --folder data_ng_building/ 
+        ``` 
+* Metrics for NGG from KG
+    * Python script: `get_metrics.py`
+    * Example command (comparing with all ground truth events):
+        ```bash
+        python experiments_run/get_metrics.py --folder data_ng_building/ --output_name eventkg_vs_generation.json --graph_c_path generation_ng.ttl --graph_gs_path eventkg_ng.ttl
+        ```
+    * Example command (comparing with output of graph search):
+        ```bash
+        python experiments_run/get_metrics.py --folder data_ng_building/ --output_name eventkg_vs_search.json --graph_c_path search_ng.ttl --graph_gs_path eventkg_ng.ttl
+        ``` 
+
+* Aggregating results (as in the paper):
+    * Python script: `get_table_results.py`
+    * Example command (comparing with all ground truth events):
+        ```bash
+        python experiments_run/get_table_results.py --folder data_ng_building/ --metric eventkg_vs_generation.json --label <label>
+        ```
+    * Example command (comparing with output of graph search):
+        ```bash
+        python experiments_run/get_table_results.py --folder data_ng_building/ --metric eventkg_vs_search.json --label <label>
+        ```
+
+* Narrative graph generation from text
+    * These are the experiments to generate KGs from the DBpedia abstracts
+    * First you need to set up a local DBpedia, you can follow the steps on this link: <https://github.com/MartinoMensio/spacy-dbpedia-spotlight>
+    * Python script: `build_kg_with_frames.py`
+    * Example command:
+        ```bash
+        python experiments_run/build_kg_with_frames.py --folder data_ng_building/dbpedia/
+        ```
+
+* Annotating and analysing (causation) frames
+    * Analysing
+        * Python script: `get_csv_analyse_frame.py`
+        * Example command
+            ```bash
+            python experiments_run/get_csv_analyse_frame.py --folder_input data_ng_building/dbpedia/ --folder_output experiments_run/ng_analysis
+            ```
+    * Extracting causation frames for manual annotation
+        * Python script: `extract_causation_for_annot.py`
+        * Example command
+            ```bash
+            python experiments_run/extract_causation_for_annot.py --csv experiments_run/ng_analysis/df_causation.csv --folder experiments_run/ng_analysis/
+            ```
+
+Furthermore, the manually annotated causation frames can be found in the `experiments_run/annotated` folder.
+
+
+
+## 6. Run the interface
+
+--- 
 
 We also implemented an interface to compare the impact of the filters and parameters on the search - `ordering` and `filtering` from the config description in Section 3. of the README. By comparing two sets of parameters, you will also run the search in the backend.
 
@@ -169,11 +263,7 @@ streamlit run app.py
 
 Depending on the parameter and event that you choose, running the search can be slow. Likewise, displaying the HTML graphs can be slow.
 
----
 
-## 6. Reproducibility
-
-Scripts for reproducibility (on the 12 pre-experiments and the main experiments) are available upon demand
 
 ---
 

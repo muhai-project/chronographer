@@ -2,7 +2,7 @@
 """
 Variables re-used across projects
 """
-from rdflib import Namespace, XSD, RDF, RDFS, OWL
+from rdflib import Namespace, XSD, RDF, RDFS, OWL, SKOS
 
 # Headers
 HEADERS_CSV = {"Accept": "text/csv"}
@@ -30,6 +30,7 @@ STR_RDFS = str(RDFS)
 STR_OWL = str(OWL)
 STR_EVENTKG_R = "http://eventkg.l3s.uni-hannover.de/resource/"
 STR_EVENTKG_S = "http://eventkg.l3s.uni-hannover.de/schema/"
+STR_SKOS = str(SKOS)
 
 # Namespaces for KGs
 NS_SEM = Namespace(STR_SEM)
@@ -49,6 +50,7 @@ NS_DBR = Namespace(STR_DBR)
 NS_OWL = OWL
 NS_EVENTKG_R = Namespace(STR_EVENTKG_R)
 NS_EVENTKG_S = Namespace(STR_EVENTKG_S)
+NS_SKOS = SKOS
 
 # Ontologies prefixes
 PREFIX_SEM = "sem"
@@ -68,3 +70,4 @@ PREFIX_DBR = "dbr"
 PREFIX_OWL = "owl"
 PREFIX_EVENTKG_R = "eventKG-r"
 PREFIX_EVENTKG_S = "eventKG-s"
+PREFIX_SKOS = "skos"

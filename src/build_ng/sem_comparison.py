@@ -9,7 +9,9 @@ from src.helpers.variables import NS_SEM, STR_SEM, PREFIX_SEM
 from src.helpers.graph_structure import get_intersection_difference
 
 def get_f1(precision: float, recall: float) -> float:
-    return 2*precision*recall/(precision + recall)
+    if precision + recall:
+        return 2*precision*recall/(precision + recall)
+    return 0
 
 class SEMComparer:
     """ Comparing wrt. SEM predicates """
@@ -58,8 +60,15 @@ class SEMComparer:
             "triples_gs_only": len(graph_gs_only)
         }
 
-        precision = 100*len(intersection)/(len(intersection) + len(graph_gs_only))
-        recall = 100*len(intersection)/(len(intersection) + len(graph_c_only))
+        if len(intersection) + len(graph_gs_only):
+            precision = 100*len(intersection)/(len(intersection) + len(graph_gs_only))
+        else:
+            precision = 0
+        
+        if len(intersection) + len(graph_c_only):
+            recall = 100*len(intersection)/(len(intersection) + len(graph_c_only))
+        else:
+            recall = 0
         output["metrics"] = {
             "all": {"precision": precision, "recall": recall, "f1": get_f1(precision, recall)}
         }
@@ -73,8 +82,15 @@ class SEMComparer:
                 "triples_search_only": pred_c.get(key, 0),
                 "triples_gs_only": pred_gs.get(key, 0)
             }
-            precision = 100*pred_i.get(key, 0)/(pred_i.get(key, 0) + pred_gs.get(key, 0))
-            recall = 100*pred_i.get(key, 0)/(pred_i.get(key, 0) + pred_c.get(key, 0))
+            if pred_i.get(key, 0) + pred_gs.get(key, 0):
+                precision = 100*pred_i.get(key, 0)/(pred_i.get(key, 0) + pred_gs.get(key, 0))
+            else:
+                precision = 0
+
+            if pred_i.get(key, 0) + pred_c.get(key, 0):
+                recall = 100*pred_i.get(key, 0)/(pred_i.get(key, 0) + pred_c.get(key, 0))
+            else:
+                recall = 0
             output["metrics"] = output["metrics"] | \
                 {key: {"precision": precision, "recall": recall, "f1": get_f1(precision, recall)}}
         return output
@@ -92,7 +108,7 @@ def main(build, gs):
 
     comparer = SEMComparer()
     output = comparer(graph_c=graph_c, graph_gs=graph_gs)
-    print(output)
+    # print(output)
 
 
 if __name__ == '__main__':
