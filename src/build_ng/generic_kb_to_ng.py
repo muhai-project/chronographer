@@ -29,10 +29,10 @@ from rdflib import URIRef, Literal, Graph
 from settings import FOLDER_PATH
 from kglab.helpers.encoding import encode
 from src.hdt_interface import HDTInterface
-from src.helpers.kg_build import init_graph
-from src.helpers.kg_query import get_labels, get_outgoing
-from src.helpers.data_load import open_json, read_csv
-from src.helpers.variables import NS_SEM, PREFIX_SEM, NS_XSD, PREFIX_XSD, STR_XSD, NS_DBR, PREFIX_DBR, NS_RDF, PREFIX_RDF, NS_RDFS
+from kglab.helpers.kg_build import init_graph
+from kglab.helpers.kg_query import get_labels, get_outgoing
+from kglab.helpers.data_load import open_json, read_csv
+from kglab.helpers.variables import NS_SEM, PREFIX_SEM, NS_XSD, PREFIX_XSD, STR_XSD, NS_DBR, PREFIX_DBR, NS_RDF, PREFIX_RDF, NS_RDFS
 from src.build_ng.dbpedia_spotlight import init_spacy_pipeline, get_db_entities
 
 def get_args_hdt_interface(dataset: str) -> (dict, str, bool):

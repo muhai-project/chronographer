@@ -6,7 +6,7 @@ import os
 import click
 import random
 from urllib.parse import unquote
-from src.helpers.data_load import read_csv
+from kglab.helpers.data_load import read_csv
 
 @click.command()
 @click.option("--csv", help=".csv path containing only causation frames")

@@ -8,7 +8,7 @@ from tqdm import tqdm
 from loguru import logger
 from urllib.parse import quote
 from rdflib import Graph, URIRef, Literal
-from src.helpers.data_load import read_csv
+from kglab.helpers.data_load import read_csv
 from src.hdt_interface import HDTInterface
 from src.build_ng.frame_semantics import FrameSemanticsNGBuilder
 from kglab.helpers.kg_build import init_graph

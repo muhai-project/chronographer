@@ -12,7 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 from datetime import datetime
 from loguru import logger
-from src.helpers.data_load import read_csv
+from kglab.helpers.data_load import read_csv
 from src.build_ng.generic_kb_to_ng import KGConverter
 from src.build_ng.eventkg_to_ng import EventKGToNGConverter
 

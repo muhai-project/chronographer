@@ -7,11 +7,11 @@ from tqdm import tqdm
 from requests.models import Response
 from rdflib import Graph
 from kglab.helpers.encoding import encode
-from src.helpers.kg_query import run_query
-from src.helpers.kg_build import init_graph
-from src.helpers.data_load import read_csv
-from src.helpers.variables import EVENTKG_ENDPOINT, PREFIX_SEM, STR_SEM, PREFIX_RDF, STR_RDF, \
-    PREFIX_OWL, STR_OWL, NS_SEM, NS_RDF, NS_OWL, HEADERS_CONSTRUCT
+from kglab.helpers.kg_query import run_query
+from kglab.helpers.kg_build import init_graph
+from kglab.helpers.data_load import read_csv
+from kglab.helpers.variables import EVENTKG_ENDPOINT, PREFIX_SEM, STR_SEM, PREFIX_RDF, STR_RDF, \
+    PREFIX_OWL, STR_OWL, NS_SEM, NS_RDF, NS_OWL, HEADERS_RDF_XML
 
 class EventKGToNGConverter:
     """ Converting sub-graphs of EventKG to simplified SEM """
@@ -152,7 +152,7 @@ class EventKGToNGConverter:
         query = template.replace("event-input", encode(text=event)) \
             .replace("<filter-str>", filter_str) \
                 .replace("<filter-named-graph>", filter_named_graph)
-        return run_query(query=query, sparql_endpoint=self.endpoint, headers=HEADERS_CONSTRUCT)
+        return run_query(query=query, sparql_endpoint=self.endpoint, headers=HEADERS_RDF_XML)
 
     def __call__(self, events: list[str], filter_str: str, filter_named_graph: str) -> Graph:
         """ events: list of events """

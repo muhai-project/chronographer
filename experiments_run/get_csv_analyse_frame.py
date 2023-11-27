@@ -7,7 +7,7 @@ import click
 from tqdm import tqdm
 from rdflib import Graph
 import pandas as pd
-from src.helpers.data_load import read_csv
+from kglab.helpers.data_load import read_csv
 
 
 COLUMNS_QUERY_FRAMES = ["event", "frame", "nb_frame"]

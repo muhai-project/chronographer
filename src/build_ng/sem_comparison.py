@@ -5,8 +5,8 @@ Comparing two graphs
 import click
 from collections import defaultdict
 from rdflib import Graph
-from src.helpers.variables import NS_SEM, STR_SEM, PREFIX_SEM
-from src.helpers.graph_structure import get_intersection_difference
+from kglab.helpers.variables import NS_SEM, STR_SEM, PREFIX_SEM
+from kglab.helpers.graph_structure import get_intersection_difference
 
 def get_f1(precision: float, recall: float) -> float:
     if precision + recall:
