@@ -18,7 +18,7 @@ class SEMComparer:
     def __init__(self):
         self.predicates = [str(NS_SEM["hasPlace"]), str(NS_SEM["hasActor"]), 
                            str(NS_SEM["hasBeginTimeStamp"]), str(NS_SEM["hasEndTimeStamp"])]
-        self.predicats = [str(x) for x in self.predicates]
+        self.predicates = [str(x) for x in self.predicates]
         self.pred_to_prefix = {
             STR_SEM: PREFIX_SEM
         }

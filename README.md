@@ -1,10 +1,6 @@
 # **Informed Graph Traversal**
 
-[WIP] 
-to be updated
-- install kglab module (wip, to be added into pip afterwards), for now added directly in the code for the submission
-
----
+This is the code for the paper submitted to ESWC 2024.
 
 
 First clone the repo
