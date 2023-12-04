@@ -26,3 +26,6 @@ sklearn==0.0
 kaleido==0.2.1
 spacy==3.4.2
 spacy-dbpedia-spotlight==0.2.5
+click==8.0.3
+loguru==0.7.2
+frame-semantic-transformer==0.10.0

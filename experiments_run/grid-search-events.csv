@@ -1,0 +1,13 @@
+,event_name,iterations,dataset
+0,http://dbpedia.org/resource/French_Revolution,200,dbpedia
+1,http://dbpedia.org/resource/World_War_I,200,dbpedia
+2,http://dbpedia.org/resource/American_Indian_Wars,200,dbpedia
+3,http://dbpedia.org/resource/Cold_War,200,dbpedia
+4,http://dbpedia.org/resource/Napoleonic_Wars,200,dbpedia
+5,http://dbpedia.org/resource/Coalition_Wars,200,dbpedia
+6,http://dbpedia.org/resource/Mediterranean_and_Middle_East_theatre_of_World_War_II,200,dbpedia
+7,http://dbpedia.org/resource/European_theatre_of_World_War_II,200,dbpedia
+8,http://dbpedia.org/resource/Pacific_War,200,dbpedia
+9,http://dbpedia.org/resource/European_theatre_of_World_War_I,200,dbpedia
+10,http://dbpedia.org/resource/Russian_Civil_War,200,dbpedia
+11,http://dbpedia.org/resource/Yugoslav_Wars,200,dbpedia
