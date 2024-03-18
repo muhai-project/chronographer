@@ -10,6 +10,7 @@ import yaml
 from tqdm import tqdm
 
 from src.hdt_interface import HDTInterface
+from src.sparql_interface import SPARQLInterface
 from settings import FOLDER_PATH
 
 
@@ -36,13 +37,19 @@ class ExtractDomainRange:
         self.pred = []
 
         # Loading HDT Interface
-        self.interface = HDTInterface(filter_kb=self.filter_kb, folder_hdt=self.dataset_path,
-                                      dataset_config=self.dataset_config,
-                                      nested_dataset=self.nested, default_pred=self.pred)
+        if dataset_type in ["wikidata", "dbpedia", "yago"]:
+            self.interface = HDTInterface(filter_kb=self.filter_kb, folder_hdt=self.dataset_path,
+                                          dataset_config=self.dataset_config,
+                                          nested_dataset=self.nested, default_pred=self.pred)
+        else:  # dataset_type == "coda"
+            self.interface = SPARQLInterface(dataset_config=self.dataset_config,
+                                             default_pred=self.pred,
+                                             filter_kb=0,
+                                             sparql_endpoint="http://localhost:7200/repositories/coda")
 
     def _check_args(self):
         """ Check arguments when instantiating """
-        if self.dataset_type not in ["dbpedia", "wikidata", "yago"]:
+        if self.dataset_type not in ["dbpedia", "wikidata", "yago", "coda"]:
             raise ValueError("`dataset_type` should be either `dbpedia`, `wikidata` or `yago`")
 
         if self.nested not in [0, 1]:
@@ -146,7 +153,7 @@ class ExtractDomainRange:
 
     def __call__(self):
         """ Pre extracting info on constraints for predicates """
-        if self.dataset_type in ["dbpedia", "yago"]:
+        if self.dataset_type in ["dbpedia", "yago", "coda"]:
             domain_pred = self.get_pred(type_to_extract="domain")
             range_pred = self.get_pred(type_to_extract="range")
 
@@ -193,7 +200,7 @@ if __name__ == '__main__':
                                    dataset_path=args_main["dataset_path"])
     DOMAIN_PRED, RANGE_PRED, SUPERCLASSES = extractor()
 
-    SAVE_FOLDER = os.path.join(FOLDER_PATH)
+    SAVE_FOLDER = os.path.join(FOLDER_PATH, "domain-range-pred")
     if not os.path.exists(SAVE_FOLDER):
         os.makedirs(SAVE_FOLDER)
 
