@@ -2,6 +2,7 @@
 """ 
 Helpers
 """
+import pandas as pd
 from pyvis.network import Network
 
 def rdflib_to_pyvis_html(graph, save_path):
@@ -15,3 +16,10 @@ def rdflib_to_pyvis_html(graph, save_path):
     
     # Generate HTML code for the network visualization
     net.show(save_path)
+
+def rdflib_to_pd(graph):
+    """ Rdflib graph to pandas df with columns ["subject", "predicate", "object"] """
+    df = pd.DataFrame(columns=['subject', 'predicate', 'object'])
+    for subj, pred, obj in graph:
+        df.loc[df.shape[0]] = [str(subj), str(pred), str(obj)]
+    return df
