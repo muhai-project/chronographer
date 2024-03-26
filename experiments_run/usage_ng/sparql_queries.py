@@ -120,3 +120,106 @@ CONSTRUCT {
     VALUES ?event {dbr:<event>}
 }
 """
+
+QUERY_INFO_ACTOR = PREFIXES + """
+CONSTRUCT {
+    ?event sem:hasActor ?actor ;
+           sem:hasBeginTimeStamp ?start ;
+           sem:hasEndTimeStamp ?end ;
+           ex:hasAbstract ?abstract_label ;
+           ex:hasSentence ?sentence_label .
+   	?actor skos:related ?role .
+    ?role ex:withRole ?gfe .
+} WHERE {
+    {
+       ?event sem:hasActor ?actor ;
+              sem:hasBeginTimeStamp ?start ;
+              sem:hasEndTimeStamp ?end ;
+              ex:abstract ?abstract .
+       ?abstract rdf:value ?abstract_label .
+    }
+    UNION
+    {
+       ?event ex:abstract ?abstract ;
+              sem:hasBeginTimeStamp ?start ;
+              sem:hasEndTimeStamp ?end .
+       ?abstract rdf:value ?abstract_label ;
+                 nif:sentence ?sentence .
+       ?sentence rdf:value ?sentence_label .
+       ?annotation rdf:type wsj:CorpusEntry ;
+                   wsj:fromDocument ?sentence ;
+                   wsj:withmappedrole ?role .
+       ?role wsj:withfnfe ?gfe ;
+             rdf:value ?role_label ;
+             skos:related ?actor . 
+    }
+    
+    VALUES ?gfe {gfe:Agent gfe:Leader gfe:Assailant gfe:Individuals gfe:Victim gfe:Person gfe:Speaker gfe:Patient gfe:Members gfe:Creator gfe:Invader gfe:Protagonist gfe:Side_1 gfe:Side_2 gfe:Experiencer gfe:New_member gfe:Owner gfe:Suspect gfe:Employee gfe:Earner}
+    VALUES ?actor {dbr:<actor>}
+}
+"""
+
+QUERY_INTERACTION_ACTOR = PREFIXES + """
+CONSTRUCT {
+    ?event sem:hasActor ?actor1, ?actor2 .
+} WHERE {
+    {
+       ?event rdf:type sem:Event .
+        OPTIONAL {?event sem:hasActor ?actor1}
+        OPTIONAL {?event sem:hasActor ?actor2}
+    }
+    UNION
+    {
+       ?event rdf:type sem:Event ;
+              ex:abstract ?abstract .
+        OPTIONAL {
+            ?abstract nif:sentence ?sentence1 .
+            ?annotation1 rdf:type wsj:CorpusEntry ;
+                         wsj:fromDocument ?sentence1 ;
+                         wsj:withmappedrole ?role1 .
+            ?role1 wsj:withfnfe ?gfe1 ;
+                   skos:related ?actor1 .
+        }
+        OPTIONAL {
+            ?abstract nif:sentence ?sentence2 .
+            ?annotation2 rdf:type wsj:CorpusEntry ;
+                         wsj:fromDocument ?sentence2 ;
+                         wsj:withmappedrole ?role2 .
+            ?role2 wsj:withfnfe ?gfe2 ;
+                   skos:related ?actor2 .
+        }
+    }
+    FILTER (?actor1 = dbr:<actor1>)
+    FILTER (?actor2 = dbr:<actor2>)
+}
+"""
+
+QUERY_EVENT_FRAME = PREFIXES + """
+CONSTRUCT {
+    ?event rdf:type sem:Event ;
+           ex:hasSentence ?sentence .
+    ?sentence rdf:value ?sentence_label .
+    ?annotation wsj:onFrame ?frame ;
+                wsj:onLemma ?lemma ;
+                wsj:withmappedrole ?role .
+    ?role wsj:withfnfe ?gfe ;
+          rdf:value ?role_label .
+} WHERE {
+    ?event ex:abstract ?abstract ;
+           sem:hasBeginTimeStamp ?begin_ts ;
+           sem:hasEndTimeStamp ?end_ts .
+    ?abstract rdf:value ?abstract_label ;
+              nif:sentence ?sentence .
+    ?sentence rdf:value ?sentence_label .
+    ?annotation rdf:type wsj:CorpusEntry ;
+                wsj:onFrame ?frame ;
+                wsj:fromDocument ?sentence ;
+                wsj:onLemma ?lemma .
+    OPTIONAL {
+        ?annotation wsj:withmappedrole ?role .
+        ?role wsj:withfnfe ?gfe ;
+              rdf:value ?role_label .
+    }
+    FILTER (?event = dbr:<event>)
+}
+"""
