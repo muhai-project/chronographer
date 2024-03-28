@@ -38,7 +38,7 @@ PROMPTS_EVENTS = {
 
 PROMPTS_TS = {
     "event_type_timestamped": "What were the main type of events that happened " + \
-        "between <start_date> and <end_date>?"
+        f"between <start_date> and <end_date> during the {EVENT}?"
 }
 
 PROMPTS_WHO = {
@@ -56,6 +56,8 @@ Context triples:
 <TRIPLES>
 ```
 """
+
+END_PROMPT = "Be concise in your answer."
 
 TYPE_PROMPT_TO_QUERY = {
     "summary": QUERY_INFO_EVENT,
