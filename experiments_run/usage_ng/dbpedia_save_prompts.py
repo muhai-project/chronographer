@@ -3,6 +3,7 @@
 Prompting
 """
 import os
+import yaml
 import pandas as pd
 from urllib.parse import unquote
 import click
@@ -15,7 +16,16 @@ from src.helpers import rdflib_to_pd
 from src.hdt_interface import HDTInterface
 from kglab.helpers.kg_query import run_query
 from kglab.helpers.variables import HEADERS_RDF_XML, NS_DBR
+from settings import FOLDER_PATH
 
+with open(os.path.join(FOLDER_PATH,"dataset-config", "dbpedia.yaml"),
+          encoding='utf-8') as file:
+    DBPEDIA_CONFIG = yaml.load(file, Loader=yaml.FullLoader)
+FILTERING = Filtering(
+    args={"when": 1, "point_in_time": DBPEDIA_CONFIG.get("point_in_time"),
+          "start_dates": DBPEDIA_CONFIG.get("start_dates"),
+          "end_dates": DBPEDIA_CONFIG.get("end_dates"), "places": None, "people": None, "dataset_type": "dbpedia"})
+DATES = ["1789-05-05", "1799-12-31"]
 INTERFACE = HDTInterface()
 NS_DBR = str(NS_DBR)
 CLASS_EVENT = "http://dbpedia.org/ontology/Event" 
@@ -178,7 +188,19 @@ def get_event_type_ts_triples(**info):
         types = [x[2] for x in INTERFACE.get_triples(**params)]
         if CLASS_EVENT in types:
             filtered_cands.append(cand)
-    print(filtered_cands)
+
+    triples = []
+    for cand in filtered_cands:
+        params = {"subject": cand}
+        triples += INTERFACE.get_triples(**params)
+    triples = pd.DataFrame(triples, columns=COLUMNS)
+    date_df = triples[triples.predicate.isin(FILTERING.time["temporal"])]
+    date_df.object = date_df.object.astype(str)
+    date_df.object = date_df.object.apply(INTERFACE.pre_process_date)
+    to_discard = FILTERING.get_to_discard_date(date_df=date_df, dates=DATES)
+    triples = filter_data(triples[~triples.subject.isin(to_discard)])
+    return triples
+
 
 
 TYPE_PROMPT_TO_FUNC = {
