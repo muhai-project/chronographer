@@ -1,0 +1,13 @@
+In which events were Charles IV of Spain and Francis II, Holy Roman Emperor both involved during the French Revolution? You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(French_Revolutionary_Wars, hasActor, Francis_II,_Holy_Roman_Emperor)
+(French_Revolutionary_Wars, hasActor, Charles_IV_of_Spain)
+(War_of_the_First_Coalition, hasActor, Charles_IV_of_Spain)
+(War_of_the_Second_Coalition, hasActor, Charles_IV_of_Spain)
+(War_of_the_First_Coalition, hasActor, Francis_II,_Holy_Roman_Emperor)
+(War_of_the_Second_Coalition, hasActor, Francis_II,_Holy_Roman_Emperor)
+```
+
+Be concise in your answer.

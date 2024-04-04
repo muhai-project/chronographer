@@ -1,0 +1,25 @@
+What happened to Antoine Balland during the French Revolution? You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Veronese_Easter, hasPlace, Verona)
+(Battle_of_Le_Cateau_(1794), hasActor, Antoine_Balland)
+(Veronese_Easter, hasPlace, Veneto)
+(Battle_of_Le_Cateau_(1794), hasAbstract, The Battle of Le Cateau (29 March 1794) took place at the start of the 1794 Flanders Campaign during the War of the First Coalition, part of the French Revolutionary Wars. It saw three Republican French divisions led by Antoine Balland, Jacques Gilles Henri Goguet and Jacques Fromentin attack a Habsburg Austrian force commanded by Paul Kray. The Austrians drove off the French and inflicted four French casualties for every Austrian casualty.)
+(Antoine_Balland, core#related, Battle_of_Le_Cateau_(1794)_0_1_1_1)
+(Veronese_Easter, hasPlace, Republic_of_Venice)
+(Battle_of_Le_Cateau_(1794), hasPlace, France)
+(Battle_of_Le_Cateau_(1794), hasPlace, Le_Cateau-Cambrésis)
+(Veronese_Easter, hasAbstract, The Veronese Easter (Italian: Pasque Veronesi, or singular Pasqua Veronese; French: Pâques véronaises) was a rebellion during the Italian campaign of 1797, in which inhabitants of Verona and the surrounding areas revolted against the French occupying forces under Antoine Balland, while Napoleon Bonaparte (the French supreme commander in the Italian campaign) was fighting in Austria. The uprising received its name through association with the anti-French uprising of the Sicilian Vespers of the 13th century. Incited by oppressive behaviour by the French (confiscating the assets of Verona's citizens and plotting to overthrow the city's local government), it began on the morning of 17 April 1797, the second day of Easter: the enraged population succeeded in defeating more than a thousand French soldiers in the first hour of fighting, forcing them to take refuge in the town's fortifications, which the mob then captured by force. The revolt ended on 25 April 1797 with the encirclement and capture of the town by 15,000 soldiers, who then forced it to pay a huge fine and hand over various assets, including artwork.)
+(Battle_of_Le_Cateau_(1794), hasSentence, It saw three Republican French divisions led by Antoine Balland, Jacques Gilles Henri Goguet and Jacques Fromentin attack a Habsburg Austrian force commanded by Paul Kray.)
+(Battle_of_Le_Cateau_(1794)_0_1_1_1, withRole, Leader)
+(Veronese_Easter, hasActor, Antoine_Balland)
+(Battle_of_Le_Cateau_(1794), hasEndTimeStamp, 1794-03-29)
+(Battle_of_Le_Cateau_(1794), hasBeginTimeStamp, 1794-03-29)
+(Veronese_Easter, hasEndTimeStamp, 1797-04-17)
+(Veronese_Easter, hasBeginTimeStamp, 1797-04-17)
+(Antoine_Balland, core#related, Battle_of_Le_Cateau_(1794)_0_1_2_0)
+(Battle_of_Le_Cateau_(1794)_0_1_2_0, withRole, Assailant)
+```
+
+Be concise in your answer.

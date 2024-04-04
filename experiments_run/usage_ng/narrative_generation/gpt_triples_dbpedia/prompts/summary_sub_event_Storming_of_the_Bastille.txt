@@ -1,0 +1,26 @@
+Please provide a summary of the Storming of the Bastille during the French Revolution. You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Storming_of_the_Bastille, rdf-schema#label, "Storming of the Bastille"@en)
+(Storming_of_the_Bastille, abstract, "The Storming of the Bastille (French: Prise de la Bastille [pʁiz də la bastij]) occurred in Paris, France, on the afternoon of 14 July 1789. The medieval armory, fortress, and political prison known as the Bastille represented royal authority in the centre of Paris. The prison contained only seven inmates at the time of its storming, but was seen by the revolutionaries as a symbol of the monarchy's abuse of power; its fall was the flashpoint of the French Revolution. In France, 14 July is the national holiday, usually called Bastille Day in English."@en)
+(Storming_of_the_Bastille, causalties, "98 killed, 73 wounded")
+(Storming_of_the_Bastille, combatant, "Civilian insurgents")
+(Storming_of_the_Bastille, combatant, "French Guards mutineers")
+(Storming_of_the_Bastille, combatant, "Royal government")
+(Storming_of_the_Bastille, date, XMLSchema#date>)
+(Storming_of_the_Bastille, result, "*Bastillecaptured")
+(Storming_of_the_Bastille, result, "Insurgent victory")
+(Storming_of_the_Bastille, strength, "114 soldiers (82 Invalides (veterans), 32 Swiss soldiers of the Salis-Samade Regiment); 30 artillery pieces")
+(Storming_of_the_Bastille, strength, "Between 688 to 1,000 armed civilian insurgents; 61 French Guards; at least five artillery pieces")
+(Storming_of_the_Bastille, commander, Bernard-René_Jourdan_de_Launay)
+(Storming_of_the_Bastille, commander, Pierre-Augustin_Hulin)
+(Storming_of_the_Bastille, commander, Stanislas-Marie_Maillard)
+(Storming_of_the_Bastille, isPartOfMilitaryConflict, French_Revolution)
+(Storming_of_the_Bastille, place, Kingdom_of_France)
+(Storming_of_the_Bastille, place, Paris)
+(Storming_of_the_Bastille, place, Île-de-France)
+(Jean_Antoine_Rossignol, battle, Storming_of_the_Bastille)
+(James_Bartholomew_Blackwell, battle, Storming_of_the_Bastille)
+```
+Be concise in your answer.

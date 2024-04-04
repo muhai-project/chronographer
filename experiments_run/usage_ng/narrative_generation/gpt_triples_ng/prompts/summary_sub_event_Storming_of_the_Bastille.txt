@@ -1,0 +1,34 @@
+Please provide a summary of the Storming of the Bastille during the French Revolution. You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Fête_de_la_Fédération, abstract, The inaugural fête of 1790 was set for 14 July, so it would also coincide with the first anniversary of the storming of the Bastille although that is not what was itself celebrated.)
+(Fête_de_la_Fédération, abstract, It is the precursor of the Bastille Day which is celebrated every year in France on 14 July, celebrating the Revolution itself, as well as National Unity.)
+(Storming_of_the_Bastille, core#related, Women's_March_on_Versailles_0_0_1_0)
+(Storming_of_the_Bastille, core#related, Fête_de_la_Fédération_0_3_0_0)
+(Fête_de_la_Fédération_0_1_0_1, withrole, Product)
+(Storming_of_the_Bastille, core#related, Fête_de_la_Fédération_0_1_1_0)
+(Storming_of_the_Bastille, core#related, Women's_March_on_Versailles)
+(Storming_of_the_Bastille, hasPlace, Kingdom_of_France)
+(Storming_of_the_Bastille, core#related, Fête_de_la_Fédération)
+(Fête_de_la_Fédération, abstract, The Fête de la Fédération (Festival of the Federation) was a massive holiday festival held throughout France in 1790 in honour of the French Revolution.)
+(Storming_of_the_Bastille, hasPlace, Île-de-France)
+(Storming_of_the_Bastille, hasActor, Bernard-René_Jourdan_de_Launay)
+(Fête_de_la_Fédération_0_3_0_0, withrole, Dedicated_entity)
+(Storming_of_the_Bastille, abstract, The Storming of the Bastille (French: Prise de la Bastille [pʁiz də la bastij]) occurred in Paris, France, on the afternoon of 14 July 1789. The medieval armory, fortress, and political prison known as the Bastille represented royal authority in the centre of Paris. The prison contained only seven inmates at the time of its storming, but was seen by the revolutionaries as a symbol of the monarchy's abuse of power; its fall was the flashpoint of the French Revolution. In France, 14 July is the national holiday, usually called Bastille Day in English.)
+(Women's_March_on_Versailles, abstract, The Women's March on Versailles, also known as the October March, the October Days or simply the March on Versailles, was one of the earliest and most significant events of the French Revolution.)
+(Storming_of_the_Bastille, hasActor, Pierre-Augustin_Hulin)
+(Storming_of_the_Bastille, hasActor, French_Revolution)
+(Fête_de_la_Fédération_0_1_1_0, withrole, Dedicated_entity)
+(Storming_of_the_Bastille, hasActor, Stanislas-Marie_Maillard)
+(Fête_de_la_Fédération_0_0_0_3, withrole, Occasion)
+(Storming_of_the_Bastille, hasPlace, Paris)
+(Storming_of_the_Bastille, core#related, Fête_de_la_Fédération_0_1_0_1)
+(Women's_March_on_Versailles_0_0_1_0, withrole, Focal_occasion)
+(Storming_of_the_Bastille, hasEndTimeStamp, 1789-07-14)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Event)
+(Storming_of_the_Bastille, hasBeginTimeStamp, 1789-07-14)
+(Storming_of_the_Bastille, core#related, Fête_de_la_Fédération_0_0_0_3)
+```
+
+Be concise in your answer.

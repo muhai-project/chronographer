@@ -1,0 +1,8 @@
+Please provide a summary of the Infernal columns during the French Revolution. You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Infernal_columns, rdf-schema#label, "Infernal columns"@en)
+(Infernal_columns, abstract, "The infernal columns (French: colonnes infernales) were operations led by the French Revolutionary general Louis Marie Turreau in the War in the Vendée, after the failure of the Royalist Virée de Galerne. Following the passage on 1 August 1793 and 1 October 1793 by the National Convention of laws, the National Convention stated that the goal was to exterminate "brigands" in the area south of the Loire River (the so-called Vendée), 12 army columns were formed and sent through the Vendée to exterminate the local anti-Republican population. In January 1794, Turreau wrote to the National Convention's Minister for War, to lay out his proposed tactics: "My purpose is to burn everything, to leave nothing but what is essential to establish the necessary quarters for exterminating the rebels." It has been estimated that from 16,000 to 40,000 inhabitants were killed during the first quarter of 1794. The employment and actions of these "infernal columns" continues to be a subject of heated debate, both in France and abroad. French historian Reynald Secher has gone so far as to characterise their operations as a "Franco-French genocide," while Claude Langlois of the Institute of History of the French Revolution has derided Secher's claims as "quasi-mythological." The debate has become highly politicized. The term 'infernal column' has also been used for a similar movement in the Voulet-Chanoine Mission."@en)
+```
+Be concise in your answer.

@@ -1,0 +1,33 @@
+What happened at the end of the Battle of Winterthur during the French Revolution? Please provide the main causal happenings that led to the unfolding of the Battle of Winterthur. You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Battle_of_Winterthur_0_9_4_3, withrole, Effect)
+(Battle_of_Winterthur_0, hasValue, The Battle of Winterthur (27 May 1799) was an important action between elements of the Army of the Danube and elements of the Habsburg army, commanded by Friedrich Freiherr von Hotze, during the War of the Second Coalition, part of the French Revolutionary Wars. The small town of Winterthur lies 18 kilometers (11 mi) northeast of Zürich, in Switzerland. Because of its position at the junction of seven roads, the army that held the town controlled access to most of Switzerland and points crossing the Rhine into southern Germany. Although the forces involved were small, the ability of the Austrians to sustain their 11-hour assault on the French line resulted in the consolidation of three Austrian forces on the plateau north of Zürich, leading to the French defeat a few days later. By mid-May 1799, the Austrians had wrested control of parts of Switzerland from the French as forces under the command of Hotze and Count Heinrich von Bellegarde pushed them out of the Grisons. After defeating Jean-Baptiste Jourdan's 25,000-man Army of the Danube at the battles of Ostrach and Stockach, the main Austrian army, under command of Archduke Charles, crossed the Rhine at the Swiss town of Schaffhausen and prepared to unite with the armies of Hotze and Friedrich Joseph, Count of Nauendorf, on the plains surrounding Zürich. The French Army of Helvetia and the Army of the Danube, now both under the command of André Masséna, sought to prevent this merger. Masséna sent Michel Ney and a small mixed cavalry and infantry force from Zürich to stop Hotze's force at Winterthur. Despite a sharp contest, the Austrians succeeded in pushing the French out of the Winterthur highlands, although both sides took high casualties. Once the union of the Habsburg armies took place in early June, Archduke Charles attacked French positions at Zürich and forced the French to withdraw beyond the Limmat.)
+(Battle_of_Winterthur_0, hasSentence, Although the forces involved were small, the ability of the Austrians to sustain their 11-hour assault on the French line resulted in the consolidation of three Austrian forces on the plateau north of Zürich, leading to the French defeat a few days later.)
+(Swiss_Plateau, core#related, Battle_of_Winterthur_0_3_3_2)
+(University_of_Zurich, core#related, Battle_of_Winterthur)
+(Battle_of_Winterthur_0, hasSentence, Once the union of the Habsburg armies took place in early June, Archduke Charles attacked French positions at Zürich and forced the French to withdraw beyond the Limmat.)
+(Battle_of_Winterthur_0_3_3_0, withrole, Concessive)
+(Battle_of_Winterthur_0_3_5_1, withrole, Effect)
+(Limmat, core#related, Battle_of_Winterthur_0_9_4_3)
+(Limmat, core#related, Battle_of_Winterthur)
+(Battle_of_Winterthur, abstract, Battle_of_Winterthur_0)
+(Battle_of_Winterthur_0_3_5_0, withrole, Cause)
+(Battle_of_Winterthur_0_9_4_1, withrole, Cause)
+(Battle_of_Winterthur_0_3_3_1, withrole, Cause)
+(University_of_Zurich, core#related, Battle_of_Winterthur_0_3_3_2)
+(Battle_of_Winterthur_0_3_3_2, withrole, Effect)
+(Swiss_Plateau, core#related, Battle_of_Winterthur)
+(House_of_Habsburg, core#related, Battle_of_Winterthur_0_9_4_0)
+(Battle_of_Winterthur, hasPlace, Helvetic_Republic)
+(House_of_Habsburg, core#related, Battle_of_Winterthur)
+(Battle_of_Winterthur_0_9_4_2, withrole, Affected)
+(Charles_I_of_Austria, core#related, Battle_of_Winterthur)
+(Battle_of_Winterthur, hasPlace, Canton_of_Zürich)
+(Battle_of_Winterthur_0_9_4_0, withrole, Time)
+(Charles_I_of_Austria, core#related, Battle_of_Winterthur_0_9_4_1)
+(Battle_of_Winterthur, hasPlace, Winterthur)
+```
+
+Be concise in your answer.

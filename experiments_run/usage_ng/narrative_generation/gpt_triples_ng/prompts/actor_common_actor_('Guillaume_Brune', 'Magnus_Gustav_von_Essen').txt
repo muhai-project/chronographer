@@ -1,0 +1,13 @@
+In which events were Guillaume Brune and Magnus Gustav von Essen both involved during the French Revolution? You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Battle_of_Alkmaar_(1799), hasActor, Magnus_Gustav_von_Essen)
+(Anglo-Russian_invasion_of_Holland, hasActor, Magnus_Gustav_von_Essen)
+(Anglo-Russian_invasion_of_Holland, hasActor, Guillaume_Brune)
+(Battle_of_Alkmaar_(1799), hasActor, Guillaume_Brune)
+(Battle_of_Castricum, hasActor, Guillaume_Brune)
+(Battle_of_Castricum, hasActor, Magnus_Gustav_von_Essen)
+```
+
+Be concise in your answer.

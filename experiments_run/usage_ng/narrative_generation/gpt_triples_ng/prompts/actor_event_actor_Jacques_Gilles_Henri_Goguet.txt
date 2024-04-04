@@ -1,0 +1,28 @@
+What happened to Jacques Gilles Henri Goguet during the French Revolution? You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Battle_of_Peyrestortes, hasPlace, France)
+(Battle_of_Le_Cateau_(1794)_0_1_2_0, withRole, Assailant)
+(Battle_of_Le_Cateau_(1794), hasAbstract, The Battle of Le Cateau (29 March 1794) took place at the start of the 1794 Flanders Campaign during the War of the First Coalition, part of the French Revolutionary Wars. It saw three Republican French divisions led by Antoine Balland, Jacques Gilles Henri Goguet and Jacques Fromentin attack a Habsburg Austrian force commanded by Paul Kray. The Austrians drove off the French and inflicted four French casualties for every Austrian casualty.)
+(Battle_of_Peyrestortes, hasAbstract, The Battle of Peyrestortes (17 September 1793) saw soldiers of the First French Republic fighting troops of the Kingdom of Spain during the War of the Pyrenees. Forces from the French Army of the Eastern Pyrenees, temporarily commanded by Eustache Charles d'Aoust and Jacques Gilles Henri Goguet, defeated two divisions of the Army of Catalonia led by Juan de Courten and Jerónimo Girón-Moctezuma, Marquis de las Amarillas. This Spanish setback in an attempt to capture Perpignan marked the high point of their invasion of Roussillon. The Spanish army of Antonio Ricardos had occupied part of Rousillon and made an abortive attempt to seize the fortress of Perpignan in July 1793. At the end of August, the Spanish commander sent two divisions on a sweep around the western side of Perpignan in an attempt to isolate the fortress and choke it off from resupply. After an initial Spanish success, the French army commander Hilarion Paul Puget de Barbantane, lost his nerve and fled from the area. D'Aoust and Goguet stepped into the command vacuum and led their troops to attack and rout the two Spanish divisions from their fortified camps. After the battle, the Army of Catalonia found itself back in its original positions. Ricardos successfully defended a Spanish foothold in France during the remainder of 1793. Peyrestortes is located 7 kilometres (4.3 mi) northwest of Perpignan.)
+(Battle_of_Peyrestortes, hasActor, Jacques_Gilles_Henri_Goguet)
+(Battle_of_Le_Cateau_(1794), hasPlace, Le_Cateau-Cambrésis)
+(Battle_of_Peyrestortes_0_1_0_2, withRole, Leader)
+(Battle_of_Le_Cateau_(1794), hasPlace, France)
+(Jacques_Gilles_Henri_Goguet, core#related, Battle_of_Le_Cateau_(1794)_0_1_1_1)
+(Jacques_Gilles_Henri_Goguet, core#related, Battle_of_Peyrestortes_0_1_0_2)
+(Battle_of_Le_Cateau_(1794), hasSentence, It saw three Republican French divisions led by Antoine Balland, Jacques Gilles Henri Goguet and Jacques Fromentin attack a Habsburg Austrian force commanded by Paul Kray.)
+(Battle_of_Le_Cateau_(1794)_0_1_1_1, withRole, Leader)
+(Battle_of_Peyrestortes, hasEndTimeStamp, 1793-09-17)
+(Battle_of_Peyrestortes, hasBeginTimeStamp, 1793-09-17)
+(Battle_of_Peyrestortes, hasPlace, Peyrestortes)
+(Battle_of_Le_Cateau_(1794), hasEndTimeStamp, 1794-03-29)
+(Battle_of_Le_Cateau_(1794), hasBeginTimeStamp, 1794-03-29)
+(Battle_of_Le_Cateau_(1794), hasActor, Jacques_Gilles_Henri_Goguet)
+(Jacques_Gilles_Henri_Goguet, core#related, Battle_of_Le_Cateau_(1794)_0_1_2_0)
+(Battle_of_Peyrestortes, hasPlace, Pyrénées-Orientales)
+(Battle_of_Peyrestortes, hasSentence, Forces from the French Army of the Eastern Pyrenees, temporarily commanded by Eustache Charles d'Aoust and Jacques Gilles Henri Goguet, defeated two divisions of the Army of Catalonia led by Juan de Courten and Jerónimo Girón-Moctezuma, Marquis de las Amarillas.)
+```
+
+Be concise in your answer.

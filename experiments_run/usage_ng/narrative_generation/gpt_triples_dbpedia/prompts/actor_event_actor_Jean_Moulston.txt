@@ -1,0 +1,21 @@
+What happened to Jean_Moulston during the French Revolution? You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Atlantic_raid_of_June_1796, rdf-schema#label, "Atlantic raid of June 1796"@en)
+(Atlantic_raid_of_June_1796, hypernym, Campaign)
+(Atlantic_raid_of_June_1796, abstract, "The Atlantic raid of June 1796 was a short campaign containing three connected minor naval engagements fought in the Western Approaches comprising Royal Navy efforts to eliminate a squadron of French frigates operating against British commerce during the French Revolutionary Wars. Although Royal Navy dominance in the Western Atlantic had been established, French commerce raiders operating on short cruises were having a damaging effect on British trade, and British frigate squadrons regularly patrolled from Cork in search of the raiders. One such squadron comprised the 36-gun frigates HMS Unicorn and HMS Santa Margarita, patrolling in the vicinity of the Scilly Isles, which encountered a French squadron comprising the frigates Tribune and Tamise and the corvette Légėre. The opposing forces were approximately equal in size, but the French, under orders to operate against commerce, not engage British warships, attempted to retreat. The British frigates pursued closely and over the course of the day gradually overhauled the French squadron. At 16:00 Santa Margarita caught Tamise and a furious duel ensued in which the smaller Tamise was badly damaged and eventually forced to surrender. Tribune continued its efforts to escape, but was finally caught by Unicorn at 22:30 and defeated in a second hard-fought engagement. Légėre took no part in the action and was able to withdraw without becoming embroiled in either conflict. Five days later the French frigate Proserpine, which had separated from the rest of the squadron after leaving Brest, was searching for her compatriots off Cape Clear in Southern Ireland when she was discovered by the patrolling British frigate HMS Dryad. Dryad successfully chased down Proserpine and forced the French ship to surrender in an engagement lasting 45 minutes. Nine days later Légėre was captured without a fight by another British frigate patrol. French casualties in all three engagements were very heavy, while British losses were light. In the aftermath all four captured ships were purchased for service in the Royal Navy."@en)
+(Atlantic_raid_of_June_1796, causalties, "10 wounded")
+(Atlantic_raid_of_June_1796, causalties, "4 killed")
+(Atlantic_raid_of_June_1796, combatant, "France")
+(Atlantic_raid_of_June_1796, date, XMLSchema#date>)
+(Atlantic_raid_of_June_1796, result, "British victory")
+(Atlantic_raid_of_June_1796, strength, "1 corvette")
+(Atlantic_raid_of_June_1796, strength, "3 frigates")
+(Atlantic_raid_of_June_1796, commander, Thomas_Williams_(Royal_Navy_officer))
+(Atlantic_raid_of_June_1796, commander, Jean_Moulston)
+(Atlantic_raid_of_June_1796, isPartOfMilitaryConflict, French_Revolutionary_Wars)
+(Atlantic_raid_of_June_1796, place, Atlantic_Ocean)
+(Atlantic_raid_of_June_1796, place, Western_Approaches)
+```
+Be concise in your answer.

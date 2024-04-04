@@ -1,0 +1,36 @@
+What were the main type of events that happened between 1792-01-01 and 1793-01-01? during the French Revolution You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Demonstration_of_20_June_1792, rdf-schema#label, "Demonstration of 20 June 1792"@en)
+(Demonstration_of_20_June_1792, hypernym, Attempt)
+(Demonstration_of_20_June_1792, abstract, "The Demonstration of 20 June 1792 (French: Journée du 20 juin 1792) was the last peaceful attempt made by the people of Paris to persuade King Louis XVI of France to abandon his current policy and attempt to follow what they believed to be a more empathetic approach to governing. The demonstration occurred during the French Revolution. Its objectives were to convince the government to enforce the Legislative Assembly's rulings, defend France against foreign invasion, and preserve the spirit of the French Constitution of 1791. The demonstrators hoped that the king would withdraw his veto and recall the Girondin ministers. The Demonstration was the last phase of the unsuccessful attempt to establish a constitutional monarchy in France. After the Insurrection of 10 August 1792, the monarchy fell."@en)
+(Demonstration_of_20_June_1792, date, XMLSchema#date>)
+(Demonstration_of_20_June_1792, isPartOfMilitaryConflict, French_Revolution)
+(Demonstration_of_20_June_1792, place, France)
+(Demonstration_of_20_June_1792, place, Paris)
+(Insurrection_of_10_August_1792, rdf-schema#label, "Insurrection of 10 August 1792"@en)
+(Insurrection_of_10_August_1792, abstract, "The Insurrection of 10 August 1792 was a defining event of the French Revolution, when armed revolutionaries in Paris, increasingly in conflict with the French monarchy, stormed the Tuileries Palace. The conflict led France to abolish the monarchy and establish a republic. Conflict between King Louis XVI of France and the country's new revolutionary Legislative Assembly increased through the spring and summer of 1792 as Louis vetoed radical measures voted upon by the Assembly. Tensions accelerated dramatically on August 1 when news reached Paris that the commander of the allied Prussian and Austrian armies had issued the Brunswick Manifesto, threatening "unforgettable vengeance" on Paris should harm be done to the French Monarchy. On August 10th, the National Guard of the Paris Commune and fédérés from Marseille and Brittany stormed the King's residence in the Tuileries Palace in Paris, which was defended by the Swiss Guards. Hundreds of Swiss guardsmen and 400 revolutionaries were killed in the battle, and Louis and the royal family took shelter with the Legislative Assembly. The formal end of the monarchy occurred six weeks later on September 21st as one of the first acts of the new National Convention, which established a Republic on the next day. The insurrection and its outcomes are most commonly referred to by historians of the Revolution simply as "the 10 August"; other common designations include "the day of the 10 August" (French: journée du 10 août) or "the Second Revolution"."@en)
+(Insurrection_of_10_August_1792, causalties, "200-400 killed")
+(Insurrection_of_10_August_1792, combatant, "Republicans")
+(Insurrection_of_10_August_1792, combatant, "Royalists")
+(Insurrection_of_10_August_1792, date, XMLSchema#date>)
+(Insurrection_of_10_August_1792, result, "Republican victory")
+(Insurrection_of_10_August_1792, strength, "1,200")
+(Insurrection_of_10_August_1792, strength, "20,000")
+(Insurrection_of_10_August_1792, commander, Augustin-Joseph_de_Mailly)
+(Insurrection_of_10_August_1792, commander, François_Joseph_Westermann)
+(Insurrection_of_10_August_1792, commander, Karl_Josef_von_Bachmann)
+(Insurrection_of_10_August_1792, commander, Louis_XVI)
+(Insurrection_of_10_August_1792, commander, Antoine_Joseph_Santerre)
+(Insurrection_of_10_August_1792, commander, Claude_Fournier_(revolutionary))
+(Insurrection_of_10_August_1792, isPartOfMilitaryConflict, French_Revolution)
+(Insurrection_of_10_August_1792, place, Kingdom_of_France)
+(Insurrection_of_10_August_1792, place, Paris)
+(Insurrection_of_10_August_1792, place, Île-de-France)
+(Insurrection_of_12_Germinal,_Year_III, rdf-schema#label, "Insurrection of 12 Germinal, Year III"@en)
+(Insurrection_of_12_Germinal,_Year_III, hypernym, Revolt)
+(Insurrection_of_12_Germinal,_Year_III, abstract, "The insurrection of 12 Germinal Year III was a popular revolt in Paris on 1 April 1795 against the policies of the Thermidorian Convention. It was provoked by poverty and hunger resulting from the abandonment of the controlled economy after dismantling of the Revolutionary Government during Thermidorian Reaction."@en)
+(Insurrection_of_12_Germinal,_Year_III, isPartOfMilitaryConflict, French_Revolution)
+```
+Be concise in your answer.

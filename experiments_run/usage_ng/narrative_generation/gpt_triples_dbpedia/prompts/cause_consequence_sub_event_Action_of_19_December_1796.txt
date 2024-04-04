@@ -1,0 +1,24 @@
+What happened at the end of the Action of 19 December 1796 during the French Revolution? Please provide the main causal happenings that led to the unfolding of the Action of 19 December 1796. You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Action_of_19_December_1796, rdf-schema#label, "Action of 19 December 1796"@en)
+(Action_of_19_December_1796, hypernym, Engagement)
+(Action_of_19_December_1796, abstract, "The action of 19 December 1796 was a minor naval engagement of the French Revolutionary Wars, fought in the last stages of the Mediterranean campaign between two British Royal Navy frigates and two Spanish Navy frigates off the coast of Murcia. The British squadron was the last remaining British naval force in the Mediterranean, sent to transport the British garrison of Elba to safety under the command of Commodore Horatio Nelson. The Spanish under Commodore Don were the vanguard of a much larger squadron. One Spanish frigate was captured and another damaged before Spanish reinforcements drove the British off and recaptured the lost ship. The action came just two months after the Spanish declaration of war. Having previously been an ally of Britain, Spain had been forced to sign a peace treaty with the French Republic in August 1795 and subsequently to declare war on Britain under the terms of the Treaty of San Ildefonso on 5 October 1796. Outnumbered and isolated, the British Mediterranean Fleet under Vice-Admiral Sir John Jervis had been forced to withdraw to Lisbon and was enacting a blockade of the Spanish naval base at Cádiz. By December 1796 the only remaining British forces in the Mediterranean were the garrison on the island of Elba, seized from the Grand Duchy of Tuscany by the British earlier in the year after the French occupation of Tuscany. Jervis determined to evacuate the island and sent Nelson with the frigates HMS Minerve and HMS Blanche to retrieve the garrison. During his passage to Elba, Nelson's squadron encountered Stuart's Spanish frigates off Murcia on 19 December and attacked, Nelson taking Minerve against and sending Blanche to attack . For three hours the frigates fought, Nelson's Minerve shattering the Spanish ship and inflicting heavy casualties. Eventually Sabina surrendered as Blanche attacked and drove off Ceres. As Blanche pursued, a larger Spanish squadron, including two more frigates and the huge 112-gun first rate ship of the line Principe de Asturias appeared. Recognising the superiority of his opponents, Nelson briefly engaged the leading frigate , before abandoning Sabina and sailing away to the east. The captured Spanish ship was swiftly recaptured. Nelson was able to reach Elba and remove the garrison without further engagements, reconnoitering French and Spanish naval bases on his route back to Gibraltar, returning to Jervis' fleet immediately before the Battle of Cape St. Vincent, at which he played a key part in the decisive defeat of the main Spanish fleet."@en)
+(Action_of_19_December_1796, causalties, "42 captured")
+(Action_of_19_December_1796, causalties, "44 wounded,")
+(Action_of_19_December_1796, causalties, "7 killed,")
+(Action_of_19_December_1796, date, XMLSchema#date>)
+(Action_of_19_December_1796, result, "* Sabina captured but later recaptured")
+(Action_of_19_December_1796, result, "Inconclusive")
+(Action_of_19_December_1796, strength, "FrigatesHMS MinerveandHMS Blanche")
+(Action_of_19_December_1796, strength, "FrigatesSabinaandCeres. Later supported by frigatesMatilde,Perlaandfirst ratePrincipe de Asturias")
+(Action_of_19_December_1796, commander, Horatio_Nelson,_1st_Viscount_Nelson)
+(Action_of_19_December_1796, commander, Jacobo_Stuart)
+(Action_of_19_December_1796, isPartOfMilitaryConflict, French_Revolutionary_Wars)
+(Action_of_19_December_1796, place, Cartagena,_Spain)
+(Action_of_19_December_1796, place, Region_of_Murcia)
+(Action_of_19_December_1796, place, Spain)
+(Sir_Thomas_Hardy,_1st_Baronet, battle, Action_of_19_December_1796)
+```
+Be concise in your answer.

@@ -1,0 +1,24 @@
+What were the main type of events that happened between 1789-01-01 and 1790-01-01 during the French Revolution? You should utilise relevant content and the following context triples.
+
+Context triples:
+```triples
+(Storming_of_the_Bastille, abstract, Storming_of_the_Bastille_0)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Abusing)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Leadership)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Being_named)
+(Storming_of_the_Bastille, hasPlace, Kingdom_of_France)
+(Storming_of_the_Bastille, hasPlace, Île-de-France)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Referring_by_name)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Transition_to_state)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Calendric_unit)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Grasp)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Prison)
+(Storming_of_the_Bastille, hasPlace, Paris)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Containing)
+(Storming_of_the_Bastille, hasEndTimeStamp, 1789-07-14)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Political_locales)
+(Storming_of_the_Bastille, hasBeginTimeStamp, 1789-07-14)
+(Storming_of_the_Bastille, 22-rdf-syntax-ns#type, Part_inner_outer)
+```
+
+Be concise in your answer.
