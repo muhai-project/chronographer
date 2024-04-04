@@ -57,7 +57,8 @@ CONSTRUCT {
 
 QUERY_INFO_CAUSES_CONSEQUENCES = PREFIXES + """
 CONSTRUCT {
-    ?event ex:abstract ?abstract .
+    ?event ex:abstract ?abstract ;
+           sem:hasPlace ?place .
     ?abstract ex:hasValue ?abstract_label .
     ?abstract ex:hasSentence ?sentence_label .
     ?entity skos:related ?event ;
@@ -76,6 +77,7 @@ CONSTRUCT {
     ?role wsj:withfnfe ?fe ;
           rdf:value ?role_label .
     OPTIONAL {?role skos:related ?entity .}
+    OPTIONAL {?event sem:hasPlace ?place .}
     VALUES ?frame {frame:Causation frame:Cause_harm frame:Process_end frame:Cause_to_end}
     VALUES ?event {dbr:<event>}   
 }
@@ -83,7 +85,11 @@ CONSTRUCT {
 
 QUERY_EVENT_TYPE_TIMESTAMPED = PREFIXES + """
 CONSTRUCT {
-    ?event rdf:type ?frame .
+    ?event rdf:type ?frame ;
+           ex:abstract ?abstract ;
+           sem:hasBeginTimeStamp ?begin_ts ;
+           sem:hasEndTimeStamp ?end_ts ;
+           sem:hasPlace ?place .
 } WHERE {
     ?event ex:abstract ?abstract ;
            sem:hasBeginTimeStamp ?begin_ts ;
@@ -93,6 +99,7 @@ CONSTRUCT {
     ?annotation rdf:type wsj:CorpusEntry ;
                 wsj:onFrame ?frame ;
                 wsj:fromDocument ?sentence .
+    OPTIONAL {?event sem:hasPlace ?place .}
     FILTER(((?begin_ts >= "<start_date>T00:00:00"^^xsd:dateTime) && 
             (?begin_ts <= "<end_date>T00:00:00"^^xsd:dateTime)) ||
             ((?end_ts >= "<start_date>T00:00:00"^^xsd:dateTime) &&
@@ -105,8 +112,10 @@ CONSTRUCT {
     ?sub_event sem:subEventOf ?event ;
                ex:abstract ?abstract_label ;
                sem:hasBeginTimeStamp ?begin_ts ;
-               sem:hasEndTimeStamp ?end_ts .
-    ?event ex:abstract ?abstract__label .
+               sem:hasEndTimeStamp ?end_ts ;
+               sem:hasPlace ?place .
+    ?event ex:abstract ?abstract__label ;
+           sem:hasPlace ?place .
 } WHERE {
     ?sub_event sem:subEventOf ?event ;
                sem:hasBeginTimeStamp ?begin_ts ;
@@ -117,6 +126,8 @@ CONSTRUCT {
     OPTIONAL {
         ?event ex:abstract ?abstract_ .
         ?abstract_ rdf:value ?abstract__label .}
+    OPTIONAL {?sub_event sem:hasPlace ?place .}
+    OPTIONAL {?event sem:hasPlace ?place .}
     VALUES ?event {dbr:<event>}
 }
 """
@@ -127,7 +138,8 @@ CONSTRUCT {
            sem:hasBeginTimeStamp ?start ;
            sem:hasEndTimeStamp ?end ;
            ex:hasAbstract ?abstract_label ;
-           ex:hasSentence ?sentence_label .
+           ex:hasSentence ?sentence_label ;
+           sem:hasPlace ?place .
    	?actor skos:related ?role .
     ?role ex:withRole ?gfe .
 } WHERE {
@@ -137,6 +149,7 @@ CONSTRUCT {
               sem:hasEndTimeStamp ?end ;
               ex:abstract ?abstract .
        ?abstract rdf:value ?abstract_label .
+       OPTIONAL {?event sem:hasPlace ?place}
     }
     UNION
     {
@@ -152,6 +165,7 @@ CONSTRUCT {
        ?role wsj:withfnfe ?gfe ;
              rdf:value ?role_label ;
              skos:related ?actor . 
+        OPTIONAL {?event sem:hasPlace ?place}
     }
     
     VALUES ?gfe {gfe:Agent gfe:Leader gfe:Assailant gfe:Individuals gfe:Victim gfe:Person gfe:Speaker gfe:Patient gfe:Members gfe:Creator gfe:Invader gfe:Protagonist gfe:Side_1 gfe:Side_2 gfe:Experiencer gfe:New_member gfe:Owner gfe:Suspect gfe:Employee gfe:Earner}
@@ -161,7 +175,8 @@ CONSTRUCT {
 
 QUERY_INTERACTION_ACTOR = PREFIXES + """
 CONSTRUCT {
-    ?event sem:hasActor ?actor1, ?actor2 .
+    ?event sem:hasActor ?actor1, ?actor2 ;
+           ex:abstract ?abstract_label .
 } WHERE {
     {
        ?event rdf:type sem:Event .
@@ -173,7 +188,8 @@ CONSTRUCT {
        ?event rdf:type sem:Event ;
               ex:abstract ?abstract .
         OPTIONAL {
-            ?abstract nif:sentence ?sentence1 .
+            ?abstract rdf:value ?abstract_label ;
+                      nif:sentence ?sentence1 .
             ?annotation1 rdf:type wsj:CorpusEntry ;
                          wsj:fromDocument ?sentence1 ;
                          wsj:withmappedrole ?role1 .
@@ -181,7 +197,8 @@ CONSTRUCT {
                    skos:related ?actor1 .
         }
         OPTIONAL {
-            ?abstract nif:sentence ?sentence2 .
+            ?abstract rdf:value ?abstract_label ;
+                      nif:sentence ?sentence2 .
             ?annotation2 rdf:type wsj:CorpusEntry ;
                          wsj:fromDocument ?sentence2 ;
                          wsj:withmappedrole ?role2 .

@@ -57,7 +57,9 @@ Context triples:
 ```
 """
 
-END_PROMPT = "Be concise in your answer."
+END_PROMPT = """
+Be concise in your answer.
+"""
 
 TYPE_PROMPT_TO_QUERY = {
     "summary": QUERY_INFO_EVENT,
@@ -95,9 +97,9 @@ ID_NODES = {
                   ("Charles_IV_of_Spain", "Francis_II%2C_Holy_Roman_Emperor"),
                   ("Guillaume_Brune", "Magnus_Gustav_von_Essen")]
     },
-    "info_frame": {
-        "event": ["Storming_of_the_Bastille", "Coup_of_18_Brumaire"]
-    }
+    # "info_frame": {
+    #     "event": ["Storming_of_the_Bastille", "Coup_of_18_Brumaire"]
+    # }
 }
 
 def arrange_df(df_input):
@@ -126,12 +128,12 @@ def get_base_prompt(type_id, type_info, val):
             .replace("<end_date>", end_date)
     if type_id in PROMPTS_WHO:
         prompt = PROMPTS_WHO[type_id]
-        prompt = prompt.replace("<actor>", val)
+        prompt = prompt.replace("<actor>", unquote(val.replace("_", " ")))
     if type_id in PROMPTS_INTERACTIONS:
         prompt = PROMPTS_INTERACTIONS[type_id]
         (actor1, actor2) = val
-        prompt = prompt.replace("<actor1>", actor1) \
-            .replace("<actor2>", actor2)
+        prompt = prompt.replace("<actor1>", unquote(actor1.replace("_", " "))) \
+            .replace("<actor2>", unquote(actor2.replace("_", " ")))
     return prompt
 
 def get_query(type_id, val):
@@ -181,6 +183,7 @@ def main(type_prompt, save_folder):
                         prompt = get_base_prompt(type_id, type_info, val)
                     else:  # type_prompt == "triples":
                         prompt = get_triples_prompt(type_id, type_info, val)
+                    prompt += END_PROMPT
                     print(prompt)
                     print("======")
                     f = open(save_path, "w+", encoding="utf-8")
