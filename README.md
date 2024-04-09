@@ -1,6 +1,6 @@
 # **Informed Graph Traversal**
 
-This is the code for the paper submitted to ESWC 2024.
+This is the code for the paper submitted to ISWC 2024.
 
 
 First clone the repo
@@ -154,6 +154,8 @@ Corresponding notebook: `eventkg-retrieving-events.ipynb`
 
 There are different scripts to run to reproduce the experiments described in the paper. First make sure that you have downloaded the data (cf. Sections above). 
 
+
+### 5.1 Relevant Event Retrieval
 For the search experiments, we created a main folder with the data in the root directory: `data-test`, with two sub-folders: `dbpedia` and `wikidata`. Each sub-folder had three folders: `config`, `gs_events` and `referents`.
 
 All scripts are in the `experiments_run` folder. All example commands are run from root directory.
@@ -171,7 +173,9 @@ All scripts are in the `experiments_run` folder. All example commands are run fr
         python experiments_run/run_all_search.py -t <type-system> -e experiments_run/all-search-events.csv 
         ```
 
-For the narrative graph generation experiments, we extracted the data that we needed from the search experiments, and created a new folder, `data_ng_building`.
+### 5.2 Event-centric KG Population
+
+For the event-centric KG generation experiments, we extracted the data that we needed from the search experiments, and created a new folder, `data_ng_building`.
 
 * Extracting data
     * Python script: `get_data_ng_building.py`. There are some parameters to change in PARAMS (start and end date of experiments, folder_gs if different)
@@ -181,14 +185,14 @@ For the narrative graph generation experiments, we extracted the data that we ne
         ```
     * The data was saved in a new folder: `data_ng_building`
 
-* Narrative graph generation (NGG) from KG
-    * This includes NGG from the output of graph search, NGG with our system from ground truth events, NGG from EventKG
+* Event-centric KG population (EC-KG-P) from KG
+    * This includes EC-KG-P from the output of graph search, EC-KG-P with our system from ground truth events, EC-KG-P from EventKG
     * Python script: `build_ng_from_search.py`
     * Example command:
         ```bash
         python experiments_run/build_ng_from_search.py --folder data_ng_building/ 
         ``` 
-* Metrics for NGG from KG
+* Metrics for EC-KG-P from KG
     * Python script: `get_metrics.py`
     * Example command (comparing with all ground truth events):
         ```bash
@@ -210,7 +214,7 @@ For the narrative graph generation experiments, we extracted the data that we ne
         python experiments_run/get_table_results.py --folder data_ng_building/ --metric eventkg_vs_search.json --label <label>
         ```
 
-* Narrative graph generation from text
+* Event-centric KG Population from text
     * These are the experiments to generate KGs from the DBpedia abstracts
     * First you need to set up a local DBpedia, you can follow the steps on this link: <https://github.com/MartinoMensio/spacy-dbpedia-spotlight>
     * Python script: `build_kg_with_frames.py`
@@ -235,6 +239,12 @@ For the narrative graph generation experiments, we extracted the data that we ne
 
 Furthermore, the manually annotated causation frames can be found in the `experiments_run/annotated` folder.
 
+### 5.3 User study
+
+All the content related to the user studies are in the `experiments_run/usage_ng` folder:
+* The scripts permit to get the prompts, the answers, and the grounding triples, for all types of prompting.
+* `experiments_run/usage_ng/human_evaluation` contains the final results from the forms, and a notebook to analyse the results.
+* `experiments_run/usage_ng/qa_prompt_answer` contains the saved prompts and answers for the three prompting techniques.
 
 
 ## 6. Run the interface

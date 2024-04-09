@@ -44,8 +44,8 @@ def main(save_path):
             for val in vals:
                 triples_db = get_prompt_db(type_id=type_id, val=val)
                 events = list(triples_db.subject.unique())
-                triples_ng = get_prompt_ng(type_id=type_id, val=val)
-                events += [x for x in list(triples_ng.subject.unique()) if not x[-1].isdigit()]
+                triples_eckg = get_prompt_ng(type_id=type_id, val=val)
+                events += [x for x in list(triples_eckg.subject.unique()) if not x[-1].isdigit()]
                 events = list(set(unquote(x) for x in events))
                 res[f"{type_id}_{type_info}_{val}"] = events
     with open(save_path, "w", encoding="utf-8") as openfile:
