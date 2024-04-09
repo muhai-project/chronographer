@@ -1,0 +1,145 @@
+form,type_question,data,type_answer,metric
+f1,summary,French_Revolution,triples_dbpedia,granularity
+f1,summary,French_Revolution,triples_dbpedia,relevance
+f1,summary,French_Revolution,triples_dbpedia,succinctness
+f1,summary,French_Revolution,triples_dbpedia,diversity
+f1,summary,French_Revolution,base,granularity
+f1,summary,French_Revolution,base,relevance
+f1,summary,French_Revolution,base,succinctness
+f1,summary,French_Revolution,base,diversity
+f1,summary,French_Revolution,triples_ng,granularity
+f1,summary,French_Revolution,triples_ng,relevance
+f1,summary,French_Revolution,triples_ng,succinctness
+f1,summary,French_Revolution,triples_ng,diversity
+f1,cause_consequence,French_Revolution,triples_ng,granularity
+f1,cause_consequence,French_Revolution,triples_ng,relevance
+f1,cause_consequence,French_Revolution,triples_ng,succinctness
+f1,cause_consequence,French_Revolution,triples_ng,diversity
+f1,cause_consequence,French_Revolution,base,granularity
+f1,cause_consequence,French_Revolution,base,relevance
+f1,cause_consequence,French_Revolution,base,succinctness
+f1,cause_consequence,French_Revolution,base,diversity
+f1,cause_consequence,French_Revolution,triples_dbpedia,granularity
+f1,cause_consequence,French_Revolution,triples_dbpedia,relevance
+f1,cause_consequence,French_Revolution,triples_dbpedia,succinctness
+f1,cause_consequence,French_Revolution,triples_dbpedia,diversity
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",base,granularity
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",base,relevance
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",base,succinctness
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",base,diversity
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_ng,granularity
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_ng,relevance
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_ng,succinctness
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_ng,diversity
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_dbpedia,granularity
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_dbpedia,relevance
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_dbpedia,succinctness
+f1,event_type_timestamped,"(1789-01-01, 1790-01-01)",triples_dbpedia,diversity
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_ng,granularity
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_ng,relevance
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_ng,succinctness
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_ng,diversity
+f1,sub_events_of_event,French_Revolutionary_Wars,base,granularity
+f1,sub_events_of_event,French_Revolutionary_Wars,base,relevance
+f1,sub_events_of_event,French_Revolutionary_Wars,base,succinctness
+f1,sub_events_of_event,French_Revolutionary_Wars,base,diversity
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_dbpedia,granularity
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_dbpedia,relevance
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_dbpedia,succinctness
+f1,sub_events_of_event,French_Revolutionary_Wars,triples_dbpedia,diversity
+f1,actor_event,Antoine_Balland,base,granularity
+f1,actor_event,Antoine_Balland,base,relevance
+f1,actor_event,Antoine_Balland,base,succinctness
+f1,actor_event,Antoine_Balland,base,diversity
+f1,actor_event,Antoine_Balland,triples_dbpedia,granularity
+f1,actor_event,Antoine_Balland,triples_dbpedia,relevance
+f1,actor_event,Antoine_Balland,triples_dbpedia,succinctness
+f1,actor_event,Antoine_Balland,triples_dbpedia,diversity
+f1,actor_event,Antoine_Balland,triples_ng,granularity
+f1,actor_event,Antoine_Balland,triples_ng,relevance
+f1,actor_event,Antoine_Balland,triples_ng,succinctness
+f1,actor_event,Antoine_Balland,triples_ng,diversity
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",base,granularity
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",base,relevance
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",base,succinctness
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",base,diversity
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_dbpedia,granularity
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_dbpedia,relevance
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_dbpedia,succinctness
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_dbpedia,diversity
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_ng,granularity
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_ng,relevance
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_ng,succinctness
+f1,actor_common,"(Charles_IV_of_Spain, Francis_II%2C_Holy_Roman_Emperor)",triples_ng,diversity
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",base,granularity
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",base,relevance
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",base,succinctness
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",base,diversity
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_ng,granularity
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_ng,relevance
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_ng,succinctness
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_ng,diversity
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_dbpedia,granularity
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_dbpedia,relevance
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_dbpedia,succinctness
+f2,event_type_timestamped,"(1792-01-01, 1793-01-01)",triples_dbpedia,diversity
+f2,cause_consequence,Battle_of_Winterthur,triples_ng,granularity
+f2,cause_consequence,Battle_of_Winterthur,triples_ng,relevance
+f2,cause_consequence,Battle_of_Winterthur,triples_ng,succinctness
+f2,cause_consequence,Battle_of_Winterthur,triples_ng,diversity
+f2,cause_consequence,Battle_of_Winterthur,base,granularity
+f2,cause_consequence,Battle_of_Winterthur,base,relevance
+f2,cause_consequence,Battle_of_Winterthur,base,succinctness
+f2,cause_consequence,Battle_of_Winterthur,base,diversity
+f2,cause_consequence,Battle_of_Winterthur,triples_dbpedia,granularity
+f2,cause_consequence,Battle_of_Winterthur,triples_dbpedia,relevance
+f2,cause_consequence,Battle_of_Winterthur,triples_dbpedia,succinctness
+f2,cause_consequence,Battle_of_Winterthur,triples_dbpedia,diversity
+f2,actor_event,Jacques_Gilles_Henri_Goguet,base,granularity
+f2,actor_event,Jacques_Gilles_Henri_Goguet,base,relevance
+f2,actor_event,Jacques_Gilles_Henri_Goguet,base,succinctness
+f2,actor_event,Jacques_Gilles_Henri_Goguet,base,diversity
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_dbpedia,granularity
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_dbpedia,relevance
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_dbpedia,succinctness
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_dbpedia,diversity
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_ng,granularity
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_ng,relevance
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_ng,succinctness
+f2,actor_event,Jacques_Gilles_Henri_Goguet,triples_ng,diversity
+f2,summary,Storming_of_the_Bastille,triples_dbpedia,granularity
+f2,summary,Storming_of_the_Bastille,triples_dbpedia,relevance
+f2,summary,Storming_of_the_Bastille,triples_dbpedia,succinctness
+f2,summary,Storming_of_the_Bastille,triples_dbpedia,diversity
+f2,summary,Storming_of_the_Bastille,base,granularity
+f2,summary,Storming_of_the_Bastille,base,relevance
+f2,summary,Storming_of_the_Bastille,base,succinctness
+f2,summary,Storming_of_the_Bastille,base,diversity
+f2,summary,Storming_of_the_Bastille,triples_ng,granularity
+f2,summary,Storming_of_the_Bastille,triples_ng,relevance
+f2,summary,Storming_of_the_Bastille,triples_ng,succinctness
+f2,summary,Storming_of_the_Bastille,triples_ng,diversity
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_ng,granularity
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_ng,relevance
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_ng,succinctness
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_ng,diversity
+f2,sub_events_of_event,War_of_the_Second_Coalition,base,granularity
+f2,sub_events_of_event,War_of_the_Second_Coalition,base,relevance
+f2,sub_events_of_event,War_of_the_Second_Coalition,base,succinctness
+f2,sub_events_of_event,War_of_the_Second_Coalition,base,diversity
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_dbpedia,granularity
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_dbpedia,relevance
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_dbpedia,succinctness
+f2,sub_events_of_event,War_of_the_Second_Coalition,triples_dbpedia,diversity
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",base,granularity
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",base,relevance
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",base,succinctness
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",base,diversity
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_dbpedia,granularity
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_dbpedia,relevance
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_dbpedia,succinctness
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_dbpedia,diversity
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_ng,granularity
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_ng,relevance
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_ng,succinctness
+f2,actor_common,"(Guillaume_Brune, Magnus_Gustav_von_Essen)",triples_ng,diversity

@@ -218,10 +218,8 @@ TYPE_PROMPT_TO_FUNC = {
     "actor_common": get_actor_common_triples,
 }
 
-
-def get_triples_prompt(type_id, type_info, val):
-    """ Get triples for context """
-    prompt = get_base_prompt(type_id, type_info, val)
+def get_triples_prompt_df(type_id, val):
+    """ Get triples for context in df format """
 
     if type_id == "event_type_timestamped":
         info = {"dates": list(val)}
@@ -233,6 +231,13 @@ def get_triples_prompt(type_id, type_info, val):
         info = {"event": NS_DBR + unquote(val)}
     print(info)
     triples = TYPE_PROMPT_TO_FUNC[type_id](**info)
+    return triples
+
+
+def get_triples_prompt(type_id, type_info, val):
+    """ Get triples for context in txt format """
+    prompt = get_base_prompt(type_id, type_info, val)
+    triples = get_triples_prompt_df(type_id, val)
     df = arrange_df(df_input=triples)
     prompt = prompt + PROMPT_TRIPLES.replace("<TRIPLES>", write_triples(triples=df))
     return prompt

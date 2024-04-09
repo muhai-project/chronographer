@@ -1,0 +1,1209 @@
+answer,events,nb_events,nb_mentioned,groundedness
+"Answer: 
+""""""
+Between January 1, 1792, and January 1, 1793, during the French Revolution, the main types of events included:
+
+1. **Warfare**: France declared war on Austria on April 20, 1792, marking the start of the War of the First Coalition. This period saw initial military setbacks for France.
+
+2. **Political Radicalization**: The revolution grew more radical, with increasing influence of the Jacobins and the sans-culottes, pushing for more extreme changes.
+
+3. **Legislative Changes**: The Legislative Assembly saw intense debates and passed laws against emigres and refractory clergy, and also took steps towards establishing a republic.
+
+4. **August 10, 1792 Insurrection**: A significant uprising led to the storming of the Tuileries Palace, the suspension of King Louis XVI, and the eventual downfall of the monarchy.
+
+5. **Establishment of the National Convention**: In September 1792, the National Convention was convened, marking the first government of the French First Republic. It abolished the monarchy on September 21, 1792.
+
+6. **Internal Conflicts and Repression**: The period was marked by internal strife, including the September Massacres, where hundreds of suspected counter-revolutionaries were killed.
+
+These events collectively contributed to the deepening of the revolution, setting the stage for the Reign of Terror that followed.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Battle_of_Croix-des-Bouquets
+http://dbpedia.org/resource/Battle_of_Marquain
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Flanders_campaign
+http://dbpedia.org/resource/French_expedition_to_Sardinia
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/Battle_of_Valmy
+http://dbpedia.org/resource/Capture_of_Porrentruy
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III",11,2,"0,9090909091"
+"Answer: 
+""""""
+Between January 1, 1792, and January 1, 1793, during the French Revolution, several significant events unfolded, characterized by military engagements, political upheavals, and strategic campaigns. These events were part of the broader context of the War of the First Coalition and internal revolutionary turmoil. Here's a concise overview of the main types of events during this period:
+
+1. **Military Engagements and Campaigns**: The period saw crucial battles and sieges that were part of the War of the First Coalition, including:
+   - The **Battle of Valmy** on September 20, 1792, marked a significant victory for the French revolutionary forces, emphasizing its importance and military significance.
+   - The **Siege of Lille** (1792), demonstrating the French revolutionary army's defensive capabilities.
+   - The **Battle of Jemappes** on November 6, 1792, where French forces achieved a decisive victory against Austrian forces, showcasing the French military's invading and beating opponent capabilities.
+   - The **Flanders Campaign**, highlighting a series of military actions that were crucial for the French revolutionary army's success or failure in the region.
+   - Other notable military actions included the **Siege of Mainz**, the **Battle of Quiévrain**, and the **Capture of Porrentruy**.
+
+2. **Political and Social Upheavals**: 
+   - The **Insurrection of 10 August 1792**, a pivotal event where revolutionaries stormed the Tuileries Palace, leading to the suspension of the monarchy, marked by its bearing arms and leadership change aspects.
+   - The **Demonstration of 20 June 1792**, where a large crowd invaded the Tuileries Palace, was a significant show of force by the revolutionaries against the monarchy.
+
+3. **Expeditions and External Campaigns**: 
+   - The **French expedition to Sardinia**, although not successful, represented the revolutionary government's attempt to spread the revolutionary ideals and secure strategic advantages in the Mediterranean.
+
+These events collectively underscored the revolutionary fervor sweeping through France, characterized by a mix of military victories that bolstered the revolutionary government, significant political shifts towards republicanism, and efforts to export the revolution beyond France's borders. The period was marked by the French revolutionaries' determination to defend the revolution, confront internal and external threats, and spread their revolutionary ideals, setting the stage for further revolutionary developments.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Battle_of_Croix-des-Bouquets
+http://dbpedia.org/resource/Battle_of_Marquain
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Flanders_campaign
+http://dbpedia.org/resource/French_expedition_to_Sardinia
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/Battle_of_Valmy
+http://dbpedia.org/resource/Capture_of_Porrentruy
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III",11,8,"3,636363636"
+"Answer: 
+""""""
+Between January 1, 1792, and January 1, 1793, during the French Revolution, two main types of events occurred:
+
+1. **Demonstration of 20 June 1792**: This event was a peaceful attempt by the people of Paris to persuade King Louis XVI to abandon his policy and adopt a more empathetic approach to governing. The demonstrators aimed to convince the government to enforce the Legislative Assembly's rulings, defend France against foreign invasion, and preserve the spirit of the French Constitution of 1791. They hoped the king would withdraw his veto and recall the Girondin ministers. This demonstration was part of the broader context of the French Revolution and took place in Paris, France. It represented the last phase of the unsuccessful attempt to establish a constitutional monarchy in France.
+
+2. **Insurrection of 10 August 1792**: This was a defining event of the French Revolution, marked by armed revolutionaries storming the Tuileries Palace in Paris. The conflict led to the abolition of the monarchy and the establishment of a republic. Tensions between King Louis XVI and the revolutionary Legislative Assembly had been escalating, further intensified by the Brunswick Manifesto, which threatened vengeance on Paris should harm be done to the French Monarchy. The National Guard of the Paris Commune and fédérés from Marseille and Brittany participated in the attack, resulting in hundreds of casualties. This insurrection, commonly referred to as ""the 10 August,"" ended with a Republican victory and was a significant step towards the establishment of a Republic in France.
+
+These events highlight the escalating conflict between the monarchy and revolutionaries, leading to the eventual fall of the monarchy and the rise of the Republic.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Battle_of_Croix-des-Bouquets
+http://dbpedia.org/resource/Battle_of_Marquain
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Flanders_campaign
+http://dbpedia.org/resource/French_expedition_to_Sardinia
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/Battle_of_Valmy
+http://dbpedia.org/resource/Capture_of_Porrentruy
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III",11,2,"0,9090909091"
+"Answer: 
+""""""
+At the end of the Battle of Winterthur on 27 May 1799, the Austrians, commanded by Friedrich Freiherr von Hotze, successfully pushed the French forces out of the Winterthur highlands after sustaining an 11-hour assault. This victory was crucial as it allowed the consolidation of three Austrian forces on the plateau north of Zürich. This strategic positioning led to the French defeat a few days later when Archduke Charles, with the now united Habsburg armies, attacked French positions at Zürich, forcing the French to retreat beyond the Limmat river.
+
+The causal happenings leading to the Battle of Winterthur began with the Austrians gaining control over parts of Switzerland from the French, as forces under Hotze and Count Heinrich von Bellegarde expelled the French from the Grisons. Following their victories at the battles of Ostrach and Stockach, the main Austrian army, led by Archduke Charles, crossed the Rhine at Schaffhausen, aiming to unite with the armies of Hotze and Friedrich Joseph, Count of Nauendorf, near Zürich. To prevent this merger, the French Army of Helvetia and the Army of the Danube, under André Masséna's command, engaged the Austrians. Masséna dispatched Michel Ney with a small force to confront Hotze's troops at Winterthur. Despite a fierce battle and high casualties on both sides, the Austrians succeeded in their objective, setting the stage for the subsequent French defeat at Zürich.
+"""""" [Granularity]",http://dbpedia.org/resource/Battle_of_Winterthur,1,1,5
+"Answer: 
+""""""
+The Battle of Winterthur occurred on May 27, 1799, during the French Revolutionary Wars. It was fought between French forces under the command of André Masséna and an Austrian force led by Friedrich Freiherr von Hotze. The battle was part of a larger strategic effort by the Austrians to divide the French forces in Switzerland and southern Germany, aiming to weaken their overall position in the region.
+
+Leading up to the battle, the French forces were spread thinly across a wide front, attempting to defend the Swiss territory they had occupied. The Austrians, under Archduke Charles, sought to exploit this by launching a coordinated attack to break through the French lines and force a decisive engagement. The Battle of Winterthur was a critical part of this plan, as the town was strategically located, offering control over key roads and passages.
+
+At the end of the Battle of Winterthur, the French forces, outnumbered and outmaneuvered, were forced to retreat. Despite their valiant defense, they could not hold the town against the superior numbers and tactical advantage of the Austrians. This defeat was significant as it allowed the Austrians to advance further into Swiss territory, putting additional pressure on the French forces and contributing to the strategic difficulties faced by France in the region during this phase of the war. The battle demonstrated the vulnerabilities of the French positions in Switzerland and underscored the challenges of defending widely dispersed forces against a concentrated attack.
+"""""" [Granularity]",http://dbpedia.org/resource/Battle_of_Winterthur,1,1,5
+"Answer: 
+""""""
+At the end of the Battle of Winterthur on 27 May 1799, the Austrian forces, commanded by Friedrich Freiherr von Hotze, achieved victory over the French forces led by Michel Ney. This battle was a significant engagement during the War of the Second Coalition, part of the French Revolutionary Wars. The main causal happenings that led to the unfolding of the Battle of Winterthur include:
+
+1. **Strategic Importance of Winterthur**: Winterthur's location was crucial as it controlled access to most of Switzerland and points crossing the Rhine into southern Germany. This made it a key objective for both the Austrian and French forces.
+
+2. **Austrian Advances**: By mid-May 1799, Austrian forces under Hotze and Count Heinrich von Bellegarde had pushed the French out of parts of Switzerland, including the Grisons, after defeating Jean-Baptiste Jourdan's Army of the Danube at the battles of Ostrach and Stockach.
+
+3. **Archduke Charles' Plan**: The main Austrian army, under Archduke Charles, crossed the Rhine at Schaffhausen and aimed to unite with the armies of Hotze and Friedrich Joseph, Count of Nauendorf, on the plains surrounding Zürich.
+
+4. **French Response**: To prevent the merger of Austrian forces, André Masséna, commanding both the French Army of Helvetia and the Army of the Danube, dispatched Michel Ney with a small mixed force to confront Hotze's troops at Winterthur.
+
+5. **The Battle**: Despite a fierce contest and high casualties on both sides, the Austrians managed to push the French out of the Winterthur highlands. This success allowed the consolidation of three Austrian forces north of Zürich, setting the stage for a French defeat a few days later when Archduke Charles attacked French positions at Zürich, forcing them to withdraw beyond the Limmat.
+
+The Battle of Winterthur, therefore, was a pivotal moment that led to the Austrian victory, significantly influenced by the strategic importance of Winterthur, the successful Austrian advances in Switzerland, and the decisive Austrian consolidation north of Zürich following their victory at Winterthur.
+"""""" [Granularity]",http://dbpedia.org/resource/Battle_of_Winterthur,1,1,5
+"Answer: 
+""""""
+During the French Revolution, Jacques Gilles Henri Goguet, a French naval officer, was executed by guillotine. He was a victim of the Reign of Terror, a period of extreme violence and political purges.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Battle_of_Truillas
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Peyrestortes
+http://dbpedia.org/resource/Battle_of_Le_Cateau_(1794)",5,0,0
+"Answer: 
+""""""
+During the French Revolution, Jacques Gilles Henri Goguet played a significant role in several military engagements as part of the French Revolutionary Wars. Notably, he was involved in the Battle of Peyrestortes on 17 September 1793, where forces from the French Army of the Eastern Pyrenees, temporarily commanded by Eustache Charles d'Aoust and Jacques Gilles Henri Goguet, defeated two divisions of the Army of Catalonia led by Juan de Courten and Jerónimo Girón-Moctezuma, Marquis de las Amarillas. This victory marked a high point in the French defense against the Spanish invasion of Roussillon, with the French managing to rout the Spanish divisions from their fortified camps.
+
+Later, Jacques Gilles Henri Goguet also participated in the Battle of Le Cateau on 29 March 1794, during the start of the 1794 Flanders Campaign, which was part of the War of the First Coalition. In this battle, three Republican French divisions led by Antoine Balland, Jacques Gilles Henri Goguet, and Jacques Fromentin attacked a Habsburg Austrian force commanded by Paul Kray. However, the outcome was less favorable for the French, as the Austrians drove off the French forces and inflicted significant casualties, marking a Coalition victory.
+
+These engagements highlight Jacques Gilles Henri Goguet's active involvement in the military efforts of the French Republic during the tumultuous years of the French Revolution and the broader context of the War of the First Coalition.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Battle_of_Truillas
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Peyrestortes
+http://dbpedia.org/resource/Battle_of_Le_Cateau_(1794)",5,3,3
+"Answer: 
+""""""
+During the French Revolution, Jacques Gilles Henri Goguet played significant roles in two notable military engagements. Firstly, he was involved in the Battle of Peyrestortes on September 17, 1793, where he, alongside Eustache Charles d'Aoust, temporarily commanded forces of the First French Republic. They successfully defeated two divisions of the Army of Catalonia, marking a setback for the Spanish invasion of Roussillon. This victory was crucial in preventing the Spanish forces from capturing Perpignan and represented the high point of their invasion attempt in the region.
+
+Later, Goguet took part in the Battle of Le Cateau on March 29, 1794, during the 1794 Flanders Campaign, which was part of the War of the First Coalition. In this battle, Goguet, along with Antoine Balland and Jacques Fromentin, led three Republican French divisions in an attack against a Habsburg Austrian force commanded by Paul Kray. Unfortunately, this engagement did not go in favor of the French, as the Austrians managed to drive off the French forces, inflicting significantly higher casualties on the French side.
+
+These engagements highlight Jacques Gilles Henri Goguet's active military leadership during the tumultuous times of the French Revolution, showcasing both his victories and challenges faced on the battlefield.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Battle_of_Truillas
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Peyrestortes
+http://dbpedia.org/resource/Battle_of_Le_Cateau_(1794)",5,3,3
+"Answer: 
+""""""
+The Storming of the Bastille, a pivotal event during the French Revolution, took place on the afternoon of 14 July 1789 in Paris, France. The Bastille, a medieval armory, fortress, and political prison, symbolized royal authority and the monarchy's abuse of power in the heart of Paris. Despite holding only seven inmates at the time, its capture by revolutionaries marked the flashpoint of the French Revolution. The assault involved civilian insurgents, including mutineers from the French Guards, against the royal government's forces, which comprised 114 soldiers (82 veterans and 32 Swiss soldiers) and 30 artillery pieces. The insurgents, numbering between 688 to 1,000 armed civilians supported by 61 French Guards and at least five artillery pieces, achieved a decisive victory, capturing the Bastille. The confrontation resulted in 98 killed and 73 wounded. Key figures in the storming included Bernard-René Jourdan de Launay, the commander of the Bastille, and insurgent leaders Pierre-Augustin Hulin and Stanislas-Marie Maillard. The event is celebrated annually in France on 14 July, known as Bastille Day. It was part of the broader French Revolution and took place in the Kingdom of France, specifically in Paris, Île-de-France. Notable participants also included Jean Antoine Rossignol and James Bartholomew Blackwell.
+"""""" [Granularity]","http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Fête_de_la_Fédération
+http://dbpedia.org/resource/Women's_March_on_Versailles",3,1,"1,666666667"
+"Answer: 
+""""""
+The Storming of the Bastille occurred on July 14, 1789, marking a pivotal event in the French Revolution. The Bastille, a medieval fortress, prison, and symbol of royal authority in central Paris, was attacked by a revolutionary crowd. The insurgents sought to obtain the large quantities of gunpowder stored inside the fortress and to challenge the king's authority. After several hours of combat, the revolutionaries captured the Bastille, releasing a handful of prisoners and seizing the arms and ammunition stored there. The fall of the Bastille became a symbol of the end of the ancien régime and is celebrated annually in France as Bastille Day, a national holiday. This event signaled the beginning of the French Revolution, leading to the downfall of the monarchy, the rise of the French Republic, and significant social and political change in France.
+"""""" [Granularity]","http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Fête_de_la_Fédération
+http://dbpedia.org/resource/Women's_March_on_Versailles",3,1,"1,666666667"
+"Answer: 
+""""""
+The Storming of the Bastille on 14 July 1789 was a pivotal event in Paris, France, marking the flashpoint of the French Revolution. The Bastille, a medieval armory, fortress, and political prison, symbolized royal authority and the monarchy's abuse of power in the heart of Paris. Despite holding only seven inmates at the time, its capture by revolutionaries was a significant act against King Louis XVI's regime. Key figures involved included Bernard-René Jourdan de Launay, the governor of the Bastille, and revolutionaries like Pierre-Augustin Hulin and Stanislas-Marie Maillard.
+
+This event is directly linked to the Fête de la Fédération, celebrated on 14 July 1790, and later becoming the precursor to Bastille Day, a national holiday in France commemorating the Revolution and National Unity. The Fête de la Fédération was a massive festival honoring the French Revolution, emphasizing the unity and achievements of the revolutionary movement.
+
+The Storming of the Bastille also relates to other significant revolutionary events, such as the Women's March on Versailles, highlighting the interconnectedness of the revolutionary activities that reshaped France. These events collectively underscored the widespread discontent with the monarchy and the desire for a new social and political order, leading to profound changes in French society and governance.
+"""""" [Granularity]","http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Fête_de_la_Fédération
+http://dbpedia.org/resource/Women's_March_on_Versailles",3,3,5
+"Answer: 
+""""""
+Based on the provided context triples, the main events of the War of the Second Coalition during the French Revolution, listed in chronological order, are as follows:
+
+1. **Battle of Feldkirch (1799-03-23)**: Occurred in Feldkirch, Vorarlberg, Austria, where French forces led by André Masséna were repulsed by Austrian forces under Franz Jellacic.
+
+2. **Battle of Stockach (1799-03-25)**: Took place in Stockach, Baden-Württemberg, Germany, marking a significant battle where the French Army of the Danube, commanded by Jean-Baptiste Jourdan, was defeated by the Habsburg Army under Archduke Charles.
+
+3. **Battle of Modena (1799-06-12)**: Happened in Modena, Italy, where a Republican French army commanded by Jacques MacDonald defeated a Habsburg Austrian force led by Prince Friedrich Franz Xaver of Hohenzollern-Hechingen.
+
+4. **Battle of Mannheim (1799-09-18)**: Fought in Mannheim, Germany, between an Austrian army commanded by Archduke Charles, Duke of Teschen, and a French army under Jacques Léonard Muller, resulting in a French defeat.
+
+5. **Battle of Genola (1799-11-04)**: Took place in Genola, Piedmont, Italy, where a Habsburg Austrian army commanded by Michael von Melas defeated a Republican French army under Jean Étienne Championnet.
+
+6. **Battle of Wiesloch (1799-12-03)**: Occurred in Wiesloch, Germany, where the Austrian right wing, protecting the main army in Swabia under Archduke Charles and commanded by Lieutenant Field Marshal Anton Count Sztáray de Nagy-Mihaly, drove the French from the right bank of the Rhine.
+
+These events highlight the major battles and movements within the War of the Second Coalition, showcasing the strategic engagements across various regions in Europe as the coalition forces sought to contain the expansion of revolutionary France.
+"""""" [Granularity]","http://dbpedia.org/resource/Raids_on_Boulogne
+http://dbpedia.org/resource/Battle_of_Modena_(1799)
+http://dbpedia.org/resource/Siege_of_Fort_Bard
+http://dbpedia.org/resource/Battle_of_Marengo
+http://dbpedia.org/resource/Anglo-Russian_invasion_of_Holland
+http://dbpedia.org/resource/Ferrol_Expedition
+http://dbpedia.org/resource/First_Battle_of_Zurich
+http://dbpedia.org/resource/Battle_of_Copenhagen_(1801)
+http://dbpedia.org/resource/Battle_of_Höchstädt_(1800)
+http://dbpedia.org/resource/War_of_the_Oranges
+http://dbpedia.org/resource/Battle_of_Schwyz
+http://dbpedia.org/resource/Battle_of_Wiesloch_(1799)
+http://dbpedia.org/resource/Battle_of_Feldkirch
+http://dbpedia.org/resource/Battle_of_Neuburg_(1800)
+http://dbpedia.org/resource/Battle_of_Stockach_(1799)
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/French_campaign_in_Egypt_and_Syria
+http://dbpedia.org/resource/Battle_of_Mannheim_(1799)
+http://dbpedia.org/resource/Siege_of_Corfu_(1798–99)
+http://dbpedia.org/resource/Battle_of_Engen
+http://dbpedia.org/resource/Battle_of_Erbach
+http://dbpedia.org/resource/Combat_of_Turbigo
+http://dbpedia.org/resource/Battle_of_Genola
+http://dbpedia.org/resource/Siege_of_Acre_(1799)
+http://dbpedia.org/resource/Invasion_of_Curaçao_(1800)
+http://dbpedia.org/resource/Battle_of_Novi_(1799)
+http://dbpedia.org/resource/Mediterranean_campaign_of_1798
+http://dbpedia.org/resource/Second_Battle_of_Zurich
+http://dbpedia.org/resource/Capture_of_Minorca_(1798)
+http://dbpedia.org/resource/Battle_of_Stockach_(1800)
+http://dbpedia.org/resource/Quasi-War
+http://dbpedia.org/resource/Battle_of_Oberwald
+http://dbpedia.org/resource/Siege_of_Mantua_(1799)
+http://dbpedia.org/resource/First_Battle_of_Marengo_(1799)
+http://dbpedia.org/resource/Battle_of_Messkirch
+http://dbpedia.org/resource/Battle_of_Frauenfeld
+http://dbpedia.org/resource/Siege_of_Genoa_(1800)
+http://dbpedia.org/resource/Battle_of_Winterthur
+http://dbpedia.org/resource/Battle_of_Sassello
+http://dbpedia.org/resource/Battle_of_Pozzolo
+http://dbpedia.org/resource/Battle_of_Ostrach
+http://dbpedia.org/resource/Battle_of_Hohenlinden
+http://dbpedia.org/resource/Battle_of_Gotthard_Pass",43,7,"0,8139534884"
+"Answer: 
+""""""
+The War of the Second Coalition (1798–1802) was a major conflict during the French Revolutionary Wars, involving France against a coalition of European powers. Here are the main events in chronological order:
+
+1. **Formation of the Second Coalition (1798)**: Reacting to French expansion, Britain, Austria, Russia, the Ottoman Empire, Portugal, Naples, and other states formed the Second Coalition against France.
+
+2. **French Invasion of Egypt (1798)**: Aimed at undermining British access to India, Napoleon Bonaparte invaded Egypt in July 1798 but was stranded after the British naval victory at the Battle of the Nile in August 1798.
+
+3. **Italian Campaigns (1799)**: Coalition forces, particularly the Austrians and Russians under the command of Suvorov, recaptured much of Italy from the French, reversing many of Napoleon's achievements.
+
+4. **Swiss Campaign (1799)**: French forces, under Masséna, fought against the Austrians and Russians in Switzerland, culminating in the French victory at the Second Battle of Zurich in September 1799.
+
+5. **Russian Withdrawal (1799)**: Disillusioned with the coalition and facing problems at home, Tsar Paul I of Russia withdrew his troops from the conflict in late 1799.
+
+6. **Napoleon's Rise to Power (1799)**: Exploiting the instability in France, Napoleon returned from Egypt, staged a coup (18 Brumaire), and became First Consul of France in November 1799.
+
+7. **Marengo and Hohenlinden (1800)**: Napoleon personally led a campaign in Italy, culminating in the decisive French victory at Marengo in June. Another significant victory at Hohenlinden in December, led by Moreau, forced Austria to sue for peace.
+
+8. **Peace of Lunéville (1801)**: Austria signed the Peace of Lunéville in February 1801, ceding control of Italy and the Rhineland to France and effectively ending the war on the continent.
+
+9. **Treaty of Amiens (1802)**: Britain, the last remaining coalition member at war with France, signed the Treaty of Amiens in March 1802, temporarily halting hostilities between Britain and France and bringing the War of the Second Coalition to an end.
+
+These events marked significant shifts in European power dynamics and set the stage for the Napoleonic Wars.
+"""""" [Granularity]","http://dbpedia.org/resource/Raids_on_Boulogne
+http://dbpedia.org/resource/Battle_of_Modena_(1799)
+http://dbpedia.org/resource/Siege_of_Fort_Bard
+http://dbpedia.org/resource/Battle_of_Marengo
+http://dbpedia.org/resource/Anglo-Russian_invasion_of_Holland
+http://dbpedia.org/resource/Ferrol_Expedition
+http://dbpedia.org/resource/First_Battle_of_Zurich
+http://dbpedia.org/resource/Battle_of_Copenhagen_(1801)
+http://dbpedia.org/resource/Battle_of_Höchstädt_(1800)
+http://dbpedia.org/resource/War_of_the_Oranges
+http://dbpedia.org/resource/Battle_of_Schwyz
+http://dbpedia.org/resource/Battle_of_Wiesloch_(1799)
+http://dbpedia.org/resource/Battle_of_Feldkirch
+http://dbpedia.org/resource/Battle_of_Neuburg_(1800)
+http://dbpedia.org/resource/Battle_of_Stockach_(1799)
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/French_campaign_in_Egypt_and_Syria
+http://dbpedia.org/resource/Battle_of_Mannheim_(1799)
+http://dbpedia.org/resource/Siege_of_Corfu_(1798–99)
+http://dbpedia.org/resource/Battle_of_Engen
+http://dbpedia.org/resource/Battle_of_Erbach
+http://dbpedia.org/resource/Combat_of_Turbigo
+http://dbpedia.org/resource/Battle_of_Genola
+http://dbpedia.org/resource/Siege_of_Acre_(1799)
+http://dbpedia.org/resource/Invasion_of_Curaçao_(1800)
+http://dbpedia.org/resource/Battle_of_Novi_(1799)
+http://dbpedia.org/resource/Mediterranean_campaign_of_1798
+http://dbpedia.org/resource/Second_Battle_of_Zurich
+http://dbpedia.org/resource/Capture_of_Minorca_(1798)
+http://dbpedia.org/resource/Battle_of_Stockach_(1800)
+http://dbpedia.org/resource/Quasi-War
+http://dbpedia.org/resource/Battle_of_Oberwald
+http://dbpedia.org/resource/Siege_of_Mantua_(1799)
+http://dbpedia.org/resource/First_Battle_of_Marengo_(1799)
+http://dbpedia.org/resource/Battle_of_Messkirch
+http://dbpedia.org/resource/Battle_of_Frauenfeld
+http://dbpedia.org/resource/Siege_of_Genoa_(1800)
+http://dbpedia.org/resource/Battle_of_Winterthur
+http://dbpedia.org/resource/Battle_of_Sassello
+http://dbpedia.org/resource/Battle_of_Pozzolo
+http://dbpedia.org/resource/Battle_of_Ostrach
+http://dbpedia.org/resource/Battle_of_Hohenlinden
+http://dbpedia.org/resource/Battle_of_Gotthard_Pass",43,2,"0,2325581395"
+"Answer: 
+""""""
+The War of the Second Coalition (1798–1802) was a major conflict where a coalition of European monarchies sought to contain and defeat revolutionary France. Here are the main events of the war, listed in chronological order:
+
+1. **Battle of Feldkirch (23 March 1799)**: Austrian victory over French forces.
+2. **Battle of Stockach (25 March 1799)**: Austrian victory, driving French forces back.
+3. **Battle of Magnano (5 April 1799)**: Austrian and Russian forces defeat the French, not detailed in the provided triples but a significant event.
+4. **Siege of Acre (March–May 1799)**: Anglo-Turkish victory, marking Napoleon's failed siege and a turning point in his Middle Eastern campaign.
+5. **Battle of Ostrach (20–21 March 1799)**: Austrian victory over French forces.
+6. **Battle of Cassano (27 April 1799)**: Austrian victory against the French, not detailed in the provided triples but significant.
+7. **First Battle of Zurich (4–7 June 1799)**: Austrian victory forcing French general André Masséna to retreat.
+8. **Battle of Trebbia (17–20 June 1799)**: Russian and Austrian forces defeat the French, not detailed in the provided triples but crucial.
+9. **Battle of Novi (15 August 1799)**: Austro-Russian victory, one of the bloodiest battles of the war.
+10. **Anglo-Russian invasion of Holland (27 August – 19 November 1799)**: Failed attempt by British and Russian forces to overthrow the Batavian Republic.
+11. **Battle of Genola (4 November 1799)**: Austrian victory over French forces.
+12. **Battle of Hohenlinden (3 December 1800)**: Decisive French victory leading to the Austrian withdrawal from Bavaria.
+13. **Battle of Marengo (14 June 1800)**: French victory under Napoleon against the Austrians, securing French control over Italy.
+14. **Battle of Copenhagen (2 April 1801)**: British naval victory over Denmark-Norway, aimed at breaking the League of Armed Neutrality.
+15. **Treaty of Lunéville (9 February 1801)**: France and Austria sign a treaty confirming French gains and effectively ending the war with Austria.
+16. **Treaty of Amiens (25 March 1802)**: Peace treaty between France and Britain, temporarily ending hostilities.
+
+These events highlight the extensive and multifaceted nature of the War of the Second Coalition, involving numerous battles across Europe and the Middle East, and leading to significant diplomatic agreements that reshaped the political landscape of Europe.
+"""""" [Granularity]","http://dbpedia.org/resource/Raids_on_Boulogne
+http://dbpedia.org/resource/Battle_of_Modena_(1799)
+http://dbpedia.org/resource/Siege_of_Fort_Bard
+http://dbpedia.org/resource/Battle_of_Marengo
+http://dbpedia.org/resource/Anglo-Russian_invasion_of_Holland
+http://dbpedia.org/resource/Ferrol_Expedition
+http://dbpedia.org/resource/First_Battle_of_Zurich
+http://dbpedia.org/resource/Battle_of_Copenhagen_(1801)
+http://dbpedia.org/resource/Battle_of_Höchstädt_(1800)
+http://dbpedia.org/resource/War_of_the_Oranges
+http://dbpedia.org/resource/Battle_of_Schwyz
+http://dbpedia.org/resource/Battle_of_Wiesloch_(1799)
+http://dbpedia.org/resource/Battle_of_Feldkirch
+http://dbpedia.org/resource/Battle_of_Neuburg_(1800)
+http://dbpedia.org/resource/Battle_of_Stockach_(1799)
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/French_campaign_in_Egypt_and_Syria
+http://dbpedia.org/resource/Battle_of_Mannheim_(1799)
+http://dbpedia.org/resource/Siege_of_Corfu_(1798–99)
+http://dbpedia.org/resource/Battle_of_Engen
+http://dbpedia.org/resource/Battle_of_Erbach
+http://dbpedia.org/resource/Combat_of_Turbigo
+http://dbpedia.org/resource/Battle_of_Genola
+http://dbpedia.org/resource/Siege_of_Acre_(1799)
+http://dbpedia.org/resource/Invasion_of_Curaçao_(1800)
+http://dbpedia.org/resource/Battle_of_Novi_(1799)
+http://dbpedia.org/resource/Mediterranean_campaign_of_1798
+http://dbpedia.org/resource/Second_Battle_of_Zurich
+http://dbpedia.org/resource/Capture_of_Minorca_(1798)
+http://dbpedia.org/resource/Battle_of_Stockach_(1800)
+http://dbpedia.org/resource/Quasi-War
+http://dbpedia.org/resource/Battle_of_Oberwald
+http://dbpedia.org/resource/Siege_of_Mantua_(1799)
+http://dbpedia.org/resource/First_Battle_of_Marengo_(1799)
+http://dbpedia.org/resource/Battle_of_Messkirch
+http://dbpedia.org/resource/Battle_of_Frauenfeld
+http://dbpedia.org/resource/Siege_of_Genoa_(1800)
+http://dbpedia.org/resource/Battle_of_Winterthur
+http://dbpedia.org/resource/Battle_of_Sassello
+http://dbpedia.org/resource/Battle_of_Pozzolo
+http://dbpedia.org/resource/Battle_of_Ostrach
+http://dbpedia.org/resource/Battle_of_Hohenlinden
+http://dbpedia.org/resource/Battle_of_Gotthard_Pass",43,10,"1,162790698"
+"Answer: 
+""""""
+Guillaume Brune and Magnus Gustav von Essen were both involved in the French Revolutionary Wars, specifically during the campaigns in the Netherlands and Italy. However, their paths did not directly intersect in a specific battle or event solely within the context of the French Revolution, as their careers spanned different geographies and periods within these wars. Brune was more directly involved in the internal events of the French Revolution and its immediate military campaigns, while von Essen's notable service was primarily during the Napoleonic Wars, a continuation and expansion of the conflicts that followed the French Revolution.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Alkmaar_(1799)
+http://dbpedia.org/resource/Anglo-Russian_invasion_of_Holland
+http://dbpedia.org/resource/Battle_of_Castricum",3,0,0
+"Answer: 
+""""""
+Guillaume Brune and Magnus Gustav von Essen were both involved in the Anglo-Russian invasion of Holland during the War of the Second Coalition. Specifically, they played roles in the following events:
+
+1. **Battle of Alkmaar (1799)**: This battle took place on 2 October 1799 near Alkmaar, involving forces of the French Republic and the Batavian Republic under the command of General Guillaume Brune, against an expeditionary force from Great Britain and Russia, which included Magnus Gustav von Essen. The battle ended in a tactical draw but prompted Brune to order a strategic withdrawal.
+
+2. **Battle of Castricum**: Fought on 6 October 1799, this battle saw a Franco-Dutch force under General Guillaume Brune and Herman Willem Daendels defeat an Anglo-Russian force near Castricum, Netherlands. Magnus Gustav von Essen was also a commander in this battle, which was part of the Anglo-Russian invasion of Holland. The victory at Castricum led to a Franco-Batavian victory in the campaign.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Alkmaar_(1799)
+http://dbpedia.org/resource/Anglo-Russian_invasion_of_Holland
+http://dbpedia.org/resource/Battle_of_Castricum",3,2,"3,333333333"
+"Answer: 
+""""""
+Guillaume Brune and Magnus Gustav von Essen were both involved in the Anglo-Russian invasion of Holland, the Battle of Alkmaar (1799), and the Battle of Castricum.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Alkmaar_(1799)
+http://dbpedia.org/resource/Anglo-Russian_invasion_of_Holland
+http://dbpedia.org/resource/Battle_of_Castricum",3,3,5
+"Answer:
+""""""
+The French Revolution, a period of radical political and societal change in France, spanned from 1789 to 1799. It began with the convocation of the Estates General and concluded with the establishment of the French Consulate. This era is celebrated for introducing many ideas that became the bedrock of liberal democracy, including the enduring motto ""Liberté, égalité, fraternité."" The Revolution's influence extended beyond France, inspiring movements for the abolition of slavery and universal suffrage, and resonating in events like the 1917 Russian Revolution.
+
+The Revolution's causes were multifaceted, encompassing social, political, and economic distress that the existing regime could not manage. In response to widespread social distress, the Estates-General was convened in May 1789, transforming into the National Assembly by June. This body enacted radical reforms such as the abolition of feudalism, state control over the Catholic Church, and the expansion of voting rights.
+
+The subsequent years saw intense political struggle, economic depression, and social unrest. The situation escalated into the French Revolutionary Wars as external powers like Austria, Britain, and Prussia perceived the Revolution as a threat. Discontent with King Louis XVI led to the proclamation of the First French Republic in 1792 and his execution in 1793. The rise of the Committee of Public Safety, led by Maximilien Robespierre, marked the Reign of Terror, during which over 16,600 people were executed as counter-revolutionaries.
+
+The Revolution faced both external and internal challenges, including Royalist and Jacobin revolts. The French Directory assumed power in 1795 but was plagued by military success overshadowed by economic stagnation and internal divisions. In 1799, the Directory was replaced by the Consulate, marking the end of the Revolutionary period.
+
+Notable figures involved in the Revolution include Francisco de Miranda, Georges Washington de La Fayette, Gilbert du Motier (Marquis de Lafayette), and others who participated in military engagements. Influential thinkers like Jean-Jacques Rousseau also played a role in shaping the Revolution's ideals. The Revolution encompassed key battles and events such as the Storming of the Bastille and the Fall of Maximilien Robespierre, which were pivotal in the conflict's progression.
+"""""" [Granularity]","http://dbpedia.org/resource/Massacres_of_La_Glacière
+http://dbpedia.org/resource/Revolt_of_Lyon_against_the_National_Convention
+http://dbpedia.org/resource/Nancy_affair
+http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Flight_to_Varennes
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/Battle_of_Savenay
+http://dbpedia.org/resource/Coup_of_18_Brumaire
+http://dbpedia.org/resource/Infernal_columns
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/War_of_Knives
+http://dbpedia.org/resource/Women's_March_on_Versailles
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/War_in_the_Vendée
+http://dbpedia.org/resource/Great_Fear
+http://dbpedia.org/resource/Réveillon_riots
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Battle_of_Méribel
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Proclamation_of_the_abolition_of_the_monarchy
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers",29,3,"0,5172413793"
+"Answer:
+""""""
+The French Revolution, spanning from 1789 to 1799, was a pivotal period of radical social and political upheaval in France that fundamentally changed the course of French history. The revolution began due to a combination of economic hardship, social inequality, and the influence of Enlightenment ideas. The common people, particularly the Third Estate, grew increasingly discontented with the absolute monarchy and the privileges enjoyed by the nobility and clergy.
+
+Key events include the storming of the Bastille on July 14, 1789, which became a symbol of the revolution; the adoption of the Declaration of the Rights of Man and of the Citizen, establishing principles of liberty, equality, and fraternity; and the Reign of Terror (1793-1794), a period marked by extreme violence and the execution of King Louis XVI.
+
+The revolution led to the rise of Napoleon Bonaparte, who eventually declared himself Emperor of France, ending the revolution. The French Revolution profoundly impacted not only France but also the rest of Europe, spreading revolutionary ideals and leading to a series of global conflicts. It laid the groundwork for modern democratic institutions and ideologies.
+"""""" [Granularity]","http://dbpedia.org/resource/Massacres_of_La_Glacière
+http://dbpedia.org/resource/Revolt_of_Lyon_against_the_National_Convention
+http://dbpedia.org/resource/Nancy_affair
+http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Flight_to_Varennes
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/Battle_of_Savenay
+http://dbpedia.org/resource/Coup_of_18_Brumaire
+http://dbpedia.org/resource/Infernal_columns
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/War_of_Knives
+http://dbpedia.org/resource/Women's_March_on_Versailles
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/War_in_the_Vendée
+http://dbpedia.org/resource/Great_Fear
+http://dbpedia.org/resource/Réveillon_riots
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Battle_of_Méribel
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Proclamation_of_the_abolition_of_the_monarchy
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers",29,4,"0,6896551724"
+"Answer: 
+""""""
+The French Revolution, a period of radical political and societal change in France, began in 1789 with the Estates General's convocation and concluded with the French Consulate's formation in November 1799. It introduced many liberal democracy principles, influencing global movements for slavery abolition and universal suffrage. The Revolution's causes were multifaceted, including social, political, and economic factors that the existing regime could not manage. Key events included the abolition of feudalism, state control of the Catholic Church, and the extension of voting rights. The Revolution faced both internal and external opposition, leading to the French Revolutionary Wars.
+
+The execution of Louis XVI in January 1793 marked a turning point, leading to the establishment of the First French Republic and the Reign of Terror, overseen by the Committee of Public Safety and Maximilien Robespierre, which aimed to purge counter-revolutionaries. Over 16,600 people were executed during this period. The Republic also faced internal revolts, such as the War in the Vendée, a Royalist uprising with deep religious and democratic conflict themes, and the Revolt of Lyon against the National Convention, showcasing moderates' opposition to radical policies.
+
+Significant military and civil conflicts during this period included the War of the Second Coalition, an attempt by European monarchies to quell the revolutionary government, which ultimately failed to overthrow the regime. The internal conflict was marked by events like the Women's March on Versailles, driven by revolutionary agitators, and the Flight to Varennes, which exposed the monarchy's opposition to revolutionary reforms. The Revolution also saw the Proclamation of the Abolition of the Monarchy, marking France's transition from a monarchy to a republic.
+
+The French Directory, which took power in November 1795, struggled with economic stagnation and internal divisions, leading to its replacement by the Consulate in November 1799, a move that historians generally view as the Revolution's end. The Revolution profoundly impacted French politics and society, laying the groundwork for modern liberal democracy and influencing subsequent global revolutions.
+"""""" [Granularity]","http://dbpedia.org/resource/Massacres_of_La_Glacière
+http://dbpedia.org/resource/Revolt_of_Lyon_against_the_National_Convention
+http://dbpedia.org/resource/Nancy_affair
+http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Flight_to_Varennes
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/Battle_of_Savenay
+http://dbpedia.org/resource/Coup_of_18_Brumaire
+http://dbpedia.org/resource/Infernal_columns
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/War_of_Knives
+http://dbpedia.org/resource/Women's_March_on_Versailles
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/War_in_the_Vendée
+http://dbpedia.org/resource/Great_Fear
+http://dbpedia.org/resource/Réveillon_riots
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Battle_of_Méribel
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Proclamation_of_the_abolition_of_the_monarchy
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers",29,6,"1,034482759"
+"Answer: 
+""""""
+The French Revolution, a period of radical political and societal change in France, began in May 1789 with the convocation of the Estates-General due to widespread social distress. This assembly was converted into the National Assembly in June, marking the start of significant reforms including the abolition of feudalism, state control of the Catholic Church, and the extension of voting rights. The Revolution's causes were a mix of social, political, and economic factors that the existing regime could not manage.
+
+Disillusionment with King Louis XVI led to the establishment of the First French Republic on 22 September 1792, followed by his execution in January 1793. The Revolution faced both internal and external threats, with countries like Austria, Britain, and Prussia viewing it as a threat, leading to the French Revolutionary Wars in April 1792. Internally, the Reign of Terror, led by Maximilien Robespierre and the Committee of Public Safety, sought to eradicate counter-revolutionaries, resulting in over 16,600 executions.
+
+Following the Reign of Terror, the French Directory took power in November 1795 but struggled with economic stagnation, military challenges, and internal divisions. Ultimately, in November 1799, the Directory was replaced by the French Consulate, marking the end of the Revolutionary period. This transition was influenced by the need to address the ongoing military success that paradoxically led to economic challenges and the inability of the Directory to manage the country's internal divisions effectively.
+"""""" [Granularity]","http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/French_Consulate
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers",15,2,"0,6666666667"
+"Answer: 
+""""""
+The French Revolution, which began in 1789, culminated in 1799 with the rise of Napoleon Bonaparte, marking the end of the revolutionary period. Several key events and factors led to the unfolding and eventual conclusion of the French Revolution:
+
+1. **Economic Hardship**: France's financial crisis, exacerbated by involvement in the American Revolution and lavish spending by the monarchy, led to widespread poverty and discontent among the populace.
+
+2. **Social Inequality**: The Ancien Régime's division of society into three estates, with the Third Estate (commoners) bearing the brunt of taxation while having minimal political power, fueled resentment.
+
+3. **Enlightenment Ideas**: Philosophies advocating for liberty, equality, and fraternity inspired the populace to challenge the existing feudal and monarchal structures.
+
+4. **The Estates-General and the National Assembly**: In 1789, King Louis XVI convened the Estates-General to address the financial crisis. The Third Estate declared itself the National Assembly, signaling the start of a power struggle.
+
+5. **The Storming of the Bastille**: On July 14, 1789, revolutionaries stormed the Bastille prison, a symbol of royal tyranny, igniting widespread rebellion.
+
+6. **The Reign of Terror**: From 1793 to 1794, Maximilien Robespierre and the Committee of Public Safety executed thousands perceived as enemies of the revolution, creating a climate of fear and instability.
+
+7. **The Directory**: The Reign of Terror ended with Robespierre's execution, and a five-member Directory governed France. However, corruption and inefficiency plagued the Directory, leading to further political instability.
+
+8. **Rise of Napoleon Bonaparte**: Exploiting the political chaos, Napoleon, a military general, staged a coup in 1799, establishing himself as First Consul and later Emperor, effectively ending the revolution.
+
+The French Revolution profoundly altered the course of French history, dismantling the monarchy, challenging aristocratic privileges, and laying the groundwork for modern democratic institutions, albeit through a path that led to the authoritarian rule of Napoleon.
+"""""" [Granularity]","http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/French_Consulate
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers""http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/French_Consulate
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers""",15,2,"0,6666666667"
+"Answer: 
+""""""
+The French Revolution, a period of radical political and societal change in France, began in 1789 with the convocation of the Estates-General and ended in November 1799 with the formation of the French Consulate. The Revolution's causes were multifaceted, including social distress, political instability, and economic depression. The Estates-General, convened in May 1789 due to widespread social distress, was transformed into the National Assembly in June, marking the beginning of significant reforms. These reforms included the abolition of feudalism, state control of the Catholic Church, and the extension of voting rights.
+
+The Revolution intensified with the struggle for political control, exacerbated by economic challenges and social unrest. The situation escalated with the outbreak of the French Revolutionary Wars in April 1792, as external powers like Austria, Britain, and Prussia perceived the Revolution as a threat. The disillusionment with King Louis XVI led to the establishment of the First French Republic on 22 September 1792 and his subsequent execution in January 1793.
+
+A pivotal moment was the Reign of Terror, initiated by the Committee of Public Safety under Maximilien Robespierre, aimed at eradicating ""counter-revolutionaries."" This period saw over 16,600 executions across Paris and the provinces. The Republic also faced internal challenges, including Royalist and Jacobin revolts.
+
+The French Directory assumed power in November 1795, attempting to stabilize the situation amidst ongoing military engagements and internal divisions. However, the Directory's inability to address economic stagnation and internal discord led to its replacement by the Consulate in November 1799, marking the end of the Revolutionary period.
+
+Throughout the Revolution, significant battles and insurrections, such as the Storming of the Bastille, the Insurrection of 10 August 1792, and the Fall of Maximilien Robespierre, played crucial roles in shaping the course of events. Influential figures like Jean-Jacques Rousseau also inspired the revolutionary ideals. The French Revolution fundamentally altered the political and social landscape of France, laying the groundwork for modern liberal democracy and influencing subsequent global movements for change.
+"""""" [Granularity]","http://dbpedia.org/resource/Revolt_of_1_Prairial_Year_III
+http://dbpedia.org/resource/Battle_of_Kaiserslautern
+http://dbpedia.org/resource/French_Consulate
+http://dbpedia.org/resource/Siege_of_Maubeuge_(1793)
+http://dbpedia.org/resource/French_Revolution
+http://dbpedia.org/resource/Demonstration_of_20_June_1792
+http://dbpedia.org/resource/13_Vendémiaire
+http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III
+http://dbpedia.org/resource/Fall_of_Maximilien_Robespierre
+http://dbpedia.org/resource/Coup_of_18_Fructidor
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Insurrection_of_10_August_1792
+http://dbpedia.org/resource/Insurrection_of_31_May_–_2_June_1793
+http://dbpedia.org/resource/Day_of_Daggers",15,4,"1,333333333"
+"Answer:  
+""""""
+Between January 1, 1789, and January 1, 1790, during the French Revolution, the main events included:
+
+1. **Estates-General Convening (May 5, 1789):** The Estates-General was convened to address France's financial crisis, marking the first such assembly since 1614. It brought together representatives from the three estates: the clergy, the nobility, and the commoners.
+
+2. **Third Estate's Transformation into the National Assembly (June 17, 1789):** Frustrated by the voting process, which favored the first two estates, the Third Estate declared itself the National Assembly, asserting its authority to represent the people's will.
+
+3. **Tennis Court Oath (June 20, 1789):** After being locked out of their meeting place, members of the National Assembly gathered in a nearby tennis court, pledging not to disband until a new constitution was established for France.
+
+4. **Storming of the Bastille (July 14, 1789):** A pivotal event where Parisians stormed the Bastille prison, a symbol of royal tyranny, seeking arms and ammunition. This event is often considered the start of the revolutionary period.
+
+5. **The Great Fear (July-August 1789):** A period of panic and rioting by peasants and others amid rumors of an ""aristocratic conspiracy"" by the king and the privileged to overthrow the Third Estate. This led to widespread violence and the burning of manor houses.
+
+6. **Abolition of Feudal Privileges (August 4-11, 1789):** The National Assembly abolished feudalism, ending serfdom, and the rights and privileges of the nobility and clergy, marking a significant step towards equality.
+
+7. **Declaration of the Rights of Man and of the Citizen (August 26, 1789):** The Assembly adopted this foundational document of the French Revolution, affirming individual and collective rights at the time of the Old Regime's collapse.
+
+These events marked the escalation of the revolution from a demand for financial reform to a radical reordering of French society and governance.
+"""""" [Granularity]","http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III",2,1,"2,5"
+"Answer: 
+""""""
+Between January 1, 1789, and January 1, 1790, during the French Revolution, one of the main events was the Storming of the Bastille. This event, which occurred on July 14, 1789, is a significant moment in the French Revolution, symbolizing the fall of the Ancien Régime and the assertion of popular power. The Storming of the Bastille took place in Paris, within the Île-de-France region, in the Kingdom of France. It involved the attacking and capturing of the Bastille prison, which was seen as a symbol of the monarchy's dictatorial rule. This event is categorized under various types, including Abusing, Leadership, Being named, Referring by name, Transition to state, Calendric unit, Grasp, Prison, Containing, Political locales, and Part inner outer, reflecting its multifaceted impact on French society and politics.
+"""""" [Granularity]","http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III",2,1,"2,5"
+"Answer: 
+""""""
+Between January 1, 1789, and January 1, 1790, during the French Revolution, the most significant event was the Storming of the Bastille on July 14, 1789. This event was a pivotal moment in the French Revolution, marking the fall of the medieval armory, fortress, and political prison known as the Bastille in Paris, France. The Bastille was a symbol of the monarchy's abuse of power, and its capture by civilian insurgents and French Guards mutineers represented a victory for the revolutionaries. The combatants on the side of the revolution included between 688 to 1,000 armed civilian insurgents, 61 French Guards, and at least five artillery pieces, facing off against 114 soldiers of the royal government, including veterans and Swiss soldiers, along with 30 artillery pieces. The confrontation resulted in the Bastille being captured, with 98 people killed and 73 wounded. This event is celebrated in France as the national holiday, commonly referred to as Bastille Day in English.
+""""""
+ [Granularity]","http://dbpedia.org/resource/Storming_of_the_Bastille
+http://dbpedia.org/resource/Insurrection_of_12_Germinal,_Year_III",2,1,"2,5"
+"Answer: 
+""""""
+Based on the provided context triples, here is a chronological list of the main events of the French Revolutionary Wars during the French Revolution, with relevant details:
+
+1. **First Battle of Wissembourg (1793-10-13)**: This battle saw an Allied army under Dagobert Sigmund von Wurmser attack the French Army of the Rhine. The French retreated, marking a significant engagement on the eastern border of France.
+
+2. **Second Battle of Wissembourg (1793-12-29)**: An army of the First French Republic under General Lazare Hoche fought against an army of Austrians, Prussians, Bavarians, and Hessians led by General Dagobert Sigmund von Wurmser, resulting in the French forcing their opponents to withdraw.
+
+3. **Battle of Avesnes-le-Sec (1793-09-12)**: A military action during the Flanders Campaign where French forces under General  were severely defeated by Imperial Austrian forces.
+
+4. **Battle of Rastatt (1796-07-05)**: Part of the Rhine Campaign of 1796, this battle saw the French under Jean Victor Marie Moreau clash with the Habsburg army, leading to a French victory and the retreat of the Austrians.
+
+5. **Montenotte Campaign (1796-04-10 to 1796-04-28)**: Napoleon Bonaparte's first army command, where the French army separated the Sardinian army from the Habsburg army, defeating both and forcing Sardinia to quit the First Coalition.
+
+6. **Battle of Borghetto (1796-05-30)**: A French army led by General Napoleon Bonaparte forced a crossing of the Mincio River, compelling the Austrian army to retreat and leaving the fortress of Mantua to be besieged by the French.
+
+7. **Second Battle of Bassano (1796-11-06)**: A Habsburg army commanded by József Alvinczi fought Napoleon Bonaparte's French Army of Italy, marking the first tactical defeat of Bonaparte's career.
+
+8. **Battle of Calliano (1796-11-06 to 1796-11-07)**: An Austrian corps commanded by Paul Davidovich routed a French division directed by Claude Belgrand de Vaubois, part of the third Austrian attempt to relieve the French siege of Mantua.
+
+9. **Battle of Caldiero (1796-11-12)**: The Habsburg army led by József Alvinczi fought a First French Republic army commanded by Napoleon Bonaparte, resulting in a rare tactical setback for Bonaparte.
+
+10. **Order of battle at the Battle of Stockach (1799-03-25)**: French and Habsburg armies fought for control of the strategic Hegau region, marking a key battle in the first campaign in southwestern Germany during the Wars of the Second Coalition.
+
+11. **Battle of Bergen (1799-09-19)**: A French-Dutch victory under General Brune and General Daendels against the Russians and British, marking a significant engagement in North Holland.
+
+These events highlight the extensive military engagements of the French Revolutionary Wars, showcasing the rise of Napoleon Bonaparte and the shifting alliances and battles that shaped Europe during this tumultuous period.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Mykonos
+http://dbpedia.org/resource/Invasion_of_Ceylon
+http://dbpedia.org/resource/Action_of_4_August_1800
+http://dbpedia.org/resource/Siege_of_Fort_Bard
+http://dbpedia.org/resource/Cutting_out_of_the_Hermione
+http://dbpedia.org/resource/Battle_of_Tarvis_(1797)
+http://dbpedia.org/resource/French_Revolutionary_Wars
+http://dbpedia.org/resource/Capitulation_of_Saldanha_Bay
+http://dbpedia.org/resource/Order_of_battle_at_the_Battle_of_Stockach_(1799)
+http://dbpedia.org/resource/Siege_of_Porto_Ferrajo
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/Battle_of_Neuwied_(1797)
+http://dbpedia.org/resource/Action_of_19_February_1801
+http://dbpedia.org/resource/Battle_of_the_Îles_Saint-Marcouf
+http://dbpedia.org/resource/Action_of_18_June_1799
+http://dbpedia.org/resource/Action_of_31_March_1800
+http://dbpedia.org/resource/Action_of_16_October_1799
+http://dbpedia.org/resource/Battle_of_Millesimo
+http://dbpedia.org/resource/Battle_of_Jean-Rabel
+http://dbpedia.org/resource/Siege_of_Luxembourg_(1794–95)
+http://dbpedia.org/resource/Action_of_13_October_1796
+http://dbpedia.org/resource/Action_of_23_April_1794
+http://dbpedia.org/resource/Battle_of_the_Hyères_Islands
+http://dbpedia.org/resource/Action_of_22_October_1793
+http://dbpedia.org/resource/Action_of_6_May_1801
+http://dbpedia.org/resource/Action_of_24_June_1801
+http://dbpedia.org/resource/Action_of_31_May_1796
+http://dbpedia.org/resource/Sunda_Strait_campaign_of_January_1794
+http://dbpedia.org/resource/Atlantic_raid_of_June_1796
+http://dbpedia.org/resource/Battle_of_Mainz
+http://dbpedia.org/resource/Action_of_6_February_1799
+http://dbpedia.org/resource/Battle_of_Port_Louis
+http://dbpedia.org/resource/Battle_of_Rastatt_(1796)
+http://dbpedia.org/resource/Action_of_18_August_1798
+http://dbpedia.org/resource/Battle_of_Bergen_(1799)
+http://dbpedia.org/resource/Action_of_24_October_1793
+http://dbpedia.org/resource/Capture_of_Fort-Dauphin_(1794)
+http://dbpedia.org/resource/First_Battle_of_Dego
+http://dbpedia.org/resource/Battle_of_Neresheim
+http://dbpedia.org/resource/Action_of_9_September_1796
+http://dbpedia.org/resource/Action_of_8_March_1795
+http://dbpedia.org/resource/Martin's_cruise_of_1794
+http://dbpedia.org/resource/Action_of_25_January_1797
+http://dbpedia.org/resource/Italian_campaigns_of_the_French_Revolutionary_Wars
+http://dbpedia.org/resource/Battle_of_Biberach_(1796)
+http://dbpedia.org/resource/Battle_of_Friedberg_(Bavaria)
+http://dbpedia.org/resource/Second_Battle_of_Wissembourg_(1793)
+http://dbpedia.org/resource/Action_of_10_April_1795
+http://dbpedia.org/resource/Action_of_19_December_1796
+http://dbpedia.org/resource/Fourth_Anglo-Mysore_War
+http://dbpedia.org/resource/English_Wars_(Scandinavia)
+http://dbpedia.org/resource/Battle_of_Mondovì
+http://dbpedia.org/resource/Preveza__Battle_of_Nicopolis__1
+http://dbpedia.org/resource/Battle_of_the_Raz_de_Sein
+http://dbpedia.org/resource/Battle_of_Genoa_(1795)
+http://dbpedia.org/resource/Bali_Strait_Incident
+http://dbpedia.org/resource/Montenotte_campaign
+http://dbpedia.org/resource/Irish_Rebellion_of_1798
+http://dbpedia.org/resource/French_invasion_of_Malta
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Castiglione
+http://dbpedia.org/resource/Siege_of_Dunkirk_(1793)
+http://dbpedia.org/resource/Action_of_22_August_1795
+http://dbpedia.org/resource/Action_of_7_May_1794
+http://dbpedia.org/resource/First_Battle_of_Wissembourg_(1793)
+http://dbpedia.org/resource/Action_of_28_February_1799
+http://dbpedia.org/resource/Battle_of_Trippstadt
+http://dbpedia.org/resource/Action_of_5_May_1794
+http://dbpedia.org/resource/Assault_on_Cádiz
+http://dbpedia.org/resource/Frigate_action_of_29_May_1794
+http://dbpedia.org/resource/Siege_of_Pondicherry_(1793)
+http://dbpedia.org/resource/Second_Battle_of_Bassano
+http://dbpedia.org/resource/Battle_of_Tournay_(1794)
+http://dbpedia.org/resource/Second_Battle_of_Algeciras
+http://dbpedia.org/resource/Action_of_14_December_1798
+http://dbpedia.org/resource/Action_of_7_April_1800
+http://dbpedia.org/resource/Action_of_24_June_1795
+http://dbpedia.org/resource/Siege_of_Thionville_(1792)
+http://dbpedia.org/resource/Battle_of_Borghetto
+http://dbpedia.org/resource/Allemand's_escape_from_Lorient
+http://dbpedia.org/resource/Action_of_26_April_1797
+http://dbpedia.org/resource/Battle_of_Caldiero_(1796)
+http://dbpedia.org/resource/Battle_of_Mahé
+http://dbpedia.org/resource/Battle_of_the_Gulf_of_Roses
+http://dbpedia.org/resource/Battle_of_Ampfing_(1800)
+http://dbpedia.org/resource/Battle_of_Montebello_(1800)
+http://dbpedia.org/resource/Column_of_the_Goddess
+http://dbpedia.org/resource/Peasants'_War_(1798)
+http://dbpedia.org/resource/Siege_of_Mantua_(1796–97)
+http://dbpedia.org/resource/Battle_of_Menin_(1793)
+http://dbpedia.org/resource/Battle_of_Île_Ronde
+http://dbpedia.org/resource/Second_Battle_of_Kehl_(1796)
+http://dbpedia.org/resource/Battle_of_Lonato
+http://dbpedia.org/resource/Battle_of_Ettlingen
+http://dbpedia.org/resource/Battle_of_the_Levant_Convoy
+http://dbpedia.org/resource/Battle_of_Fombio
+http://dbpedia.org/resource/Action_of_13_January_1797
+http://dbpedia.org/resource/First_Battle_of_Algeciras
+http://dbpedia.org/resource/Raid_on_Dunkirk_(1800)
+http://dbpedia.org/resource/Croisière_du_Grand_Hiver
+http://dbpedia.org/resource/Action_of_19_January_1799
+http://dbpedia.org/resource/Action_of_12_May_1796
+http://dbpedia.org/resource/East_Indies_theatre_of_the_French_Revolutionary_Wars
+http://dbpedia.org/resource/Raid_on_Manila
+http://dbpedia.org/resource/Second_Battle_of_Dego
+http://dbpedia.org/resource/Battle_of_Martinique_(1794)
+http://dbpedia.org/resource/Action_of_30_May_1798
+http://dbpedia.org/resource/French_invasion_of_Switzerland
+http://dbpedia.org/resource/Atlantic_campaign_of_May_1794
+http://dbpedia.org/resource/Battle_of_Montenotte
+http://dbpedia.org/resource/Battle_of_Cassano_(1799)
+http://dbpedia.org/resource/Battle_of_Rovereto
+http://dbpedia.org/resource/Siege_of_Mainz_(1793)
+http://dbpedia.org/resource/Action_of_16_May_1797
+http://dbpedia.org/resource/Action_of_24_October_1798
+http://dbpedia.org/resource/Action_of_18_June_1793
+http://dbpedia.org/resource/First_Battle_of_Saorgio_(1793)
+http://dbpedia.org/resource/Action_of_20_October_1793
+http://dbpedia.org/resource/Action_of_6_November_1794
+http://dbpedia.org/resource/Stecklikrieg
+http://dbpedia.org/resource/Battle_of_Calliano
+http://dbpedia.org/resource/Battle_of_Verona_(1799)
+http://dbpedia.org/resource/Action_of_31_July_1793
+http://dbpedia.org/resource/Invasion_of_Corsica_(1794)
+http://dbpedia.org/resource/Battle_of_Avesnes-le-Sec
+http://dbpedia.org/resource/Battle_of_Fleurus_(1794)
+http://dbpedia.org/resource/Action_of_21_October_1794
+http://dbpedia.org/resource/Battle_of_St._George's_Caye
+http://dbpedia.org/resource/Macau_Incident_(1799)
+http://dbpedia.org/resource/Battle_of_Ceva
+http://dbpedia.org/resource/Battle_of_Valvasone_(1797)
+http://dbpedia.org/resource/Battle_of_Epierre
+http://dbpedia.org/resource/Raid_on_Genoa
+http://dbpedia.org/resource/Haitian_Revolution
+http://dbpedia.org/resource/French_expedition_to_Sardinia
+http://dbpedia.org/resource/Cornwallis's_Retreat
+http://dbpedia.org/resource/Siege_of_Hüningen_(1796–97)
+http://dbpedia.org/resource/Action_of_27_June_1798
+http://dbpedia.org/resource/Battle_of_Bassano
+http://dbpedia.org/resource/Napoleonic_looting_of_art
+http://dbpedia.org/resource/Battle_of_Biberach_(1800)
+http://dbpedia.org/resource/Battle_of_Trebbia_(1799)
+http://dbpedia.org/resource/Battle_of_Santa_Cruz_de_Tenerife_(1797)
+http://dbpedia.org/resource/Action_of_9_February_1799_(South_Africa)
+http://dbpedia.org/resource/Action_of_15_July_1798
+http://dbpedia.org/resource/Algeciras_campaign
+http://dbpedia.org/resource/Siege_of_Malta_(1798–1800)
+http://dbpedia.org/resource/Battle_of_Hondschoote
+http://dbpedia.org/resource/Invasion_of_Trinidad_(1797)
+http://dbpedia.org/resource/Battle_of_Tory_Island
+http://dbpedia.org/resource/Action_of_30_June_1798
+http://dbpedia.org/resource/Battle_of_Voltri
+http://dbpedia.org/resource/Battle_of_Magnano
+http://dbpedia.org/resource/Battle_of_the_Malta_Convoy
+http://dbpedia.org/resource/Invasion_of_the_Cape_Colony",155,11,"0,3548387097"
+"Answer: 
+""""""
+Certainly, the French Revolutionary Wars, spanning from 1792 to 1802, were a series of military conflicts that involved revolutionary France against various European monarchies. Here are the main events in chronological order:
+
+1. **Declaration of War against Austria** (April 20, 1792) - France declared war on Austria, marking the beginning of the French Revolutionary Wars.
+2. **Battle of Valmy** (September 20, 1792) - This significant battle saw the French revolutionary forces defeat the Prussian army, boosting French morale and leading to the proclamation of the French Republic.
+3. **Execution of Louis XVI** (January 21, 1793) - The execution of the French king escalated the conflict, leading to the formation of the First Coalition against France, including Britain, Spain, and the Dutch Republic.
+4. **Levée en masse** (August 23, 1793) - The French government ordered a mass conscription, significantly increasing the size of the French Revolutionary Army.
+5. **Reign of Terror** (1793-1794) - A period of political purges where thousands were executed, including internal enemies, which affected the morale and structure of the French military and government.
+6. **Fall of Robespierre** (July 27, 1794) - The end of the Reign of Terror after the execution of Maximilien Robespierre, leading to a period of relative stability and reorganization within France.
+7. **Formation of the Second Coalition** (1798) - A new alliance formed by Britain, Austria, Russia, and others against France, following the French invasion of Egypt in 1798.
+8. **Battle of the Nile** (August 1, 1798) - A significant naval battle where the British navy, under Admiral Nelson, defeated the French fleet in Egypt, cutting off Napoleon's forces.
+9. **Coup of 18 Brumaire** (November 9, 1799) - Napoleon Bonaparte's coup d'état, which ended the French Directory and established the French Consulate, marking the end of the revolutionary government phase.
+10. **Treaty of Amiens** (March 25, 1802) - A peace treaty between France and Britain that temporarily ended hostilities but did not resolve the underlying conflicts, leading to the resumption of war in 1803.
+
+These events encapsulate the military and political upheavals during the French Revolutionary Wars, setting the stage for the Napoleonic Wars that followed.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Mykonos
+http://dbpedia.org/resource/Invasion_of_Ceylon
+http://dbpedia.org/resource/Action_of_4_August_1800
+http://dbpedia.org/resource/Siege_of_Fort_Bard
+http://dbpedia.org/resource/Cutting_out_of_the_Hermione
+http://dbpedia.org/resource/Battle_of_Tarvis_(1797)
+http://dbpedia.org/resource/French_Revolutionary_Wars
+http://dbpedia.org/resource/Capitulation_of_Saldanha_Bay
+http://dbpedia.org/resource/Order_of_battle_at_the_Battle_of_Stockach_(1799)
+http://dbpedia.org/resource/Siege_of_Porto_Ferrajo
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/Battle_of_Neuwied_(1797)
+http://dbpedia.org/resource/Action_of_19_February_1801
+http://dbpedia.org/resource/Battle_of_the_Îles_Saint-Marcouf
+http://dbpedia.org/resource/Action_of_18_June_1799
+http://dbpedia.org/resource/Action_of_31_March_1800
+http://dbpedia.org/resource/Action_of_16_October_1799
+http://dbpedia.org/resource/Battle_of_Millesimo
+http://dbpedia.org/resource/Battle_of_Jean-Rabel
+http://dbpedia.org/resource/Siege_of_Luxembourg_(1794–95)
+http://dbpedia.org/resource/Action_of_13_October_1796
+http://dbpedia.org/resource/Action_of_23_April_1794
+http://dbpedia.org/resource/Battle_of_the_Hyères_Islands
+http://dbpedia.org/resource/Action_of_22_October_1793
+http://dbpedia.org/resource/Action_of_6_May_1801
+http://dbpedia.org/resource/Action_of_24_June_1801
+http://dbpedia.org/resource/Action_of_31_May_1796
+http://dbpedia.org/resource/Sunda_Strait_campaign_of_January_1794
+http://dbpedia.org/resource/Atlantic_raid_of_June_1796
+http://dbpedia.org/resource/Battle_of_Mainz
+http://dbpedia.org/resource/Action_of_6_February_1799
+http://dbpedia.org/resource/Battle_of_Port_Louis
+http://dbpedia.org/resource/Battle_of_Rastatt_(1796)
+http://dbpedia.org/resource/Action_of_18_August_1798
+http://dbpedia.org/resource/Battle_of_Bergen_(1799)
+http://dbpedia.org/resource/Action_of_24_October_1793
+http://dbpedia.org/resource/Capture_of_Fort-Dauphin_(1794)
+http://dbpedia.org/resource/First_Battle_of_Dego
+http://dbpedia.org/resource/Battle_of_Neresheim
+http://dbpedia.org/resource/Action_of_9_September_1796
+http://dbpedia.org/resource/Action_of_8_March_1795
+http://dbpedia.org/resource/Martin's_cruise_of_1794
+http://dbpedia.org/resource/Action_of_25_January_1797
+http://dbpedia.org/resource/Italian_campaigns_of_the_French_Revolutionary_Wars
+http://dbpedia.org/resource/Battle_of_Biberach_(1796)
+http://dbpedia.org/resource/Battle_of_Friedberg_(Bavaria)
+http://dbpedia.org/resource/Second_Battle_of_Wissembourg_(1793)
+http://dbpedia.org/resource/Action_of_10_April_1795
+http://dbpedia.org/resource/Action_of_19_December_1796
+http://dbpedia.org/resource/Fourth_Anglo-Mysore_War
+http://dbpedia.org/resource/English_Wars_(Scandinavia)
+http://dbpedia.org/resource/Battle_of_Mondovì
+http://dbpedia.org/resource/Preveza__Battle_of_Nicopolis__1
+http://dbpedia.org/resource/Battle_of_the_Raz_de_Sein
+http://dbpedia.org/resource/Battle_of_Genoa_(1795)
+http://dbpedia.org/resource/Bali_Strait_Incident
+http://dbpedia.org/resource/Montenotte_campaign
+http://dbpedia.org/resource/Irish_Rebellion_of_1798
+http://dbpedia.org/resource/French_invasion_of_Malta
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Castiglione
+http://dbpedia.org/resource/Siege_of_Dunkirk_(1793)
+http://dbpedia.org/resource/Action_of_22_August_1795
+http://dbpedia.org/resource/Action_of_7_May_1794
+http://dbpedia.org/resource/First_Battle_of_Wissembourg_(1793)
+http://dbpedia.org/resource/Action_of_28_February_1799
+http://dbpedia.org/resource/Battle_of_Trippstadt
+http://dbpedia.org/resource/Action_of_5_May_1794
+http://dbpedia.org/resource/Assault_on_Cádiz
+http://dbpedia.org/resource/Frigate_action_of_29_May_1794
+http://dbpedia.org/resource/Siege_of_Pondicherry_(1793)
+http://dbpedia.org/resource/Second_Battle_of_Bassano
+http://dbpedia.org/resource/Battle_of_Tournay_(1794)
+http://dbpedia.org/resource/Second_Battle_of_Algeciras
+http://dbpedia.org/resource/Action_of_14_December_1798
+http://dbpedia.org/resource/Action_of_7_April_1800
+http://dbpedia.org/resource/Action_of_24_June_1795
+http://dbpedia.org/resource/Siege_of_Thionville_(1792)
+http://dbpedia.org/resource/Battle_of_Borghetto
+http://dbpedia.org/resource/Allemand's_escape_from_Lorient
+http://dbpedia.org/resource/Action_of_26_April_1797
+http://dbpedia.org/resource/Battle_of_Caldiero_(1796)
+http://dbpedia.org/resource/Battle_of_Mahé
+http://dbpedia.org/resource/Battle_of_the_Gulf_of_Roses
+http://dbpedia.org/resource/Battle_of_Ampfing_(1800)
+http://dbpedia.org/resource/Battle_of_Montebello_(1800)
+http://dbpedia.org/resource/Column_of_the_Goddess
+http://dbpedia.org/resource/Peasants'_War_(1798)
+http://dbpedia.org/resource/Siege_of_Mantua_(1796–97)
+http://dbpedia.org/resource/Battle_of_Menin_(1793)
+http://dbpedia.org/resource/Battle_of_Île_Ronde
+http://dbpedia.org/resource/Second_Battle_of_Kehl_(1796)
+http://dbpedia.org/resource/Battle_of_Lonato
+http://dbpedia.org/resource/Battle_of_Ettlingen
+http://dbpedia.org/resource/Battle_of_the_Levant_Convoy
+http://dbpedia.org/resource/Battle_of_Fombio
+http://dbpedia.org/resource/Action_of_13_January_1797
+http://dbpedia.org/resource/First_Battle_of_Algeciras
+http://dbpedia.org/resource/Raid_on_Dunkirk_(1800)
+http://dbpedia.org/resource/Croisière_du_Grand_Hiver
+http://dbpedia.org/resource/Action_of_19_January_1799
+http://dbpedia.org/resource/Action_of_12_May_1796
+http://dbpedia.org/resource/East_Indies_theatre_of_the_French_Revolutionary_Wars
+http://dbpedia.org/resource/Raid_on_Manila
+http://dbpedia.org/resource/Second_Battle_of_Dego
+http://dbpedia.org/resource/Battle_of_Martinique_(1794)
+http://dbpedia.org/resource/Action_of_30_May_1798
+http://dbpedia.org/resource/French_invasion_of_Switzerland
+http://dbpedia.org/resource/Atlantic_campaign_of_May_1794
+http://dbpedia.org/resource/Battle_of_Montenotte
+http://dbpedia.org/resource/Battle_of_Cassano_(1799)
+http://dbpedia.org/resource/Battle_of_Rovereto
+http://dbpedia.org/resource/Siege_of_Mainz_(1793)
+http://dbpedia.org/resource/Action_of_16_May_1797
+http://dbpedia.org/resource/Action_of_24_October_1798
+http://dbpedia.org/resource/Action_of_18_June_1793
+http://dbpedia.org/resource/First_Battle_of_Saorgio_(1793)
+http://dbpedia.org/resource/Action_of_20_October_1793
+http://dbpedia.org/resource/Action_of_6_November_1794
+http://dbpedia.org/resource/Stecklikrieg
+http://dbpedia.org/resource/Battle_of_Calliano
+http://dbpedia.org/resource/Battle_of_Verona_(1799)
+http://dbpedia.org/resource/Action_of_31_July_1793
+http://dbpedia.org/resource/Invasion_of_Corsica_(1794)
+http://dbpedia.org/resource/Battle_of_Avesnes-le-Sec
+http://dbpedia.org/resource/Battle_of_Fleurus_(1794)
+http://dbpedia.org/resource/Action_of_21_October_1794
+http://dbpedia.org/resource/Battle_of_St._George's_Caye
+http://dbpedia.org/resource/Macau_Incident_(1799)
+http://dbpedia.org/resource/Battle_of_Ceva
+http://dbpedia.org/resource/Battle_of_Valvasone_(1797)
+http://dbpedia.org/resource/Battle_of_Epierre
+http://dbpedia.org/resource/Raid_on_Genoa
+http://dbpedia.org/resource/Haitian_Revolution
+http://dbpedia.org/resource/French_expedition_to_Sardinia
+http://dbpedia.org/resource/Cornwallis's_Retreat
+http://dbpedia.org/resource/Siege_of_Hüningen_(1796–97)
+http://dbpedia.org/resource/Action_of_27_June_1798
+http://dbpedia.org/resource/Battle_of_Bassano
+http://dbpedia.org/resource/Napoleonic_looting_of_art
+http://dbpedia.org/resource/Battle_of_Biberach_(1800)
+http://dbpedia.org/resource/Battle_of_Trebbia_(1799)
+http://dbpedia.org/resource/Battle_of_Santa_Cruz_de_Tenerife_(1797)
+http://dbpedia.org/resource/Action_of_9_February_1799_(South_Africa)
+http://dbpedia.org/resource/Action_of_15_July_1798
+http://dbpedia.org/resource/Algeciras_campaign
+http://dbpedia.org/resource/Siege_of_Malta_(1798–1800)
+http://dbpedia.org/resource/Battle_of_Hondschoote
+http://dbpedia.org/resource/Invasion_of_Trinidad_(1797)
+http://dbpedia.org/resource/Battle_of_Tory_Island
+http://dbpedia.org/resource/Action_of_30_June_1798
+http://dbpedia.org/resource/Battle_of_Voltri
+http://dbpedia.org/resource/Battle_of_Magnano
+http://dbpedia.org/resource/Battle_of_the_Malta_Convoy
+http://dbpedia.org/resource/Invasion_of_the_Cape_Colony",155,0,0
+"Answer: 
+""""""
+The main events of the French Revolutionary Wars during the French Revolution, in chronological order, include:
+
+1. **Siege of Mainz (1793)**: Coalition forces besieged and captured Mainz from revolutionary French forces.
+2. **Battle of Menin (1793)**: French forces achieved a victory over Coalition troops.
+3. **Battle of Hondschoote (1793)**: A significant French victory against the Coalition forces, lifting the siege of Dunkirk.
+4. **Battle of Wattignies (1793)**: French forces under General Jourdan defeated Austrian forces, lifting the siege of Maubeuge.
+5. **Battle of Fleurus (1794)**: A key French victory over Austrian forces that secured French control over the Austrian Netherlands.
+6. **Battle of the Glorious First of June (1794)**: A naval battle where British forces defeated the French fleet but failed to prevent a vital grain convoy from reaching France.
+7. **Siege of Toulon (1793)**: A significant siege where Republican forces, including a young Napoleon Bonaparte, recaptured Toulon from Royalist and British forces.
+8. **Battle of Quiberon Bay (1795)**: A failed Royalist invasion of France, supported by the British, was defeated by Republican forces.
+9. **Battle of Loano (1795)**: French forces under General Schérer defeated Austrian and Sardinian forces, securing the French position in Northern Italy.
+10. **Battle of Lodi (1796)**: Part of Napoleon's Italian campaign, where French forces defeated Austrian forces, showcasing Napoleon's military genius.
+11. **Battle of Castiglione (1796)**: Another victory for Napoleon in Italy, pushing back Austrian forces.
+12. **Battle of Arcole (1796)**: A three-day battle where Napoleon's forces defeated the Austrians, further securing French advances in Italy.
+13. **Treaty of Campo Formio (1797)**: Ended the War of the First Coalition with France gaining control of the Austrian Netherlands, the left bank of the Rhine, and recognition of the Cisalpine Republic.
+14. **Egyptian Campaign (1798-1801)**: Napoleon's invasion of Egypt aimed at undermining British access to India but ultimately failed, leading to the rise of British naval dominance.
+15. **Battle of the Nile (1798)**: A decisive British naval victory over the French fleet anchored in Aboukir Bay, stranding Napoleon's forces in Egypt.
+16. **Second Coalition (1798-1802)**: Formed against France, including Britain, Austria, Russia, and the Ottoman Empire, leading to further conflicts across Europe and the Mediterranean.
+17. **Battle of Marengo (1800)**: A significant French victory in Italy that forced Austria to withdraw from Italy and contributed to the eventual peace agreement.
+18. **Treaty of Lunéville (1801)**: Confirmed French gains from the Treaty of Campo Formio and ended hostilities between France and Austria.
+19. **Treaty of Amiens (1802)**: Temporarily ended hostilities between France and Britain, marking the end of the French Revolutionary Wars.
+
+These events highlight the extensive military campaigns and significant treaties during the French Revolutionary Wars, reflecting the tumultuous period of the French Revolution and the rise of Napoleon Bonaparte.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Mykonos
+http://dbpedia.org/resource/Invasion_of_Ceylon
+http://dbpedia.org/resource/Action_of_4_August_1800
+http://dbpedia.org/resource/Siege_of_Fort_Bard
+http://dbpedia.org/resource/Cutting_out_of_the_Hermione
+http://dbpedia.org/resource/Battle_of_Tarvis_(1797)
+http://dbpedia.org/resource/French_Revolutionary_Wars
+http://dbpedia.org/resource/Capitulation_of_Saldanha_Bay
+http://dbpedia.org/resource/Order_of_battle_at_the_Battle_of_Stockach_(1799)
+http://dbpedia.org/resource/Siege_of_Porto_Ferrajo
+http://dbpedia.org/resource/War_of_the_Second_Coalition
+http://dbpedia.org/resource/Battle_of_Neuwied_(1797)
+http://dbpedia.org/resource/Action_of_19_February_1801
+http://dbpedia.org/resource/Battle_of_the_Îles_Saint-Marcouf
+http://dbpedia.org/resource/Action_of_18_June_1799
+http://dbpedia.org/resource/Action_of_31_March_1800
+http://dbpedia.org/resource/Action_of_16_October_1799
+http://dbpedia.org/resource/Battle_of_Millesimo
+http://dbpedia.org/resource/Battle_of_Jean-Rabel
+http://dbpedia.org/resource/Siege_of_Luxembourg_(1794–95)
+http://dbpedia.org/resource/Action_of_13_October_1796
+http://dbpedia.org/resource/Action_of_23_April_1794
+http://dbpedia.org/resource/Battle_of_the_Hyères_Islands
+http://dbpedia.org/resource/Action_of_22_October_1793
+http://dbpedia.org/resource/Action_of_6_May_1801
+http://dbpedia.org/resource/Action_of_24_June_1801
+http://dbpedia.org/resource/Action_of_31_May_1796
+http://dbpedia.org/resource/Sunda_Strait_campaign_of_January_1794
+http://dbpedia.org/resource/Atlantic_raid_of_June_1796
+http://dbpedia.org/resource/Battle_of_Mainz
+http://dbpedia.org/resource/Action_of_6_February_1799
+http://dbpedia.org/resource/Battle_of_Port_Louis
+http://dbpedia.org/resource/Battle_of_Rastatt_(1796)
+http://dbpedia.org/resource/Action_of_18_August_1798
+http://dbpedia.org/resource/Battle_of_Bergen_(1799)
+http://dbpedia.org/resource/Action_of_24_October_1793
+http://dbpedia.org/resource/Capture_of_Fort-Dauphin_(1794)
+http://dbpedia.org/resource/First_Battle_of_Dego
+http://dbpedia.org/resource/Battle_of_Neresheim
+http://dbpedia.org/resource/Action_of_9_September_1796
+http://dbpedia.org/resource/Action_of_8_March_1795
+http://dbpedia.org/resource/Martin's_cruise_of_1794
+http://dbpedia.org/resource/Action_of_25_January_1797
+http://dbpedia.org/resource/Italian_campaigns_of_the_French_Revolutionary_Wars
+http://dbpedia.org/resource/Battle_of_Biberach_(1796)
+http://dbpedia.org/resource/Battle_of_Friedberg_(Bavaria)
+http://dbpedia.org/resource/Second_Battle_of_Wissembourg_(1793)
+http://dbpedia.org/resource/Action_of_10_April_1795
+http://dbpedia.org/resource/Action_of_19_December_1796
+http://dbpedia.org/resource/Fourth_Anglo-Mysore_War
+http://dbpedia.org/resource/English_Wars_(Scandinavia)
+http://dbpedia.org/resource/Battle_of_Mondovì
+http://dbpedia.org/resource/Preveza__Battle_of_Nicopolis__1
+http://dbpedia.org/resource/Battle_of_the_Raz_de_Sein
+http://dbpedia.org/resource/Battle_of_Genoa_(1795)
+http://dbpedia.org/resource/Bali_Strait_Incident
+http://dbpedia.org/resource/Montenotte_campaign
+http://dbpedia.org/resource/Irish_Rebellion_of_1798
+http://dbpedia.org/resource/French_invasion_of_Malta
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Castiglione
+http://dbpedia.org/resource/Siege_of_Dunkirk_(1793)
+http://dbpedia.org/resource/Action_of_22_August_1795
+http://dbpedia.org/resource/Action_of_7_May_1794
+http://dbpedia.org/resource/First_Battle_of_Wissembourg_(1793)
+http://dbpedia.org/resource/Action_of_28_February_1799
+http://dbpedia.org/resource/Battle_of_Trippstadt
+http://dbpedia.org/resource/Action_of_5_May_1794
+http://dbpedia.org/resource/Assault_on_Cádiz
+http://dbpedia.org/resource/Frigate_action_of_29_May_1794
+http://dbpedia.org/resource/Siege_of_Pondicherry_(1793)
+http://dbpedia.org/resource/Second_Battle_of_Bassano
+http://dbpedia.org/resource/Battle_of_Tournay_(1794)
+http://dbpedia.org/resource/Second_Battle_of_Algeciras
+http://dbpedia.org/resource/Action_of_14_December_1798
+http://dbpedia.org/resource/Action_of_7_April_1800
+http://dbpedia.org/resource/Action_of_24_June_1795
+http://dbpedia.org/resource/Siege_of_Thionville_(1792)
+http://dbpedia.org/resource/Battle_of_Borghetto
+http://dbpedia.org/resource/Allemand's_escape_from_Lorient
+http://dbpedia.org/resource/Action_of_26_April_1797
+http://dbpedia.org/resource/Battle_of_Caldiero_(1796)
+http://dbpedia.org/resource/Battle_of_Mahé
+http://dbpedia.org/resource/Battle_of_the_Gulf_of_Roses
+http://dbpedia.org/resource/Battle_of_Ampfing_(1800)
+http://dbpedia.org/resource/Battle_of_Montebello_(1800)
+http://dbpedia.org/resource/Column_of_the_Goddess
+http://dbpedia.org/resource/Peasants'_War_(1798)
+http://dbpedia.org/resource/Siege_of_Mantua_(1796–97)
+http://dbpedia.org/resource/Battle_of_Menin_(1793)
+http://dbpedia.org/resource/Battle_of_Île_Ronde
+http://dbpedia.org/resource/Second_Battle_of_Kehl_(1796)
+http://dbpedia.org/resource/Battle_of_Lonato
+http://dbpedia.org/resource/Battle_of_Ettlingen
+http://dbpedia.org/resource/Battle_of_the_Levant_Convoy
+http://dbpedia.org/resource/Battle_of_Fombio
+http://dbpedia.org/resource/Action_of_13_January_1797
+http://dbpedia.org/resource/First_Battle_of_Algeciras
+http://dbpedia.org/resource/Raid_on_Dunkirk_(1800)
+http://dbpedia.org/resource/Croisière_du_Grand_Hiver
+http://dbpedia.org/resource/Action_of_19_January_1799
+http://dbpedia.org/resource/Action_of_12_May_1796
+http://dbpedia.org/resource/East_Indies_theatre_of_the_French_Revolutionary_Wars
+http://dbpedia.org/resource/Raid_on_Manila
+http://dbpedia.org/resource/Second_Battle_of_Dego
+http://dbpedia.org/resource/Battle_of_Martinique_(1794)
+http://dbpedia.org/resource/Action_of_30_May_1798
+http://dbpedia.org/resource/French_invasion_of_Switzerland
+http://dbpedia.org/resource/Atlantic_campaign_of_May_1794
+http://dbpedia.org/resource/Battle_of_Montenotte
+http://dbpedia.org/resource/Battle_of_Cassano_(1799)
+http://dbpedia.org/resource/Battle_of_Rovereto
+http://dbpedia.org/resource/Siege_of_Mainz_(1793)
+http://dbpedia.org/resource/Action_of_16_May_1797
+http://dbpedia.org/resource/Action_of_24_October_1798
+http://dbpedia.org/resource/Action_of_18_June_1793
+http://dbpedia.org/resource/First_Battle_of_Saorgio_(1793)
+http://dbpedia.org/resource/Action_of_20_October_1793
+http://dbpedia.org/resource/Action_of_6_November_1794
+http://dbpedia.org/resource/Stecklikrieg
+http://dbpedia.org/resource/Battle_of_Calliano
+http://dbpedia.org/resource/Battle_of_Verona_(1799)
+http://dbpedia.org/resource/Action_of_31_July_1793
+http://dbpedia.org/resource/Invasion_of_Corsica_(1794)
+http://dbpedia.org/resource/Battle_of_Avesnes-le-Sec
+http://dbpedia.org/resource/Battle_of_Fleurus_(1794)
+http://dbpedia.org/resource/Action_of_21_October_1794
+http://dbpedia.org/resource/Battle_of_St._George's_Caye
+http://dbpedia.org/resource/Macau_Incident_(1799)
+http://dbpedia.org/resource/Battle_of_Ceva
+http://dbpedia.org/resource/Battle_of_Valvasone_(1797)
+http://dbpedia.org/resource/Battle_of_Epierre
+http://dbpedia.org/resource/Raid_on_Genoa
+http://dbpedia.org/resource/Haitian_Revolution
+http://dbpedia.org/resource/French_expedition_to_Sardinia
+http://dbpedia.org/resource/Cornwallis's_Retreat
+http://dbpedia.org/resource/Siege_of_Hüningen_(1796–97)
+http://dbpedia.org/resource/Action_of_27_June_1798
+http://dbpedia.org/resource/Battle_of_Bassano
+http://dbpedia.org/resource/Napoleonic_looting_of_art
+http://dbpedia.org/resource/Battle_of_Biberach_(1800)
+http://dbpedia.org/resource/Battle_of_Trebbia_(1799)
+http://dbpedia.org/resource/Battle_of_Santa_Cruz_de_Tenerife_(1797)
+http://dbpedia.org/resource/Action_of_9_February_1799_(South_Africa)
+http://dbpedia.org/resource/Action_of_15_July_1798
+http://dbpedia.org/resource/Algeciras_campaign
+http://dbpedia.org/resource/Siege_of_Malta_(1798–1800)
+http://dbpedia.org/resource/Battle_of_Hondschoote
+http://dbpedia.org/resource/Invasion_of_Trinidad_(1797)
+http://dbpedia.org/resource/Battle_of_Tory_Island
+http://dbpedia.org/resource/Action_of_30_June_1798
+http://dbpedia.org/resource/Battle_of_Voltri
+http://dbpedia.org/resource/Battle_of_Magnano
+http://dbpedia.org/resource/Battle_of_the_Malta_Convoy
+http://dbpedia.org/resource/Invasion_of_the_Cape_Colony",155,8,"0,2580645161"
+"Answer:
+""""""
+Antoine Balland, a French priest, was executed during the French Revolution. He was guillotined on May 7, 1794, in Paris, France, as part of the Reign of Terror, a period marked by extreme violence and political purges.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Veronese_Easter
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Battle_of_Beaumont_(1794)
+http://dbpedia.org/resource/Siege_of_Landrecies_(1794)
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Le_Cateau_(1794)",7,0,0
+"Answer: 
+""""""
+During the French Revolution, Antoine Balland was a military figure involved in several significant actions. He led three Republican French divisions in the Battle of Le Cateau on 29 March 1794, which took place at the start of the 1794 Flanders Campaign during the War of the First Coalition. This battle saw his forces attacking a Habsburg Austrian force commanded by Paul Kray. Unfortunately for Balland and his troops, the Austrians drove off the French and inflicted heavy casualties, with the French suffering four casualties for every Austrian casualty. The battle resulted in a Coalition victory.
+
+Additionally, Antoine Balland was involved in the Veronese Easter, a rebellion during the Italian campaign of 1797. This event saw the inhabitants of Verona and the surrounding areas revolting against the French occupying forces under Balland's command, while Napoleon Bonaparte was engaged in Austria. The rebellion began on the morning of 17 April 1797 and ended on 25 April 1797 with the French forces encircling and capturing the town of Verona. The French victory forced the town to pay a significant fine and hand over various assets, including artwork. This event was part of the campaigns of 1797 in the French Revolutionary Wars and contributed to the fall of the Republic of Venice.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Veronese_Easter
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Battle_of_Beaumont_(1794)
+http://dbpedia.org/resource/Siege_of_Landrecies_(1794)
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Le_Cateau_(1794)",7,3,"2,142857143"
+"Answer:
+""""""
+During the French Revolution, Antoine Balland played significant roles in two notable events. Firstly, he was a leader in the Battle of Le Cateau, which occurred on March 29, 1794. This battle was part of the 1794 Flanders Campaign during the War of the First Coalition, a segment of the French Revolutionary Wars. In this battle, Balland, alongside Jacques Gilles Henri Goguet and Jacques Fromentin, led three Republican French divisions against a Habsburg Austrian force commanded by Paul Kray. Unfortunately for Balland and his forces, the Austrians were victorious, driving off the French and inflicting significantly higher casualties on the French side.
+
+Later, Antoine Balland was involved in the Veronese Easter, a rebellion that took place during the Italian campaign of 1797. This event unfolded in Verona and the surrounding areas of the Veneto region, then part of the Republic of Venice, against the French occupying forces under Balland's command. The rebellion was sparked by the oppressive behavior of the French, including asset confiscation and attempts to overthrow the local government. It began on the morning of April 17, 1797, and saw the local population successfully defeating and capturing more than a thousand French soldiers. The revolt concluded on April 25, 1797, with the encirclement and capture of the town by 15,000 soldiers, leading to the imposition of a hefty fine on the town and the surrender of various assets, including artwork.
+"""""" [Granularity]","http://dbpedia.org/resource/Battle_of_Jemappes
+http://dbpedia.org/resource/Veronese_Easter
+http://dbpedia.org/resource/Battle_of_Wattignies
+http://dbpedia.org/resource/Battle_of_Beaumont_(1794)
+http://dbpedia.org/resource/Siege_of_Landrecies_(1794)
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/Battle_of_Le_Cateau_(1794)",7,3,"2,142857143"
+"Answer: 
+""""""
+Charles IV of Spain and Francis II, Holy Roman Emperor were both involved in the War of the First Coalition (1792-1797) against Revolutionary France during the French Revolution.
+"""""" [Granularity]","http://dbpedia.org/resource/French_Revolutionary_Wars
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/War_of_the_Second_Coalition",3,1,"1,666666667"
+"Answer: 
+""""""
+Charles IV of Spain and Francis II, Holy Roman Emperor, were both involved in the French Revolutionary Wars, specifically in the War of the First Coalition and the War of the Second Coalition against revolutionary France.
+
+During the War of the First Coalition (1792–1797), various European powers, including Spain under Charles IV and the Holy Roman Empire under Francis II, fought against the constitutional Kingdom of France and then the French Republic that succeeded it. The coalition aimed to contain the French Revolution and restore monarchy in France but failed to defeat France. The war concluded with the Treaty of Campo Formio in 1797, with France gaining territories.
+
+In the War of the Second Coalition (1798–1802), a new alliance formed by Britain, Austria (led by Francis II), Russia, and other monarchies, including Spain under Charles IV, aimed to contain the expansion of the French Republic and restore the monarchy in France. This coalition also failed to achieve its goals, and the war ended with the Treaty of Lunéville in 1801 and the Treaty of Amiens in 1802, confirming French territorial gains and leading to a brief period of peace in Europe.
+"""""" [Granularity]","http://dbpedia.org/resource/French_Revolutionary_Wars
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/War_of_the_Second_Coalition",3,3,5
+"Answer: 
+""""""
+Charles IV of Spain and Francis II, Holy Roman Emperor were both involved in the French Revolutionary Wars, specifically in the War of the First Coalition and the War of the Second Coalition. These events were part of the broader conflicts initiated by the French Revolution, where multiple European monarchies, including Spain and the Holy Roman Empire, formed coalitions to combat the revolutionary government of France.
+"""""" [Granularity]","http://dbpedia.org/resource/French_Revolutionary_Wars
+http://dbpedia.org/resource/War_of_the_First_Coalition
+http://dbpedia.org/resource/War_of_the_Second_Coalition",3,3,5

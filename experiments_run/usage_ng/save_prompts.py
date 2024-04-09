@@ -48,17 +48,21 @@ def get_query(type_id, val):
             .replace("<actor2>", actor2)
     return query
 
-
-def get_triples_prompt(type_id, type_info, val):
-    """ Get triples for context """
-    prompt = get_base_prompt(type_id, type_info, val)
+def get_triples_prompt_df(type_id, val):
+    """Get triples for context in df format"""
     graph = Graph()
     query = get_query(type_id, val)
     response = run_query(query=query,
                          sparql_endpoint=SPARQL_ENDPOINT,
                          headers=HEADERS_RDF_XML)
     graph.parse(data=response.text, format='xml')
-    df = arrange_df(df_input=rdflib_to_pd(graph))
+    return rdflib_to_pd(graph)
+
+def get_triples_prompt(type_id, type_info, val):
+    """ Get triples for context in txt format """
+    prompt = get_base_prompt(type_id, type_info, val)
+    df = get_triples_prompt_df(type_id, val)
+    df = arrange_df(df_input=df)
     prompt = prompt + PROMPT_TRIPLES.replace("<TRIPLES>", write_triples(triples=df))
     return prompt
 
