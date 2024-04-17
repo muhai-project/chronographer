@@ -1,4 +1,4 @@
-# **Informed Graph Traversal**
+# **ChronoGrapher: Event-centric KG Construction via Informed Graph Traversal**
 
 This is the code for the paper submitted to ISWC 2024.
 
