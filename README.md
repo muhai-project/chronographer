@@ -1,11 +1,11 @@
 # **ChronoGrapher: Event-centric KG Construction via Informed Graph Traversal**
 
-This is the code for the paper submitted to ISWC 2024.
+This is the code for the paper submitted to the special issue of the SWJ on Knowledge Graph Construction.
 
 
 First clone the repo
 ```bash
-git clone <link-ommitted-for-submission>
+git clone git@github.com:SonyCSLParis/graph_search_framework.git
 ```
 ---
 ## 1. Set Up Virtual Environment
