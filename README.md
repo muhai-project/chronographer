@@ -1,14 +1,65 @@
 # **ChronoGrapher: Event-centric KG Construction via Informed Graph Traversal**
 
-This is the code for the paper submitted to ISWC 2024.
+# Acknowledgement: 
+This work was funded by the European MUHAI project (Horizon 2020 research and innovation program) under grant agreement number 951846 and the Sony Computer Science Laboratories-Paris. We thank Frank van Harmelen for fruitful discussions.
+# Application domain: 
+Graphs, Natural language processing, Semantic web.
+# Citation: 
+# Code of Conduct: 
+# Code repository: 
+git@github.com:muhai-project/chronographer.git
+# Contact: 
+Inès Blin
+# Contribution guidelines: 
+# Contributors: 
+Inès Blin
 
+Ilaria Tiddi
 
+Remi van Trijp
+
+Annette ten Teije
+# Creation date: 
+13-12-2021
+# Description: 
+ChronoGrapher is a 2-step method to build an event-centric knowledge graph automatically from another knowledge graph. The first step is a semantically-informed search in a generic knowledge graph, that is novel. The second step constructs event-centric knowledge graphs automatically.
+# DockerFile: 
+# Documentation: 
+# Download URL: 
+The main data format we used are the HDT compressed versions of the datasets.
+
+Some pointers for downloading the datasets:
+* Some datasets can be downloaded [here](https://www.rdfhdt.org/datasets/).
+* DBpedia-2016-10 can also be downloaded [here](https://www.kaggle.com/bsteenwi/dbpedia).
+
+It's faster to download direct the `.hdt` file and the `.hdt.index` files.
+
+**Within our experiments**, we used the followings: 
+* [Triply DB](https://triply.cc)'s HDT version of DBpedia (snapshot 2021-09)
+* [Wikidata](https://www.rdfhdt.org/datasets/) (2021-03-05)
+* [YAGO4](https://yago-knowledge.org/downloads/yago-4) downloaded from the website. We later used [hdt-cpp](https://github.com/rdfhdt/hdt-cpp) to convert it to HDT format.
+
+We put the datasets in the root directory of the repository, under the names `dbpedia-snapshot-2021-09`, `wikidata-2021-03-05` and `yago-2020-02-24` respectively. We query the HDT datasets using [pyHDT](https://github.com/Callidon/pyHDT).
+
+We occasionnaly worked with Triply DB's data:
+* [DBpedia 2021-09](https://triplydb.com/DBpedia-association/snapshot-2021-09). We used API calls using <https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000>.
+
+# DOI: 
+# Executable examples: 
+# FAQ: 
+# Forks count: 
+0
+# Forks url: 
+# Full name: 
+Inès Blin
+# Full title: 
+chronographer
+# Images: 
+# Installation instructions: 
 First clone the repo
 ```bash
-git clone <link-ommitted-for-submission>
+git clone git@github.com:muhai-project/chronographer.git
 ```
----
-## 1. Set Up Virtual Environment
 
 We used Poetry and conda for virtual environment and dependency management.
 
@@ -49,31 +100,7 @@ Then run the following for setting up the packages
 python setup.py install
 ```
 ---
-
-## 2. Download data for the graph traversal
-
-The main data format we used are the HDT compressed versions of the datasets.
-
-Some pointers for downloading the datasets:
-* Some datasets can be downloaded [here](https://www.rdfhdt.org/datasets/).
-* DBpedia-2016-10 can also be downloaded [here](https://www.kaggle.com/bsteenwi/dbpedia).
-
-It's faster to download direct the `.hdt` file and the `.hdt.index` files.
-
-**Within our experiments**, we used the followings: 
-* [Triply DB](https://triply.cc)'s HDT version of DBpedia (snapshot 2021-09)
-* [Wikidata](https://www.rdfhdt.org/datasets/) (2021-03-05)
-* [YAGO4](https://yago-knowledge.org/downloads/yago-4) downloaded from the website. We later used [hdt-cpp](https://github.com/rdfhdt/hdt-cpp) to convert it to HDT format.
-
-We put the datasets in the root directory of the repository, under the names `dbpedia-snapshot-2021-09`, `wikidata-2021-03-05` and `yago-2020-02-24` respectively. We query the HDT datasets using [pyHDT](https://github.com/Callidon/pyHDT).
-
-We occasionnaly worked with Triply DB's data:
-* [DBpedia 2021-09](https://triplydb.com/DBpedia-association/snapshot-2021-09). We used API calls using <https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000>.
-
----
-
-## 3. Run the search
-
+# Invocation: 
 We include some sample data in the `sample-data` folder. 
 
 Before running the search, you need to extrac domain, range and superclasses information from the dataset you downloaded. See file `src/extract_domain_range.py` for further information and command lines to run that file, depending on your dataset.
@@ -115,13 +142,32 @@ Parameters that require additional data to be downloaded - c.f. section 4 for fu
 </details>
 
 ---
-
-## 4. Download data for ground truth comparison
-
-If you have downloaded DBpedia, Wikidata or YAGO, it is possible to run the search with any of the events that is both in [EventKG](https://eventkg.l3s.uni-hannover.de) and in your dataset. We used [EventKG 3.1.](https://zenodo.org/record/4720078#.Y0bn-S8Rr0o) in our experiments.
-
-We propose 3 notebooks in the `notebooks` folder to extract additional data to run the search. You will also need to download [GraphDB](./https://graphdb.ontotext.com) to set up a local SPARQL endpoint.
-
+# Issue tracker: 
+# Keywords: 
+# License: 
+GPL 3.0
+# Logo: 
+# Name: 
+chronographer
+# Ontologies: 
+# Owner: 
+Inès Blin
+# Owner type: 
+User
+# Package distribution: 
+# Programming languages: 
+Python
+# Related papers: 
+# Releases (GitHub only): 
+# Repository Status: 
+Inactive
+# Requirements: 
+Cf. `requirements.txt`
+# Support: 
+# Stargazers count: 
+0
+# Scripts: Snippets of code contained in the repository
+## Download data for ground truth comparison
 ### - Preprocessing EventKG and loading it into GraphDB
 Corresponding notebook: `eventkg-filtering.ipynb`
 
@@ -148,42 +194,9 @@ Corresponding notebook: `eventkg-retrieving-events.ipynb`
 * **How.** SPARQL queries.
 * **Main purpose** Config files for the graph search.
 
----
-
-## 5. Reproducibility
-
-There are different scripts to run to reproduce the experiments described in the paper. First make sure that you have downloaded the data (cf. Sections above). 
-
-All the experiments are described in a separate [README](./experiments_run/README.md) in the [`experiments_run`](./experiments_run/) folder, please refer to it for additional information.
 
 
-## 6. Run the interface
-
---- 
-
-We also implemented an interface to compare the impact of the filters and parameters on the search - `ordering` and `filtering` from the config description in Section 3. of the README. By comparing two sets of parameters, you will also run the search in the backend.
-
-To run a search, you might need to extract some additional information (c.f. Section 4. of the README).
-
-In the terminal command, go to the app folder.
-```bash
-cd app
-```
-
-First open the `variables.py` file in that folder. You can add information on the dataset(s) you are using (`VARIABLES_DATASET`)). As specified in that file, you need to enter details about `dataset_path`, `data_files_path` (folder where are stored ground truth, referents and config files), `start_uri` and `nested_dataset`. You can also change the default values that will be displayed (`DEFAULT_VARIABLES`).
-
-Then run the following to run the interface:
-```bash
-streamlit run app.py
-```
-
-Depending on the parameter and event that you choose, running the search can be slow. Likewise, displaying the HTML graphs can be slow.
-
-
-
----
-
-## 7. Other
+### Other
 
 If you want __pycache__ content or other removed, you can run:
 ```
@@ -197,5 +210,21 @@ coverage run -m unittest discover -s src/tests/
 coverage html
 open -a Safari htmlcov/index.html
 ```
+### Reproducibility
+
+There are different scripts to run to reproduce the experiments described in the paper. First make sure that you have downloaded the data (cf. Sections above). 
+
+All the experiments are described in a separate [README](./experiments_run/README.md) in the [`experiments_run`](./experiments_run/) folder, please refer to it for additional information.
+
+---
+
+
+# Support channels: 
+# Usage examples: 
+If you have downloaded DBpedia, Wikidata or YAGO, it is possible to run the search with any of the events that is both in [EventKG](https://eventkg.l3s.uni-hannover.de) and in your dataset. We used [EventKG 3.1.](https://zenodo.org/record/4720078#.Y0bn-S8Rr0o) in our experiments.
+
+We propose 3 notebooks in the `notebooks` folder to extract additional data to run the search. You will also need to download [GraphDB](./https://graphdb.ontotext.com) to set up a local SPARQL endpoint.
+# Workflows: 
+
 
 
