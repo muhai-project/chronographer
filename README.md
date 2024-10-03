@@ -1,17 +1,14 @@
 # **ChronoGrapher: Event-centric KG Construction via Informed Graph Traversal**
 
-# Acknowledgement: 
+# Acknowledgement 
 This work was funded by the European MUHAI project (Horizon 2020 research and innovation program) under grant agreement number 951846 and the Sony Computer Science Laboratories-Paris. We thank Frank van Harmelen for fruitful discussions.
-# Application domain: 
+# Application domain 
 Graphs, Natural language processing, Semantic web.
-# Citation: 
-# Code of Conduct: 
-# Code repository: 
+# Code repository 
 git@github.com:muhai-project/chronographer.git
-# Contact: 
+# Contact 
 Inès Blin
-# Contribution guidelines: 
-# Contributors: 
+# Contributors
 Inès Blin
 
 Ilaria Tiddi
@@ -19,13 +16,11 @@ Ilaria Tiddi
 Remi van Trijp
 
 Annette ten Teije
-# Creation date: 
+# Creation date
 13-12-2021
-# Description: 
+# Description 
 ChronoGrapher is a 2-step method to build an event-centric knowledge graph automatically from another knowledge graph. The first step is a semantically-informed search in a generic knowledge graph, that is novel. The second step constructs event-centric knowledge graphs automatically.
-# DockerFile: 
-# Documentation: 
-# Download URL: 
+# Download URL 
 The main data format we used are the HDT compressed versions of the datasets.
 
 Some pointers for downloading the datasets:
@@ -44,18 +39,11 @@ We put the datasets in the root directory of the repository, under the names `db
 We occasionnaly worked with Triply DB's data:
 * [DBpedia 2021-09](https://triplydb.com/DBpedia-association/snapshot-2021-09). We used API calls using <https://api.triplydb.com/datasets/DBpedia-association/snapshot-2021-09/fragments/?limit=10000>.
 
-# DOI: 
-# Executable examples: 
-# FAQ: 
-# Forks count: 
-0
-# Forks url: 
-# Full name: 
+# Full name 
 Inès Blin
-# Full title: 
+# Full title 
 chronographer
-# Images: 
-# Installation instructions: 
+# Installation instructions 
 First clone the repo
 ```bash
 git clone git@github.com:muhai-project/chronographer.git
@@ -100,7 +88,7 @@ Then run the following for setting up the packages
 python setup.py install
 ```
 ---
-# Invocation: 
+# Invocation 
 We include some sample data in the `sample-data` folder. 
 
 Before running the search, you need to extrac domain, range and superclasses information from the dataset you downloaded. See file `src/extract_domain_range.py` for further information and command lines to run that file, depending on your dataset.
@@ -142,30 +130,21 @@ Parameters that require additional data to be downloaded - c.f. section 4 for fu
 </details>
 
 ---
-# Issue tracker: 
-# Keywords: 
-# License: 
+
+# License
 GPL 3.0
-# Logo: 
-# Name: 
+# Name 
 chronographer
-# Ontologies: 
-# Owner: 
+# Owner
 Inès Blin
-# Owner type: 
+# Owner type
 User
-# Package distribution: 
-# Programming languages: 
+# Programming languages 
 Python
-# Related papers: 
-# Releases (GitHub only): 
-# Repository Status: 
+# Repository Status
 Inactive
-# Requirements: 
+# Requirements
 Cf. `requirements.txt`
-# Support: 
-# Stargazers count: 
-0
 # Scripts: Snippets of code contained in the repository
 ## Download data for ground truth comparison
 ### - Preprocessing EventKG and loading it into GraphDB
@@ -219,12 +198,10 @@ All the experiments are described in a separate [README](./experiments_run/READM
 ---
 
 
-# Support channels: 
-# Usage examples: 
+# Usage examples 
 If you have downloaded DBpedia, Wikidata or YAGO, it is possible to run the search with any of the events that is both in [EventKG](https://eventkg.l3s.uni-hannover.de) and in your dataset. We used [EventKG 3.1.](https://zenodo.org/record/4720078#.Y0bn-S8Rr0o) in our experiments.
 
 We propose 3 notebooks in the `notebooks` folder to extract additional data to run the search. You will also need to download [GraphDB](./https://graphdb.ontotext.com) to set up a local SPARQL endpoint.
-# Workflows: 
 
 
 
