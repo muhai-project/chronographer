@@ -58,8 +58,8 @@ chronographer
 # Installation instructions: 
 First clone the repo
 ```bash
+
 git clone git@github.com:muhai-project/chronographer.git
-```
 
 We used Poetry and conda for virtual environment and dependency management.
 
